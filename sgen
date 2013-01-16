@@ -1,0 +1,6 @@
+#!/bin/sh
+
+base=/workdir/os
+export SMAKE_REPOSITORY="$base"
+
+perl -w -I$base/sbuild $base/sbuild/sgen.pl $*

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+base=/workdir/os
+perl -w -I$base/sbuild $base/sbuild/sbuild.pl $*
