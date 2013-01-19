@@ -42,7 +42,7 @@ sub scanFile {
 	
 	# -- construct scanner's command
 	my $options = $this->getOptions($profile);
-	my $command = "cc $options -E $file 2>/dev/null | hdrscanner";
+	my $command = "gcc $options -E $file 2>/dev/null | egrep '^# [[:digit:]]+ \".+\" 1' | sed 's/^[^\"]*\"// ; s/\".*\$//' | sort -u";
 	
 	# -- report the command
 	$reporter->taskCommand('', $command);

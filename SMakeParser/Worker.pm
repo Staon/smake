@@ -26,7 +26,8 @@ use SBuild::NamedProfiles;
 use SBuild::ProfileList;
 use SBuild::ShellRunner;
 use SBuild::TimeDecider;
-use SBuild::WatcomToolChain;
+use SBuild::GCCToolChain;
+#use SBuild::WatcomToolChain;
 use SBuild::Searcher;
 use SBuild::Profile;
 
@@ -210,7 +211,8 @@ sub initEnvironment {
 	# -- Prepare compilation environment
 	my $cmdrunner = SBuild::ShellRunner->newRunner;
 	my $decider = SBuild::TimeDecider->newDecider;
-	my $toolchain = SBuild::WatcomToolChain->newToolChain;
+#	my $toolchain = SBuild::WatcomToolChain->newToolChain;
+    my $toolchain = SBuild::GCCToolChain->newToolChain;
 	my $installer = SBuild::FileInstaller->newFileInstaller($duplicate, $install);
 	$this->{profile} = SBuild::Profile->newProfile(
 	          $cmdrunner, $decider, $toolchain, $installer,

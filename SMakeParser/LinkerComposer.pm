@@ -231,6 +231,7 @@ sub getListOfLibraryFiles {
 	my @filelist = ();
 	foreach my $prj (@linkdeps) {
 		my ($result, $prjlibs) = $this->getRawLibraries($profile, $reporter, $prj);
+		
 		return undef if(! $result);
 		foreach my $lib (@$prjlibs) {
 			if(! File::Spec->file_name_is_absolute($lib)) { # -- exclude private libraries

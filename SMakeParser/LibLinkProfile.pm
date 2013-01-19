@@ -46,7 +46,7 @@ sub getOptions {
 	my $profile = $_[3];
 	my $reporter = $_[4];
 
-	if($variable eq "LDFLAGS") {
+	if($variable eq "LIBOPTS") {
 		$this->{linker_composer}->getLinkerOptions($optionlist, $profile, $reporter);
 	}
 }

@@ -16,7 +16,7 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Tool chain object of the Watcom compiler
-package SBuild::WatcomToolChain;
+package SBuild::GCCToolChain;
 
 use SBuild::ToolChain;
 
@@ -37,7 +37,7 @@ sub getCCompiler {
 	my $targets = $_[0];
 	my $sources = $_[1];
 	my $options = $_[2];
-	return "cc $options -c -o $targets->[0] @$sources";
+	return "gcc $options -c -o $targets->[0] @$sources";
 }
 
 # Get command to compile a C++ source file
@@ -48,29 +48,21 @@ sub getCXXCompiler {
 	my $targets = $_[0];
 	my $sources = $_[1];
 	my $options = $_[2];
-	return "cc $options -c -o $targets->[0] @$sources";
+	return "g++ $options -c -o $targets->[0] @$sources";
 }
 
 #  Get command to link a binary
 #
-#  Usage: getLinker(\@targets, \@sources, $options, \%args, $libopts)
+#  Usage: getLinker(\@targets, \@sources, $options, \%args, \@libopts)
 sub getLinker {
 	my $this = $_[0];
 	my $targets = $_[1];
 	my $sources = $_[2];
 	my $options = $_[3];
 	my $args = $_[4];
+	my $libopts = $_[5];
 	
-	# -- size of the stack
-	my $stacksize = $args->{'stacksize'};
-	if(defined($stacksize)) {
-		$stacksize = "-N$stacksize";
-	}
-	else {
-		$stacksize = "";
-	}
-	
-	return "cc $options $libopts $stacksize -o $targets->[0] @$sources";
+	return "g++ $options -o $targets->[0] @$sources $libopts";
 } 
 
 #  Get command to create a library
@@ -83,18 +75,9 @@ sub getLibArchiver {
 	my $options = $_[3];
 	my $args = $_[4];
 
-	# -- page boundary
-	my $pagesize = $args->{pagesize};
-	if(defined($pagesize)) {
-		$pagesize = "-p=$pagesize";
-	}
-	else {
-		$pagesize = "";
-	}
-	# -- remove .lib from the name of the library
 	my $libname = $targets->[0];
-#	$libname =~ s/[.]lib$//;
-	return "wlib $options $pagesize $libname @$sources";
+    print "$libname\n";
+	return "ar rcs $options $libname @$sources";
 }
 
 #  Get command to clean
@@ -133,7 +116,7 @@ sub getExecExtension {
 
 #  Get extension of libraries
 sub getLibExtension {
-	return ".lib";
+	return ".a";
 }
 
 #  Create library linking option
@@ -143,7 +126,7 @@ sub getLibOption {
 	my $this = $_[0];
 	my $libname = $_[1];
 	
-	return "-l$libname"
+	return "-l:$libname"
 }
 
 #  Get linking option of a library which is linked every time. Including the

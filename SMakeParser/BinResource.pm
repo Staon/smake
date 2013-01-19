@@ -61,35 +61,35 @@ sub extendMapBinary {
 		    "'should be installed into the runtime but there is no help message!";
 	}
 
-	# -- use message
-	my $dontusage = 0;
-	my $usesrc = $arguments->{'usefile'};
-	if(defined($usesrc)) {
-		my $useres = SBuild::SourceResource->newResource($usesrc);
-		my $usageres = SMakeParser::UsageResource->newResource(
-							$this, $this->getExeResource($profile), $useres, 1);
-		$map->appendResource($usageres);
-		$map->appendDependency($usageres->getID, $this->getID);
-		$dontusage = 1;
-	}
+	# -- use message (QNX specific)
+#	my $dontusage = 0;
+#	my $usesrc = $arguments->{'usefile'};
+#	if(defined($usesrc)) {
+#		my $useres = SBuild::SourceResource->newResource($usesrc);
+#		my $usageres = SMakeParser::UsageResource->newResource(
+#							$this, $this->getExeResource($profile), $useres, 1);
+#		$map->appendResource($usageres);
+#		$map->appendDependency($usageres->getID, $this->getID);
+#		$dontusage = 1;
+#	}
 	
-	# -- compile SVN and smake related info into the binary file
-	my $makeversion = $arguments -> {'makeversion'};
-	if(defined($makeversion)) {
-		if($makeversion eq "C" || $makeversion eq "c") {
-			# -- compile only C version info
-			my $verres = SMakeParser::VersionResource->newResource(
-								$this, $this->getExeResource($profile), $dontusage, 1);
-			$map->appendResource($verres);
-		}
-		# -- else: don't compile version info
-	}
-	else {
-		# -- default: compile C++ version info
-		my $verres = SMakeParser::VersionResource->newResource(
-								$this, $this->getExeResource($profile), $dontusage);
-		$map->appendResource($verres);
-	}
+	# -- compile SVN and smake related info into the binary file (Aveco specific)
+#	my $makeversion = $arguments -> {'makeversion'};
+#	if(defined($makeversion)) {
+#		if($makeversion eq "C" || $makeversion eq "c") {
+#			# -- compile only C version info
+#			my $verres = SMakeParser::VersionResource->newResource(
+#								$this, $this->getExeResource($profile), $dontusage, 1);
+#			$map->appendResource($verres);
+#		}
+#		# -- else: don't compile version info
+#	}
+#	else {
+#		# -- default: compile C++ version info
+#		my $verres = SMakeParser::VersionResource->newResource(
+#								$this, $this->getExeResource($profile), $dontusage);
+#		$map->appendResource($verres);
+#	}
 
 	# -- append photon profile if this binary file is a photon application
 	if($this->{photon}) {

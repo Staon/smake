@@ -50,7 +50,8 @@ sub getTaskCommand {
 	my $args = $_[6];
 	
 	# -- compose linking command
-	return $profile->getToolChain->getLinker($targets, $sources, $options, $args);
+	my $libopts = $profile->getProfileStack->getOptions("LIBOPTS", $profile, $reporter);
+	return $profile->getToolChain->getLinker($targets, $sources, $options, $args, $libopts);
 }
 
 #  Get task options

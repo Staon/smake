@@ -347,8 +347,9 @@ sub getLibraryFilePath {
 	my $libfile = $_[2];
 
 	# -- firstly, find the project
-	foreach my $i (0..$#{@{$this->{repositories}}}) {
-		if(exists $this->{repositories}->[$i]->{$projectname}) {
+	my $i = 0;
+	foreach my $rep (@{$this->{repositories}}) {
+		if(exists $rep->{$projectname}) {
 			# -- compose library path in the repository
 			my $path = dirname($this->{paths}->[$i]);
 			$path = File::Spec->catdir($path, "lib");
@@ -362,6 +363,7 @@ sub getLibraryFilePath {
 				return undef;
 			}
 		}
+		++$i;
 	}
 
 	# -- project or library aren't found

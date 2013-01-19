@@ -1,0 +1,14 @@
+Project("hello.lib");
+  Lib("hello", [
+    "hello.cpp", "hello.h",
+  ]);
+EndProject();
+
+Project("hello");
+  Exec("hello", [
+    "main.cpp",
+  ]);
+  Link([
+    "hello.lib",
+  ]);
+EndProject();
