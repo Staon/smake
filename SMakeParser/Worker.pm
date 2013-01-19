@@ -26,8 +26,6 @@ use SBuild::NamedProfiles;
 use SBuild::ProfileList;
 use SBuild::ShellRunner;
 use SBuild::TimeDecider;
-use SBuild::GCCToolChain;
-#use SBuild::WatcomToolChain;
 use SBuild::Searcher;
 use SBuild::Profile;
 
@@ -75,6 +73,7 @@ use SMakeParser::CXXScanner;
 use SMakeParser::OPropertyInstallRecord;
 
 use File::Spec;
+use Module::Load;
 
 #  Ctor
 #
@@ -211,11 +210,9 @@ sub initEnvironment {
 	# -- Prepare compilation environment
 	my $cmdrunner = SBuild::ShellRunner->newRunner;
 	my $decider = SBuild::TimeDecider->newDecider;
-#	my $toolchain = SBuild::WatcomToolChain->newToolChain;
-    my $toolchain = SBuild::GCCToolChain->newToolChain;
 	my $installer = SBuild::FileInstaller->newFileInstaller($duplicate, $install);
 	$this->{profile} = SBuild::Profile->newProfile(
-	          $cmdrunner, $decider, $toolchain, $installer,
+	          $cmdrunner, $decider, $this->{toolchain}, $installer,
 	          $this->{repository}, $this->{named_profiles});
 	$this->{profile}->getMangler->setLibSuffix($libvariant);
 	
@@ -394,6 +391,15 @@ sub storeRepository {
 }
 
 ###################### Configuration files directives ######################
+#  Set used ToolChain object
+#
+#  Usage: setToolChain($name)
+sub setToolChain {
+	my ($this, $name) = @_;
+	load($name);
+	$this->{toolchain} = $name->newToolChain;
+}
+
 #  Append a compilation profile
 #
 #  Usage: appendProfile($profile)

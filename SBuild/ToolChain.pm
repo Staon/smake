@@ -116,4 +116,13 @@ sub getExceptionOption {
 	die "Pure virtual method ToolChain::getExceptionOption cannot be invoked!\n";
 }
 
+#  Get compiler option for turning on of debugging information
+#
+#  Usage getDbugOption($tool, $level)
+#    tool ... name of tool (c, cxx, link)
+#    level .. debug level
+sub getDebugOption {
+	die "Pure virtual method ToolChain::getDebugOption"
+}
+
 return 1;

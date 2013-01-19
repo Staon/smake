@@ -161,5 +161,21 @@ sub getExceptionOption {
 	return "'-WC -xst'";
 }
 
+#  Get compiler option for turning on of debugging information
+#
+#  Usage getDbugOption($tool, $level)
+#    tool ... name of tool (c, cxx, link)
+#    level .. debug level
+sub getDebugOption {
+	my ($this, $tool, $level) = @_;
+	
+	if($level > 0) {
+		return "-g";
+	}
+	else {
+		return "";
+	}
+}
+
 return 1;
  

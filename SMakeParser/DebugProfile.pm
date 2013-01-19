@@ -28,11 +28,11 @@ use SBuild::Option;
 
 #  Ctor
 #
-#  Usage: newCompileProfile($args)
+#  Usage: newCompileProfile($level)
 sub newCompileProfile {
 	my $class = $_[0];
 	my $this = SBuild::CompileProfile->newCompileProfile("debug");
-	$this->{args} = $_[1];
+	$this->{level} = $_[1];
 	bless $this, $class;
 }
 
@@ -46,14 +46,17 @@ sub getOptions {
 	my $optionlist = $_[2];
 	my $profile = $_[3];
 	
-	if($variable eq "CFLAGS" or $variable eq "CXXFLAGS" or $variable eq "LDFLAGS") {
-		# -- remove all previously defined options which set debug flags
+	my $tool;
+	$tool = "c" if($variable eq "CFLAGS");
+	$tool = "cxx" if($variable eq "CXXFLAGS");
+	$tool = "link" if($variable eq "LDFLAGS");
+	if(defined($tool)) {
+		# -- remove colliding options
 		$optionlist->removeOptions("debug");
-		# -- append new option flag
-		my $args = $this->{args};
-		$args = "2d" if(! defined($args));
-		if($args ne '0') {
-			$optionlist->appendOption(SBuild::Option->newOption("debug", "-g${args}"));
+		# -- construct new switch
+		my $switch = $profile->getToolChain->getDebugOption($tool, $this->{level});
+		if($switch ne "") {
+			$optionlist->appendOption(SBuild::Option->newOption("debug", $switch));
 		}
 	}
 }
