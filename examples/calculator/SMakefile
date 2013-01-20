@@ -1,0 +1,8 @@
+
+Project("calculator");
+  ProfileVar("BISON_PREFIX", "calc");
+  Exec("calculator", [
+    "calc.l",
+    "calc.y",
+  ]);
+EndProject();

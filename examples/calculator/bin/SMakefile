@@ -1,0 +1,17 @@
+
+Project("calculator.lib");
+  ProfileVar("BISON_PREFIX", "calc");
+  Lib("calculator", [
+    "calc.l",
+    "calc.y",
+  ]);
+EndProject();
+
+Project("calculator");
+  Exec("calculator", [
+    "main.cpp",
+  ]);
+  Link([
+    "calculator.lib",
+  ]);
+EndProject();
