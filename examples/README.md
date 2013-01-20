@@ -10,6 +10,6 @@ The easiest way to compile them is:
 3. adjust path in the smake/smake file to the root of the project
    (in example /home/john/smake),
 4. in this directory run /home/john/smake/smake/smake -s reg,
-5. and /home/john/smake/smake/smake -s all
+5. and /home/john/smake/smake/smake -g /home/john/smake/smake/smakerc -s all
 
 
