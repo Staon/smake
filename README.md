@@ -15,3 +15,11 @@ The SMake is succesfully using internaly in our company
 is not usable in another environment. The goal is to rewrite
 it to support other platforms (operating systems and compilers)
 and to be configurable and extendable.
+
+The SMake currently supports:
+
+* QNX4, Open Watcom 1.9
+* Linux, GCC, only static libraries
+* Flex
+* Bison
+
