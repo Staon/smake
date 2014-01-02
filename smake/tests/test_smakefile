@@ -1,3 +1,0 @@
-Project("Pokus");
-	Subdirs(["ondrart"]);
-EndProject;
