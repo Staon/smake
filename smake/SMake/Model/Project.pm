@@ -17,22 +17,18 @@
 
 package SMake::Model::Project;
 
+use SMake::Model::Object;
+
+@ISA = qw(SMake::Model::Object);
+
 use SMake::Utils::Abstract;
 
 # Create new project object
 #
-# Usage: new($repository)
+# Usage: new()
 sub new {
-  my ($class, $repository) = @_;
-  return bless({ repository => $repository }, $class);
-}
-
-# Get storage which the project is associated with
-#
-# Usage: getRepository()
-sub getRepository {
-  my ($this) = @_;
-  return $this->{repository};
+  my ($class) = @_;
+  return bless(SMake::Model::Object->new(), $class);
 }
 
 # Get name of the project
@@ -40,23 +36,8 @@ sub getName {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get version identifier of the project
-sub getVersion {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Get identifier of the variant
-sub getVariant {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
 # Get path of the project. The path has a meaning in the context of owning repository
 sub getPath {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Get canonical path of the project. The path has meaning at the filesystem.
-sub getPhysicalPath {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -71,6 +52,7 @@ sub attachDescription {
 # Create new artifact
 #
 # Usage: createArtifact($name, $type, \%args)
+#    path ..... canonical location (physical directory) of the artifact
 #    name ..... name of the artifact
 #    type ..... type of the artifact (string, for example "lib", "bin", etc.)
 #    args ..... optional artifact arguments

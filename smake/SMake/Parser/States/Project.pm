@@ -52,11 +52,13 @@ sub artifact {
       5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "Artifact($name, $type);");
 
   # -- create new artifact
-  my $artifact = $context->getProject()->createArtifact($name, $type, $args);
+  my $artifact = $context->getProject()->createArtifact(
+      $name, $context->getCurrentDir(), $type, $args);
   $artifact->attachDescription($context->getDescription());
   
   # -- change current context
   $context->pushArtifact($artifact);
+  $context->pushResourcePrefix("");
   
   # -- switch parser state      
   my $state = SMake::Parser::States::Artifact->new($this);

@@ -24,12 +24,19 @@ use SMake::Model::Artifact;
 
 # Create new artifact object
 #
-# Usage: new($repository, $project, $name, $type, \%args)
+# Usage: new($repository, $project, $path, $name, $type, \%args)
+#    repository .... a repository which the artifact belongs to
+#    project ....... a project which the artifact belongs to
+#    path .......... canonical location (directory) of the artifact
+#    name .......... name of the artifact
+#    type .......... type of the artifact
+#    args .......... optional artifact's arguments
 sub new {
-  my ($class, $repository, $project, $name, $type, $args) = @_;
+  my ($class, $repository, $project, $path, $name, $type, $args) = @_;
   my $this = bless(SMake::Model::Artifact->new(), $class);
   $this->{repository} = $repository;
   $this->{project} = $project;
+  $this->{path} = $path;
   $this->{descriptions} = {};
   $this->{name} = $name;
   $this->{type} = $type;
@@ -37,9 +44,14 @@ sub new {
   return $this;
 }
 
+sub getPath {
+  my ($this) = @_;
+  return $this->{path};
+}
+
 sub attachDescription {
   my ($this, $description) = @_;
-  $this->{descriptions}->{$description->getPath()} = $description;
+  $this->{descriptions}->{$description->getPath()->hashKey()} = $description;
 }
 
 return 1;

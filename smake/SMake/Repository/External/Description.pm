@@ -26,7 +26,7 @@ use SMake::Model::Description;
 #
 # Usage: new($repository, $project, $path, $mark)
 #    repository ..... repository object
-#    path ........... canonical path of the description file
+#    path ........... logical path of the description file
 #    mark ........... current decider mark
 sub new {
   my ($class, $repository, $path, $mark) = @_;
@@ -38,12 +38,12 @@ sub new {
   return $this;
 }
 
-sub getPath {
+sub getRepository {
   my ($this) = @_;
-  return $this->{path};
+  return $this->{repository};
 }
 
-sub getPhysicalPath {
+sub getPath {
   my ($this) = @_;
   return $this->{path};
 }

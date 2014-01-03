@@ -18,10 +18,13 @@
 # Parser state - parsing of an artifact
 package SMake::Parser::States::Artifact;
 
-use SMake::Parser::Parser;
 use SMake::Parser::States::State;
 
 @ISA = qw(SMake::Parser::States::State);
+
+use File::Basename;
+use File::Spec;
+use SMake::Parser::Parser;
 
 # Create new state
 #
@@ -38,6 +41,11 @@ sub startFile {
   my ($this, $parser, $context, $description) = @_;
   $context->getProject()->attachDescription($description);
   $context->getArtifact()->attachDescription($description);
+  
+  # -- compute path relative to the artifact
+  my $currprefix = $context->topResourcePrefix();
+  my $dir = File::Basename->basename(File::Basename->dirname($description->getPath()));
+  $context->pushResourcePrefix(File::Spec->catfile($currprefix, $dir));
 }
 
 sub finishFile {
@@ -58,6 +66,7 @@ sub endArtifact {
   
   # -- change current context
   $context->popArtifact();
+  $context->popResourcePrefix();
 
   # -- switch parser's state      
   $parser->switchState($this->{prjstate});

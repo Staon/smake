@@ -92,14 +92,11 @@ sub appendProfile {
   push @{$this->{profiles}}, $profile;
 }
 
-# Get description object
+# Convert a resource location to an absolute physical (filesystem) path
 #
-# Usage: getDescription($path, $version, $variant)
-#    path ...... canonical path of the SMakefile
-#    version ... ID of requested version
-#    variant ... ID of requested variant
-# Returns: the description object or undef, if the SMakefile is not registered yet.
-sub getDescription {
+# Usage: getPhysicalPath($location)
+# Returns: The physical absolute path
+sub getPhysicalPath {
   SMake::Utils::Abstract::dieAbstract();
 }
 

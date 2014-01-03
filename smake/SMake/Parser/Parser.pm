@@ -100,51 +100,44 @@ sub switchState {
 #
 # Usage: parseFileCanonical($repository, $context, $path, $state)
 #    context ...... parser context
-#    path ......... path to the SMakefile (must be canonical)
+#    path ......... path to the SMakefile (logical path in the meaning of the repos)
 #    state ........ initial parser state
-sub parseFileCanonical {
+sub parseFile {
   my ($this, $context_, $path, $state) = @_;
   
   # -- create the description object
-  my $mark = $context_->getDecider()->hasChanged($path);
+  my $mark = $context_->hasChanged($path);
   my $descr = $context_->getRepository()->createDescription($path, $mark);
+
+  # -- notify the state
+  $state->startFile($this, $context_, $descr);
 
   # -- prepare context
   $context_->pushDescription($descr);
-  $this->{dirstack}->pushDir($context_->getCurrentDir());
+  $this->{dirstack}->pushDir($context_);
   
   # -- parse the file
-  $context_->getReporter()->report(
-      1, "info", $SUBSYSTEM, "parse description file '$path'");
-  $state->startFile($this, $context_, $descr);
+  $context_->getReporter()->reportf(
+      1, "info", $SUBSYSTEM, "parse description file '%s'", $path->printableString());
   {
     local $parser = $this;
     local $context = $context_;
     local $parser_state = $state;
-    my $info = SMake::Utils::Evaluate::evaluateSpecFile($path, $this->{evals});
+    my $file = $context->getRepository()->getPhysicalPath($path);
+    my $info = SMake::Utils::Evaluate::evaluateSpecFile($file, $this->{evals});
     if($info) {
       SMake::Utils::Utils::dieReport($context->getReporter(), $SUBSYSTEM, '%s', $info);
     }
   }
-  $state->finishFile($this, $context_, $descr);
   $context_->getReporter()->reportf(
-      3, "info", $SUBSYSTEM, "description file '%s' is parsed", $path);
+      3, "info", $SUBSYSTEM, "description file '%s' is parsed", $path->printableString());
   
   # -- clean context
-  $this->{dirstack}->popDir();
+  $this->{dirstack}->popDir($context);
   $context_->popDescription();
-}
 
-# Parse a SMakefile
-#
-# Usage: parseFile($repository, $context, $path, $state)
-#    context ...... parser context
-#    path ......... path to the SMakefile
-#    state ........ initial parser state
-sub parseFile {
-  my ($this, $context_, $path, $state) = @_;
-  $path = SMake::Utils::Dirutils::getCwd($path);
-  $this->parseFileCanonical($context_, $path, $state);
+  # -- notify the state
+  $state->finishFile($this, $context_, $descr);
 }
 
 # Parse a root SMakefile
@@ -154,9 +147,8 @@ sub parseFile {
 #    path ......... path to the SMakefile
 sub parseRoot {
   my ($this, $context_, $path) = @_;
-  $path = SMake::Utils::Dirutils::getCwd($path);
   my $root = SMake::Parser::States::Root->new();
-  $this->parseFileCanonical($context_, $path, $root);
+  $this->parseFile($context_, $path, $root);
 }
 
 # Parse an SMakefile

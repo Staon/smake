@@ -110,15 +110,16 @@ sub setProject {
   $this->{projects}->{$name} = $project;
 }
 
-sub getDescription {
-  my ($this, $path, $version, $variant) = @_;
-  return $this->{descriptions}->{$path};
+sub getPhysicalPath {
+  my ($this, $location) = @_;
+  # The external storage keeps absolute paths as the resource locations
+  return $location->systemAbsolute();
 }
 
 sub createDescription {
   my ($this, $path, $mark) = @_;
   my $descr = SMake::Repository::External::Description->new($this, $path, $mark);
-  $this->{descriptions}->{$path} = $descr;
+  $this->{descriptions}->{$path->hashKey()} = $descr;
   return $descr;
 }
 

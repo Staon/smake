@@ -18,6 +18,10 @@
 # Generic description object (the object represents one description SMakefile)
 package SMake::Model::Description;
 
+use SMake::Model::Object;
+
+@ISA = qw(SMake::Model::Object);
+
 use SMake::Utils::Abstract;
 
 # Create new description object
@@ -25,7 +29,7 @@ use SMake::Utils::Abstract;
 # Usage: new()
 sub new {
   my ($class) = @_;
-  return bless({}, $class);
+  return bless(SMake::Model::Object->new(), $class);
 }
 
 # Get logical path of the description file (inside the repository)
@@ -33,17 +37,15 @@ sub getPath {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get path of the description file (physical path at the file system)
-#
-# Usage: getPath()
-# Returns: the path
-sub getPhysicalPath {
+# Get stored decider mark of the description file
+sub getMark {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get decider mark of the description file
-sub getMark {
-  SMake::Utils::Abstract::dieAbstract();
+# Get logical directory which the description file lays in
+sub getDirectory {
+  my ($this) = @_;
+  return $this->getPath()->getDirpath();
 }
 
 return 1;

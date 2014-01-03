@@ -33,7 +33,8 @@ use SMake::Repository::External::Description;
 #    path ........ canonical path where the project is located at
 sub new {
   my ($class, $repository, $name, $path) = @_;
-  my $this = bless(SMake::Model::Project->new($repository), $class);
+  my $this = bless(SMake::Model::Project->new(), $class);
+  $this->{repository} = $repository;
   $this->{name} = $name;
   $this->{path} = $path;
   $this->{descriptions} = {};
@@ -41,19 +42,14 @@ sub new {
   return $this;
 }
 
+sub getRepository {
+  my ($this) = @_;
+  return $this->{repository};
+}
+
 sub getName {
   my ($this) = @_;
   return $this->{name};
-}
-
-sub getVersion {
-  my ($this) = @_;
-  return $this->getRepository()->getVersion();
-}
-
-sub getVariant {
-  my ($this) = @_;
-  return $this->getRepository()->getVariant();
 }
 
 sub getPath {
@@ -61,21 +57,16 @@ sub getPath {
   return $this->{path};
 }
 
-sub getPhysicalPath {
-  my ($this) = @_;
-  return $this->{path};
-}
-
 sub attachDescription {
   my ($this, $description) = @_;
-  $this->{descriptions}->{$description->getPath()} = $description;
+  $this->{descriptions}->{$description->getPath()->hashKey()} = $description;
 }
 
 sub createArtifact {
-  my ($this, $name, $type, $args) = @_;
+  my ($this, $path, $name, $type, $args) = @_;
   
   my $artifact = SMake::Repository::External::Artifact->new(
-      $this->getRepository(), $this, $name, $type, $args);
+      $this->getRepository(), $this, $path, $name, $type, $args);
   $this->{artifacts}->{$name} = $artifact;
   return $artifact;
 }

@@ -19,9 +19,11 @@
 package SMake::Parser::States::State;
 
 use File::Spec;
+use SMake::Data::Path;
 use SMake::Parser::Parser;
 use SMake::Utils::Abstract;
 use SMake::Utils::Dirutils;
+use SMake::Utils::Utils;
 
 # Create new parser state
 #
@@ -72,11 +74,18 @@ sub subdirs {
   my $basedir = $context->getCurrentDir();
   for my $dir (@$subdirs) {
     # -- construct description path
-    my $path = File::Spec->catfile(($basedir, $dir), "SMakefile");
-    $path = SMake::Utils::Dirutils::getCwd($path);
+    my $path = SMake::Data::Path->new($dir);
+    if(!$path->isBasepath()) {
+      SMake::Utils::dieReport(
+          $context->getReporter(),
+          $SMake::Parser::Parser::SUBSYSTEM,
+          "complex path ('%s') are not supported by the directive 'Subdirs'",
+          $dir);
+    }
+    $path = $basedir->joinPaths($path, "SMakefile");
     
     # -- parse the description file
-    $parser->parseFileCanonical($context, $path, $this);
+    $parser->parseFile($context, $path, $this);
   }
 }
 

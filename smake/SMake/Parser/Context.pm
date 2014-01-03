@@ -19,6 +19,7 @@
 package SMake::Parser::Context;
 
 use File::Basename;
+use SMake::Utils::Dirutils;
 use SMake::Utils::Stack;
 
 # Create new parser context
@@ -36,6 +37,7 @@ sub new {
   	description => SMake::Utils::Stack->new("description"),
   	project => SMake::Utils::Stack->new("project"),
   	artifact => SMake::Utils::Stack->new("artifact"),
+  	resprefix => SMake::Utils::Stack->new("resource prefix"),
   }, $class);
 }
 
@@ -57,6 +59,18 @@ sub getReporter {
 sub getDecider {
   my ($this) = @_;
   return $this->{decider};
+}
+
+# Detect change of a file
+#
+# Usage: getFileMark($path, $mark)
+#    path ..... absolute path of the file (logical path in the repository meaning)
+#    mark ..... a decider mark which is checked with current mark. If it's empty or
+#               undef, new mark is always got.
+# Returns: Undef if the file has not changed. Otherwise, new decider mark.
+sub hasChanged {
+  my ($this, $path, $mark) = @_;
+  return $this->{decider}->hasChanged($this->{repository}, $path, $mark);
 }
 
 # Get the repository
@@ -87,7 +101,7 @@ sub getDescription {
 # Get path of directory of currently processed description file
 sub getCurrentDir {
   my ($this) = @_;
-  return File::Basename->dirname($this->getDescription()->getPath());
+  return $this->getDescription()->getDirectory();
 }
 
 # Push current project
@@ -126,6 +140,24 @@ sub popArtifact {
 sub getArtifact() {
   my ($this) = @_;
   return $this->{artifact}->topObject();
+}
+
+# Push current resource prefix (a prefix based on path of current artifact)
+sub pushResourcePrefix {
+  my ($this, $prefix) = @_;
+  $this->{resprefix}->pushObject($prefix);
+}
+
+# Pop current resource prefix
+sub popResourcePrefix {
+  my ($this) = @_;
+  $this->{resprefix}->popObject();
+}
+
+# Get current resource prefix
+sub topResourcePrefix {
+  my ($this) = @_;
+  return $this->{resprefix}->topObject();
 }
 
 return 1;

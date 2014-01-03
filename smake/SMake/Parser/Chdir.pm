@@ -40,14 +40,16 @@ sub DESTROY {
 
 # Change current directory
 #
-# Usage: pushDir($path, $context)
+# Usage: pushDir($context)
 # Exception: it dies when the directory cannot be changed
 sub pushDir {
-  my ($this, $path) = @_;
+  my ($this, $context) = @_;
   
+  my $dir = $context->getCurrentDir();
+  $dir = $context->getRepository()->getPhysicalPath($dir);
   push @{$this->{stack}}, SMake::Utils::Dirutils::getCwd();
-  if(!chdir($path)) {
-    die "it's not possible to change current directory to '$path'!";
+  if(!chdir($dir)) {
+    die "it's not possible to change current directory to '$dir'!";
   }
 }
 
@@ -56,7 +58,7 @@ sub pushDir {
 # Usage: popDir($context)
 # Exception: it dies if the directory cannot be changed
 sub popDir {
-  my ($this) = @_;
+  my ($this, $context) = @_;
   
   my $dir = pop @{$this->{stack}};
   if(!defined($dir)) {

@@ -44,13 +44,14 @@ sub registerDecider {
 # Check if a file has changed
 #
 # Usage: isChanged($path, $mark)
-#    path .... path to the file
-#    mark .... stored decider mark. If the stamp is not known, the mark must
-#              contain at least the decider prefix!
+#    repository ... repository which the file belongs to
+#    path ......... absolute path to the file
+#    mark ......... stored decider mark. If the mark is empty or undef, new mark
+#                   is always computed.
 # Returns: undef value if the file is not changed, new decider mark if the file
 #    is changed.
 sub hasChanged {
-  my ($this, $path, $mark) = @_;
+  my ($this, $repository, $path, $mark) = @_;
   
   # parse the mark
   my $prefix;
@@ -77,7 +78,7 @@ sub hasChanged {
     
   # -- compare the mark
   if($stored) {
-    my $current = $decider->getStamp($path);
+    my $current = $decider->getStamp($repository->getPhysicalPath($path));
     if($stored ne $current) {
       return $prefix . ':' . $current;
     }

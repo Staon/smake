@@ -19,6 +19,10 @@
 # like a library, binary or a package.
 package SMake::Model::Artifact;
 
+use SMake::Model::Object;
+
+@ISA = qw(SMake::Model::Object);
+
 use SMake::Utils::Abstract;
 
 # Create new artifact
@@ -26,7 +30,13 @@ use SMake::Utils::Abstract;
 # Usage: new();
 sub new {
   my ($class) = @_;
-  return bless({}, $class);
+  return bless(SMake::Model::Object->new(), $class);
+}
+
+# Get location of the artifact (its directory). The value has meaning in the context
+# of the repository.
+sub getPath {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 # Attach a description file with the artifact

@@ -1,4 +1,4 @@
 #!/bin/sh
 
-base=/home/ondrej/programovani/smake
+base=/workdir/os
 perl -w -I$base/smake $base/smake/smake.pl $*

@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
+use SMake::Data::Path;
 use SMake::Model::DeciderBox;
 use SMake::Model::DeciderTime;
 use SMake::Parser::Context;
@@ -24,6 +25,7 @@ use SMake::Parser::VersionRequest;
 use SMake::Reporter::Reporter;
 use SMake::Reporter::TargetConsole;
 use SMake::Repository::External::Repository;
+use SMake::Utils::Dirutils;
 
 # -- reporter
 my $reporter = SMake::Reporter::Reporter->new();
@@ -34,17 +36,25 @@ my $decider = SMake::Model::DeciderBox->new("timestamp");
 $decider->registerDecider("timestamp", SMake::Model::DeciderTime->new());
 
 # -- external repository
-my $repository = SMake::Repository::External::Repository->new(undef, "/home/ondrej/programovani/smakeprj/repository");
+my $repository = SMake::Repository::External::Repository->new(undef, "/workdir/os/smakeprj/.repository");
 
 # -- parser
 my $parser = SMake::Parser::Parser->new();
 my $context = SMake::Parser::Context->new($reporter, $decider, $repository);
-$parser -> parseRoot($context, "SMakefile");
+my $path = SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefile"));
+$parser -> parseRoot($context, $path);
 
 $repository -> destroyRepository();
 
 my $verparser = SMake::Parser::VersionRequest->new();
 my $version = $verparser->parse("= 3.6.19 ");
 print $version->printableString() . "\n"; 
+
+#my $path = SMake::Data::Path->new("foo/foo2", "SMakefile");
+#print $path->printableString(), "\n";
+#print $path->getDirpath()->getDirpath()->getBasepath()->printableString(), "\n";
+#my $path = SMake::Data::Path->fromSystem("home/ondrej");
+#$path = $path->joinPaths("ahoj/cau", SMake::Data::Path->new("blbost"), "SMakefile");
+#print $path->systemRelative(), "\n";
 
 exit 0;
