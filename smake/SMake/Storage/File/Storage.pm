@@ -15,24 +15,30 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic storage of project data
-package SMake::Storage::Storage;
+# File project storage
+package SMake::Storage::File::Storage;
 
-use SMake::Utils::Abstract;
+use SMake::Storage::Storage;
 
-# Create new storage object
+@ISA = qw(SMake::Storage::Storage);
+
+use SMake::Storage::File::Transaction;
+
+# Create new file storage
 #
-# Usage: new()
+# Usage: new($path)
+#    path .... file system location (a directory) of the storage
 sub new {
-  my ($class) = @_;
-  return bless({}, $class);
+  my ($class, $path) = @_;
+  my $this = bless(SMake::Storage::Storage->new(), $class);
+  $this->{path} = $path;
+  $this->{descriptions} = {};
+  $this->{projects} = {};
+  return $this;
 }
 
-# Destroy the storage
-#
-# Usage: destroyStorage($repository);
 sub destroyStorage {
-  SMake::Utils::Abstract::dieAbstract();
+  # -- nothing to do
 }
 
 # Open storage transaction
@@ -40,7 +46,8 @@ sub destroyStorage {
 # Usage: openTransaction($repository)
 # Exception: it can die when an error occurs
 sub openTransaction {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this, $repository) = @_;
+  $this->{transaction} = SMake::Storage::File::Transaction->new($this);
 }
 
 # Commit currently opened transaction
@@ -48,7 +55,16 @@ sub openTransaction {
 # Usage: commitTransaction($repository)
 # Exception: it dies if an error occurs
 sub commitTransaction {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this, $repository) = @_;
+  if(defined($this->{transaction})) {
+    # -- commit changes
+    $this->{transaction}->commit();
+    # -- compose new description list
+    my $descrlist = {};
+    foreach my $prj (values($this->{projects})) {
+      $prj->updateDescriptionList($descrlist);
+    }
+  }
 }
 
 # Create new description object
@@ -58,7 +74,9 @@ sub commitTransaction {
 #    path ......... logical path of the description file
 #    mark ......... decider's mark of the description file
 sub createDescription {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this, $repository, $path, $mark) = @_;
+  die "not opened transaction" if(!defined($this->{transaction}));
+  return $this->{transaction}->createDescription($repository, $path, $mark);
 }
 
 # Create new project object
@@ -68,7 +86,9 @@ sub createDescription {
 #    name ......... name of the project
 #    path ......... logical path of the project
 sub createProject {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this, $repository, $name, $path) = @_;
+  die "not opened transaction" if(!defined($this->{transaction}));
+  return $this->{transaction}->createProject($repository, $name, $path);
 }
 
 return 1;

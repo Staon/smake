@@ -19,5 +19,6 @@
 package SMake::Model::Const;
 
 $SOURCE_STAGE = "source";
+$SOURCE_RESOURCE = "src";
 
 return 1;

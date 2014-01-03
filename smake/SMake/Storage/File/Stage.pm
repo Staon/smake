@@ -15,28 +15,43 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Dirty project - the project is known, but its specification is not parsed
-package SMake::Repository::External::ProjectDirty;
+# Implementation of the stage object for the file storage
+package SMake::Storage::File::Stage;
 
-# Create new dirty project
+use SMake::Model::Stage;
+
+@ISA = qw(SMake::Model::Stage);
+
+# Create new stage object
 #
-# Usage: new($name, $path)
-#    name .... name of the project
-#    path .... path to the root specification file
+# Usage: new($repository, $artifact, $name)
 sub new {
-  my ($class, $name, $path) = @_;
-  return bless({
-    name => $name,
-    path => $path,
-  }, $class);
+  my ($class, $repository, $artifact, $name) = @_;
+  my $this = bless(SMake::Model::Stage->new(), $class);
+  $this->{repository} = $repository;
+  $this->{artifact} = $artifact;
+  $this->{name} = $name;
+  return $this;
 }
 
-# Write projects data
-#
-# Usage: writeData(\*handle)
-sub writeData {
-  my ($this, $handle) = @_;
-  print $handle "Project('" . $this->{name} . "', '" . $this->{path} . "');\n";
+sub getRepository {
+  my ($this) = @_;
+  return $this->{repository};
+}
+
+sub getKey {
+  my ($this) = @_;
+  return $this->getName();
+}
+
+sub getName {
+  my ($this) = @_;
+  return $this->{name};
+}
+
+sub getArtifact {
+  my ($this) = @_;
+  return $this->{artifact};
 }
 
 return 1;

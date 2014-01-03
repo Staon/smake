@@ -142,7 +142,7 @@ sub parseFile {
 
 # Parse a root SMakefile
 #
-# Usage: parseRoot($repository, $context, $path)
+# Usage: parseRoot($context, $path)
 #    context ...... parser context
 #    path ......... path to the SMakefile
 sub parseRoot {
@@ -156,19 +156,24 @@ sub parseRoot {
 # The method checks changes of the specification files and can cause refresh
 # of the whole project.
 #
-# Usage: parser($repository, $context, $path)
-#    repository ... developer's smake repository
+# Usage: parse($repository, $context, $path)
 #    context ...... parser context
-#    path ......... path to the SMakefile
+#    path ......... logical path to the description file
 sub parse {
-  my ($this, $repository, $context, $path) = @_;
+  my ($this, $context, $path) = @_;
+
+  # -- open storage transaction
+  $context->getRepository()->openTransaction();
   
+  # -- parse the description file
+  $this->parseRoot($context, $path);
+  
+  # -- commit the storage transaction
+  $context->getRepository()->commitTransaction();
+    
   # -- check changes of the project specification
-  my $canonical = SMake::Utils::Dirutils::getCwd($path);
-  my $description = $repository->getDescription($canonical);
-  
-  
-#  SMake::Utils::
+#  my $canonical = SMake::Utils::Dirutils::getCwd($path);
+#  my $description = $repository->getDescription($canonical);
 }
 
 return 1;

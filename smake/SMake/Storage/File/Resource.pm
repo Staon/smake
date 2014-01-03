@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Implementation of the resource object for the external repository
-package SMake::Repository::External::Resource;
+# Implementation of the resource object for the file storage
+package SMake::Storage::File::Resource;
 
 use SMake::Model::Resource;
 
@@ -29,12 +29,14 @@ use SMake::Model::Resource;
 #    basepath ..... path of the artifact
 #    prefix ....... a relative path based on the artifact
 #    name ......... name of the resource (as a relative path based on the artifact)
+#    type ......... type of the resource (for example "src")
 sub new {
-  my ($class, $repository, $basepath, $prefix, $name) = @_;
+  my ($class, $repository, $basepath, $prefix, $name, $type) = @_;
   my $this = bless(SMake::Model::Resource->new(), $class);
   $this->{repository} = $repository;
   $this->{name} = $prefix->joinPaths($name);
   $this->{path} = $basepath->joinPaths($prefix, $name);
+  $this->{type} = $type;
   return $this;
 }
 
@@ -43,9 +45,19 @@ sub getRepository {
   return $this->{repository};
 }
 
+sub getKey {
+  my ($this) = @_;
+  return $this->getName();
+}
+
 sub getName {
   my ($this) = @_;
   return $this->{name}->asString();
+}
+
+sub getType {
+  my ($this) = @_;
+  return $this->{type};
 }
 
 sub getPath {

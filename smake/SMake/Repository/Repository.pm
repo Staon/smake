@@ -19,16 +19,17 @@
 package SMake::Repository::Repository;
 
 use SMake::Model::ProfileFactory;
-use SMake::Utils::Abstract;
 
 # Create new repository
 #
-# Usage: new($parent)
+# Usage: new($parent, $storage)
 #   parent .... Parent repository. Null if the repository is not chained.
+#   storage ... Storage of project data
 sub new {
-  my ($class, $parent) = @_;
+  my ($class, $parent, $storage) = @_;
   return bless({
   	parent => $parent,
+  	storage => $storage,
   	variants => {},
   	profilefactory => SMake::Model::ProfileFactory->new(),
     profiles => [],
@@ -37,7 +38,8 @@ sub new {
 
 # Destroy the repository (destructor)
 sub destroyRepository {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this) = @_;
+  $this->{storage}->destroyStorage($this);
 }
 
 # Create instance of a named profile. If the profile is not found, the parent
@@ -97,33 +99,45 @@ sub appendProfile {
 # Usage: getPhysicalPath($location)
 # Returns: The physical absolute path
 sub getPhysicalPath {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this, $location) = @_;
+  return $location->systemAbsolute();
+  # TODO: redirect to the source storage
+}
+
+# Open transaction of the project storage
+#
+# Usage: openTransaction()
+sub openTransaction {
+  my ($this) = @_;
+  $this->{storage}->openTransaction($this);
+}
+
+# Close currently opened transaction of the project storage
+#
+# Usage: commitTransaction();
+sub commitTransaction {
+  my ($this) = @_;
+  $this->{storage}->commitTransaction($this); 
 }
 
 # Create new description object
 #
 # Usage: createDescription($path, $mark)
-#    path .... canonical path of the description file
+#    path .... logical path of the description file
 #    mark .... decider's mark of the description file
 sub createDescription {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this, $path, $mark) = @_;
+  return $this->{storage}->createDescription($this, $path, $mark);
 }
 
 # Create new project object
 #
 # Usage: createProject($name, $path)
 #    name ...... name of the project
-#    path ...... canonical path of the project location
+#    path ...... logical path of the project
 sub createProject {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Accept new project
-#
-# Usage: acceptProject($project)
-#    project ... new project object which was created by the createProject()
-sub acceptProject {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this, $name, $path) = @_;
+  return $this->{storage}->createProject($this, $name, $path);
 }
 
 return 1;

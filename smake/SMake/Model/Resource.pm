@@ -35,6 +35,14 @@ sub getName {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get type of the resource
+#
+# For example type can be "file" for physical file, "install" for a resource
+# which is created in the installation are etc.
+sub getType {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get logical path of the resource
 sub getPath {
   SMake::Utils::Abstract::dieAbstract();

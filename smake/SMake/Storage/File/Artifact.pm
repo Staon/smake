@@ -15,15 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Implementation of the Artifact object for the External repository
-package SMake::Repository::External::Artifact;
+# Implementation of the Artifact object for the file storage
+package SMake::Storage::File::Artifact;
 
 use SMake::Model::Artifact;
 
 @ISA = qw(SMake::Model::Artifact);
 
-use SMake::Repository::External::Resource;
-use SMake::Repository::External::Stage;
+use SMake::Storage::File::Resource;
+use SMake::Storage::File::Stage;
 
 # Create new artifact object
 #
@@ -40,10 +40,10 @@ sub new {
   $this->{repository} = $repository;
   $this->{project} = $project;
   $this->{path} = $path;
-  $this->{descriptions} = {};
   $this->{name} = $name;
   $this->{type} = $type;
   $this->{args} = $args;
+  $this->{descriptions} = {};
   $this->{resources} = {};
   $this->{stages} = {};
   return $this;
@@ -52,6 +52,26 @@ sub new {
 sub getRepository {
   my ($this) = @_;
   return $this->{repository};
+}
+
+sub getKey {
+  my ($this) = @_;
+  return $this->getName();
+}
+
+sub getName {
+  my ($this) = @_;
+  return $this->{name};
+}
+
+sub getType {
+  my ($this) = @_;
+  return $this->{type};
+}
+
+sub getArguments {
+  my ($this) = @_;
+  return $this->{args};
 }
 
 sub getPath {
@@ -66,14 +86,14 @@ sub getProject {
 
 sub attachDescription {
   my ($this, $description) = @_;
-  $this->{descriptions}->{$description->getPath()->hashKey()} = $description;
+  $this->{descriptions}->{$description->getKey()} = $description;
 }
 
 sub createResource {
-  my ($this, $prefix, $name) = @_;
-  my $resource = SMake::Repository::External::Resource->new(
-      $this->{repository}, $this->{path}, $prefix, $name);
-  $this->{resources}->{$resource->getName()} = $resource;
+  my ($this, $prefix, $name, $type) = @_;
+  my $resource = SMake::Storage::File::Resource->new(
+      $this->{repository}, $this->{path}, $prefix, $name, $type);
+  $this->{resources}->{$resource->getKey()} = $resource;
   return $resource;
 }
 
@@ -81,9 +101,9 @@ sub createStage {
   my ($this, $name) = @_;
   my $stage = $this->{stages}->{$name};
   if(!defined($stage)) {
-    $stage = SMake::Repository::External::Stage->new(
+    $stage = SMake::Storage::File::Stage->new(
         $this->{repository}, $this, $name);
-    $this->{stages}->{$name} = $stage;
+    $this->{stages}->{$stage->getKey()} = $stage;
   }
   return $stage;
 }

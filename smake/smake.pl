@@ -24,7 +24,8 @@ use SMake::Parser::Version;
 use SMake::Parser::VersionRequest;
 use SMake::Reporter::Reporter;
 use SMake::Reporter::TargetConsole;
-use SMake::Repository::External::Repository;
+use SMake::Repository::Repository;
+use SMake::Storage::File::Storage;
 use SMake::Utils::Dirutils;
 
 # -- reporter
@@ -35,14 +36,18 @@ $reporter->addTarget(SMake::Reporter::TargetConsole->new(1, 5, ".*"));
 my $decider = SMake::Model::DeciderBox->new("timestamp");
 $decider->registerDecider("timestamp", SMake::Model::DeciderTime->new());
 
+# -- file storage
+my $reppath = $ENV{'SMAKE_REPOSITORY'};
+my $storage = SMake::Storage::File::Storage->new($reppath);
+
 # -- external repository
-my $repository = SMake::Repository::External::Repository->new(undef, "/workdir/os/smakeprj/.repository");
+my $repository = SMake::Repository::Repository->new(undef, $storage);
 
 # -- parser
 my $parser = SMake::Parser::Parser->new();
 my $context = SMake::Parser::Context->new($reporter, $decider, $repository);
 my $path = SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefile"));
-$parser -> parseRoot($context, $path);
+$parser -> parse($context, $path);
 
 $repository -> destroyRepository();
 

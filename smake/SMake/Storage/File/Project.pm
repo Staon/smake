@@ -15,22 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Implementation of the project object for the external storage
-package SMake::Repository::External::Project;
+# Implementation of the project object for the file storage
+package SMake::Storage::File::Project;
 
 use SMake::Model::Project;
 
 @ISA = qw(SMake::Model::Project);
 
-use SMake::Repository::External::Artifact;
-use SMake::Repository::External::Description;
+use SMake::Storage::File::Artifact;
 
 # Create new project object
 #
 # Usage: new($repository, $name, $path)
 #    repository .. the smake repository
 #    name ........ name of the project
-#    path ........ canonical path where the project is located at
+#    path ........ logical project path
 sub new {
   my ($class, $repository, $name, $path) = @_;
   my $this = bless(SMake::Model::Project->new(), $class);
@@ -47,6 +46,11 @@ sub getRepository {
   return $this->{repository};
 }
 
+sub getKey {
+  my ($this) = @_;
+  return $this->getName();
+}
+
 sub getName {
   my ($this) = @_;
   return $this->{name};
@@ -59,16 +63,27 @@ sub getPath {
 
 sub attachDescription {
   my ($this, $description) = @_;
-  $this->{descriptions}->{$description->getPath()->hashKey()} = $description;
+  $this->{descriptions}->{$description->getKey()} = $description;
 }
 
 sub createArtifact {
   my ($this, $path, $name, $type, $args) = @_;
   
-  my $artifact = SMake::Repository::External::Artifact->new(
+  my $artifact = SMake::Storage::File::Artifact->new(
       $this->getRepository(), $this, $path, $name, $type, $args);
-  $this->{artifacts}->{$name} = $artifact;
+  $this->{artifacts}->{$artifact->getKey()} = $artifact;
   return $artifact;
+}
+
+# Compose new description list
+#
+# This method is used to clean list of descriptions in the storage root
+# after a transaction.
+#
+# Usage: updateDescriptionList(\%list)
+sub updateDescriptionList {
+  my ($this, $list) = @_;
+  @$list{keys %{$this->{descriptions}}} = values %{$this->{descriptions}};
 }
 
 return 1;

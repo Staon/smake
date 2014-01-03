@@ -70,9 +70,6 @@ sub endProject {
   $context->getReporter()->report(
       5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "EndProject()");
   
-  # -- commit project changes
-  $context->getRepository()->acceptProject($context->getProject());
-  
   # -- change the context
   $context->popProject();
   

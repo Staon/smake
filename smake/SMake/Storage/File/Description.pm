@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Implementation of the description object for external repository
-package SMake::Repository::External::Description;
+# Implementation of the description object for the file storage
+package SMake::Storage::File::Description;
 
 use SMake::Model::Description;
 
@@ -41,6 +41,11 @@ sub new {
 sub getRepository {
   my ($this) = @_;
   return $this->{repository};
+}
+
+sub getKey {
+  my ($this) = @_;
+  return $this->{path}->hashKey();
 }
 
 sub getPath {

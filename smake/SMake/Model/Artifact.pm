@@ -36,6 +36,21 @@ sub new {
   return bless(SMake::Model::Object->new(), $class);
 }
 
+# Get name of the artifact
+sub getName {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get type of the artifact
+sub getType {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get arguments of the artifact
+sub getArguments {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get location of the artifact (its directory). The value has meaning in the context
 # of the repository.
 sub getPath {
@@ -59,6 +74,7 @@ sub attachDescription {
 # Usage: createResource($prefix, $name)
 #    prefix .... relative logical path based on the artifact
 #    name ...... name of the resource
+#    type ...... type of the resource
 sub createResource {
   SMake::Utils::Abstract::dieAbstract();
 }
@@ -94,7 +110,8 @@ sub appendSourceResources {
     }
     
     # -- create resource
-    my $resource = $this->createResource($prefix, $name);
+    my $resource = $this->createResource(
+        $prefix, $name, $SMake::Model::Const::SOURCE_RESOURCE);
   }
   
   return undef;
