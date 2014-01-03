@@ -22,6 +22,9 @@ use SMake::Model::Artifact;
 
 @ISA = qw(SMake::Model::Artifact);
 
+use SMake::Repository::External::Resource;
+use SMake::Repository::External::Stage;
+
 # Create new artifact object
 #
 # Usage: new($repository, $project, $path, $name, $type, \%args)
@@ -41,7 +44,14 @@ sub new {
   $this->{name} = $name;
   $this->{type} = $type;
   $this->{args} = $args;
+  $this->{resources} = {};
+  $this->{stages} = {};
   return $this;
+}
+
+sub getRepository {
+  my ($this) = @_;
+  return $this->{repository};
 }
 
 sub getPath {
@@ -49,9 +59,33 @@ sub getPath {
   return $this->{path};
 }
 
+sub getProject {
+  my ($this) = @_;
+  return $this->{project};
+}
+
 sub attachDescription {
   my ($this, $description) = @_;
   $this->{descriptions}->{$description->getPath()->hashKey()} = $description;
+}
+
+sub createResource {
+  my ($this, $prefix, $name) = @_;
+  my $resource = SMake::Repository::External::Resource->new(
+      $this->{repository}, $this->{path}, $prefix, $name);
+  $this->{resources}->{$resource->getName()} = $resource;
+  return $resource;
+}
+
+sub createStage {
+  my ($this, $name) = @_;
+  my $stage = $this->{stages}->{$name};
+  if(!defined($stage)) {
+    $stage = SMake::Repository::External::Stage->new(
+        $this->{repository}, $this, $name);
+    $this->{stages}->{$name} = $stage;
+  }
+  return $stage;
 }
 
 return 1;

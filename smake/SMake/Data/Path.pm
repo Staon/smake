@@ -39,19 +39,19 @@ sub fromSystem {
 sub systemAbsolute {
   my ($this) = @_;
   # TODO: do some portable solution
-  return "/" . $this->printableString();
+  return "/" . $this->asString();
 }
 
 sub systemRelative {
   my ($this) = @_;
   # TODO: do some portable solution
-  return $this->printableString();
+  return $this->asString();
 }
 
 # Get a string key to be used as a key in a hash table
 sub hashKey {
   my ($this) = @_;
-  return $this->printableString();
+  return $this->asString();
 }
 
 # Check empty path
@@ -114,8 +114,8 @@ sub joinPaths {
   return bless($retval, ref($this));
 }
 
-# Get a printable representation of the path
-sub printableString {
+# Get a string representation
+sub asString {
   my ($this) = @_;
   if($#$this >= 0) {
     my $str = $this->[0]; 
@@ -127,6 +127,11 @@ sub printableString {
   else {
     return "";
   }
+}
+
+sub printableString {
+  my ($this) = @_;
+  return $this->asString();
 }
 
 return 1;

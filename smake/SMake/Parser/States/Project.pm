@@ -22,7 +22,7 @@ use SMake::Parser::States::State;
 
 @ISA = qw(SMake::Parser::States::State);
 
-use File::Spec;
+use SMake::Data::Path;
 use SMake::Parser::Parser;
 use SMake::Parser::States::Artifact;
 
@@ -53,12 +53,12 @@ sub artifact {
 
   # -- create new artifact
   my $artifact = $context->getProject()->createArtifact(
-      $name, $context->getCurrentDir(), $type, $args);
+      $context->getCurrentDir(), $name, $type, $args);
   $artifact->attachDescription($context->getDescription());
   
   # -- change current context
   $context->pushArtifact($artifact);
-  $context->pushResourcePrefix("");
+  $context->pushResourcePrefix(SMake::Data::Path->new());
   
   # -- switch parser state      
   my $state = SMake::Parser::States::Artifact->new($this);

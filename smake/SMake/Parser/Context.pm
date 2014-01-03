@@ -155,7 +155,7 @@ sub popResourcePrefix {
 }
 
 # Get current resource prefix
-sub topResourcePrefix {
+sub getResourcePrefix {
   my ($this) = @_;
   return $this->{resprefix}->topObject();
 }

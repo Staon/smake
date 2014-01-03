@@ -22,9 +22,8 @@ use SMake::Parser::States::State;
 
 @ISA = qw(SMake::Parser::States::State);
 
-use File::Basename;
-use File::Spec;
 use SMake::Parser::Parser;
+use SMake::Utils::Utils;
 
 # Create new state
 #
@@ -43,9 +42,9 @@ sub startFile {
   $context->getArtifact()->attachDescription($description);
   
   # -- compute path relative to the artifact
-  my $currprefix = $context->topResourcePrefix();
-  my $dir = File::Basename->basename(File::Basename->dirname($description->getPath()));
-  $context->pushResourcePrefix(File::Spec->catfile($currprefix, $dir));
+  my $currprefix = $context->getResourcePrefix();
+  my $prefix = $currprefix->joinPaths($description->getDirectory()->getBasepath());
+  $context->pushResourcePrefix($prefix);
 }
 
 sub finishFile {
@@ -57,6 +56,16 @@ sub src {
   $context->getReporter()->report(
       5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "Src([@$srclist])");
 
+  # -- create new source resources
+  my $artifact = $context->getArtifact();
+  my $wrong = $artifact->appendSourceResources($context->getResourcePrefix(), $srclist); 
+  if(defined($wrong)) {
+      SMake::Utils::Utils::dieReport(
+          $context->getReporter(),
+          $SMake::Parser::Parser::SUBSYSTEM,
+          "complex or empty paths ('%s') are not allowed for directive 'Src'",
+          $src);
+  }
 }
 
 sub endArtifact {
