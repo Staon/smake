@@ -24,11 +24,12 @@ use SMake::Model::Task;
 
 # Create new task object
 #
-# Usage: new($repository, $stage, $type, \%args)
+# Usage: new($repository, $storage, $stage, $type, \%args)
 sub new {
-  my ($class, $repository, $stage, $type, $args) = @_;
+  my ($class, $repository, $storage, $stage, $type, $args) = @_;
   my $this = bless(SMake::Model::Task->new(), $class);
   $this->{repository} = $repository;
+  $this->{storage} = $storage;
   $this->{stage} = $stage;
   $this->{type} = $type;
   $this->{args} = $args;

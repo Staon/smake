@@ -27,13 +27,18 @@ use SMake::Model::ProfileFactory;
 #   storage ... Storage of project data
 sub new {
   my ($class, $parent, $storage) = @_;
-  return bless({
+  my $this = bless({
   	parent => $parent,
   	storage => $storage,
   	variants => {},
   	profilefactory => SMake::Model::ProfileFactory->new(),
     profiles => [],
   }, $class);
+  
+  # -- load storage data
+  $storage->loadStorage($this);
+  
+  return $this;
 }
 
 # Destroy the repository (destructor)
@@ -122,12 +127,23 @@ sub commitTransaction {
 
 # Create new description object
 #
-# Usage: createDescription($path, $mark)
+# Usage: createDescription($parent, $path, $mark)
+#    parent .. parent description object (it can be undef for root objects)
 #    path .... logical path of the description file
 #    mark .... decider's mark of the description file
 sub createDescription {
-  my ($this, $path, $mark) = @_;
-  return $this->{storage}->createDescription($this, $path, $mark);
+  my ($this, $parent, $path, $mark) = @_;
+  return $this->{storage}->createDescription($this, $parent, $path, $mark);
+}
+
+# Get description object
+#
+# Usage: getDescription($path)
+#    path .... logical path of the description file
+# Returns: the description object or undef
+sub getDescription {
+  my ($this, $path) = @_;
+  return $this->{storage}->getDescription($this, $path);
 }
 
 # Create new project object
@@ -138,6 +154,16 @@ sub createDescription {
 sub createProject {
   my ($this, $name, $path) = @_;
   return $this->{storage}->createProject($this, $name, $path);
+}
+
+# Get project object
+#
+# Usage: getProject($name)
+#    name .... name of the project
+# Returns: the project object or undef
+sub getProject {
+  my ($this, $name) = @_;
+  return $this->{storage}->getProject($this, $name);
 }
 
 return 1;

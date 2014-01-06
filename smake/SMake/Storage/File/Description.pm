@@ -24,18 +24,36 @@ use SMake::Model::Description;
 
 # Create new description object
 #
-# Usage: new($repository, $project, $path, $mark)
+# Usage: new($repository, $storage, $project, $path, $mark)
 #    repository ..... repository object
+#    storage ........ owning file storage
+#    parent ......... parent description (can be undef for root object)
 #    path ........... logical path of the description file
 #    mark ........... current decider mark
 sub new {
-  my ($class, $repository, $path, $mark) = @_;
+  my ($class, $repository, $storage, $parent, $path, $mark) = @_;
   my $this = bless(SMake::Model::Description->new(), $class);
   $this->{repository} = $repository;
+  $this->{storage} = $storage;
   $this->{path} = $path;
   $this->{mark} = $mark;
+  $this->{children} = {};
+  $this->{projects} = {};
+  
+  if(defined($parent)) {
+    $this->{parent} = $parent->getKey();
+    $parent->addChild($this);
+  }
   
   return $this;
+}
+
+# Create key from atributes (static method)
+#
+# Usage: createKey($path)
+sub createKey {
+  my ($path) = @_;
+  return $path->hashKey();
 }
 
 sub getRepository {
@@ -45,7 +63,12 @@ sub getRepository {
 
 sub getKey {
   my ($this) = @_;
-  return $this->{path}->hashKey();
+  return createKey($this->{path});
+}
+
+sub getParent {
+  my ($this) = @_;
+  return $this->{storage}->getDescriptionKey($this->{parent});
 }
 
 sub getPath {
@@ -56,6 +79,27 @@ sub getPath {
 sub getMark {
   my ($this) = @_;
   return $this->{mark};
+}
+
+sub addChild {
+  my ($this, $description) = @_;
+  $this->{children}->{$description->getKey()} = 1;
+}
+
+sub addProject {
+  my ($this, $project) = @_;
+  $this->{projects}->{$project->getKey()} = 1;
+}
+
+sub getChildren {
+  my ($this) = @_;
+  my @retval = ($this);
+  foreach my $dkey (keys %{$this->{children}}) {
+    my $desc = $this->{storage}->getDescriptionKey($dkey);
+    die "unknown project $prjkey" if(!defined($desc));
+    push @retval, @{$desc->getChildren()};
+  }
+  return \@retval;
 }
 
 return 1;

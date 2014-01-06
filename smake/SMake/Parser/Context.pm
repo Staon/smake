@@ -98,6 +98,17 @@ sub getDescription {
   return $this->{description}->topObject();
 }
 
+# Get current description. If the stack is empty, undef is returned.
+sub getDescriptionSafe {
+  my ($this) = @_;
+  if(!$this->{description}->isEmpty()) {
+    return $this->{description}->topObject();
+  }
+  else {
+    return undef;
+  }
+}
+
 # Get path of directory of currently processed description file
 sub getCurrentDir {
   my ($this) = @_;

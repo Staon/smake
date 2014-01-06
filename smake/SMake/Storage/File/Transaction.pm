@@ -20,6 +20,7 @@ package SMake::Storage::File::Transaction;
 
 use SMake::Storage::File::Description;
 use SMake::Storage::File::Project;
+use SMake::Storage::File::TransTable;
 
 # Create new transaction state
 #
@@ -28,23 +29,48 @@ sub new {
   my ($class, $storage) = @_;
   return bless({
     storage => $storage,
-    prjnew => {},
-    prjdel => {},
-    descrnew => {},
+    projects => SMake::Storage::File::TransTable->new($storage->{projects}),
+    descriptions => SMake::Storage::File::TransTable->new($storage->{descriptions}),
   }, $class);
 }
 
 # Create new description object
 #
-# Usage: createDescription($repository, $path, $mark)
+# Usage: createDescription($repository, $parent, $path, $mark)
 #    repository ... owning repository
+#    parent ....... parent description object (it can be undef for root objects)
 #    path ......... logical path of the description file
 #    mark ......... decider's mark of the description file
 sub createDescription {
-  my ($this, $repository, $path, $mark) = @_;
-  my $descr = SMake::Storage::File::Description->new($repository, $path, $mark);
-  $this->{descrnew}->{$descr->getKey()} = $descr;
+  my ($this, $repository, $parent, $path, $mark) = @_;
+
+  my $descr = SMake::Storage::File::Description->new(
+      $repository, $this->{storage}, $parent, $path, $mark);
+  my $item = $this->{descriptions}->get($descr->getKey());
+  if(defined($item)) {
+    die "description '" . $descr->getKey() . "' already exists!";
+  }
+  $this->{descriptions}->insert($descr->getKey(), $descr);
+  
   return $descr;
+}
+
+# Get description object
+#
+# Usage: getDescription($repository, $path)
+# Returns: the object or undef
+sub getDescription {
+  my ($this, $repository, $path) = @_;
+  return $this->{descriptions}->get(
+      SMake::Storage::File::Description::createKey($path));
+}
+
+# Get description object (identified by a key)
+#
+# Usage: getDescriptionKey($key)
+sub getDescriptionKey {
+  my ($this, $key) = @_;
+  return $this->{descriptions}->get($key);
 }
 
 # Create new project object
@@ -55,20 +81,39 @@ sub createDescription {
 #    path ......... logical path of the project
 sub createProject {
   my ($this, $repository, $name, $path) = @_;
-  my $prj = SMake::Storage::File::Project->new($repository, $name, $path);
-  $this->{prjnew}->{$prj->getKey()} = $prj;
+  
+  my $prj = SMake::Storage::File::Project->new(
+      $repository, $this->{storage}, $name, $path);
+  my $item = $this->{projects}->get($prj->getKey());
+  if(defined($item)) {
+    die "project '" . $prj->getKey() . "' already exists!";
+  }
+  $this->{projects}->insert($prj->getKey(), $prj);
+  
   return $prj;
+}
+
+# Get project object
+#
+# Usage: getProject($repository, $name)
+sub getProject {
+  my ($this, $repository, $name) = @_;
+  return $this->{projects}->get(
+      SMake::Storage::File::Project::createKey($name));
 }
 
 # Commit the transaction
 #
-# Usage: commit()
+# Usage: commit($repository)
 sub commit {
-  my ($this) = @_;
-  @{$this->{storage}->{projects}}{keys %{$this->{prjnew}}} 
-      = values %{$this->{prjnew}};
-  # -- there is no need to merge the description objects - it'll be done
-  #    explicitely by iterating of the projects.
+  my ($this, $repository) = @_;
+
+  # -- commit and store data
+  my $storage = $this->{storage};
+  $this->{descriptions}->commit(sub { }, sub { });
+  $this->{projects}->commit(
+      sub { $storage->deleteProject($repository, $_[0]); },
+      sub { $storage->storeProject($repository, $_[0], $_[1]); });
 }
 
 return 1;

@@ -24,11 +24,12 @@ use SMake::Model::Stage;
 
 # Create new stage object
 #
-# Usage: new($repository, $artifact, $name)
+# Usage: new($repository, $storage, $artifact, $name)
 sub new {
-  my ($class, $repository, $artifact, $name) = @_;
+  my ($class, $repository, $storage, $artifact, $name) = @_;
   my $this = bless(SMake::Model::Stage->new(), $class);
   $this->{repository} = $repository;
+  $this->{storage} = $storage;
   $this->{artifact} = $artifact;
   $this->{name} = $name;
   return $this;

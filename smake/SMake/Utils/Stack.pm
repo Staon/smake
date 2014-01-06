@@ -27,6 +27,12 @@ sub new {
   return bless([$name, []], $class);
 }
 
+# Check if the stack is empty
+sub isEmpty {
+  my ($this) = @_;
+  return $#{$this->[1]} < 0;
+}
+
 # Push an object
 #
 # Usage: pushObject($object)

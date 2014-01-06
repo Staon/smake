@@ -27,17 +27,19 @@ use SMake::Storage::File::Stage;
 
 # Create new artifact object
 #
-# Usage: new($repository, $project, $path, $name, $type, \%args)
+# Usage: new($repository, $storage, $project, $path, $name, $type, \%args)
 #    repository .... a repository which the artifact belongs to
+#    storage ....... owning file storage
 #    project ....... a project which the artifact belongs to
 #    path .......... canonical location (directory) of the artifact
 #    name .......... name of the artifact
 #    type .......... type of the artifact
 #    args .......... optional artifact's arguments
 sub new {
-  my ($class, $repository, $project, $path, $name, $type, $args) = @_;
+  my ($class, $repository, $storage, $project, $path, $name, $type, $args) = @_;
   my $this = bless(SMake::Model::Artifact->new(), $class);
   $this->{repository} = $repository;
+  $this->{storage} = $storage;
   $this->{project} = $project;
   $this->{path} = $path;
   $this->{name} = $name;
@@ -86,13 +88,13 @@ sub getProject {
 
 sub attachDescription {
   my ($this, $description) = @_;
-  $this->{descriptions}->{$description->getKey()} = $description;
+  $this->{descriptions}->{$description->getKey()} = 1;
 }
 
 sub createResource {
   my ($this, $prefix, $name, $type) = @_;
   my $resource = SMake::Storage::File::Resource->new(
-      $this->{repository}, $this->{path}, $prefix, $name, $type);
+      $this->{repository}, $this->{storage}, $this->{path}, $prefix, $name, $type);
   $this->{resources}->{$resource->getKey()} = $resource;
   return $resource;
 }
@@ -102,7 +104,7 @@ sub createStage {
   my $stage = $this->{stages}->{$name};
   if(!defined($stage)) {
     $stage = SMake::Storage::File::Stage->new(
-        $this->{repository}, $this, $name);
+        $this->{repository}, $this->{storage}, $this, $name);
     $this->{stages}->{$stage->getKey()} = $stage;
   }
   return $stage;

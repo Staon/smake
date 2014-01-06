@@ -47,7 +47,11 @@ my $repository = SMake::Repository::Repository->new(undef, $storage);
 my $parser = SMake::Parser::Parser->new();
 my $context = SMake::Parser::Context->new($reporter, $decider, $repository);
 my $path = SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefile"));
+
+# -- parse SMakefiles
+$repository->openTransaction();
 $parser -> parse($context, $path);
+$repository->commitTransaction();
 
 $repository -> destroyRepository();
 

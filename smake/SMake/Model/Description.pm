@@ -32,6 +32,27 @@ sub new {
   return bless(SMake::Model::Object->new(), $class);
 }
 
+# Get parent description
+#
+# Usage: getParent()
+# Returns: the parent or undef
+sub getParent {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get top parent description object
+sub getTopParent {
+  my ($this) = @_;
+  
+  my $d = $this;
+  my $next = $d->getParent();
+  while(defined($next)) {
+    $d = $next;
+    $next = $next->getParent();
+  }
+  return $d;
+}
+
 # Get logical path of the description file (inside the repository)
 sub getPath {
   SMake::Utils::Abstract::dieAbstract();
@@ -46,6 +67,28 @@ sub getMark {
 sub getDirectory {
   my ($this) = @_;
   return $this->getPath()->getDirpath();
+}
+
+# Add a child description object
+#
+# Usage: addChild($description)
+sub addChild {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Add a project, which is specified by this description
+#
+# Usage: addProject($project)
+sub addProject {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of all succesors and me
+#
+# Usage: getChildren();
+# Returns \@childrens
+sub getChildren {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 return 1;

@@ -107,7 +107,8 @@ sub parseFile {
   
   # -- create the description object
   my $mark = $context_->hasChanged($path);
-  my $descr = $context_->getRepository()->createDescription($path, $mark);
+  my $descr = $context_->getRepository()->createDescription(
+      $context_->getDescriptionSafe(), $path, $mark);
 
   # -- notify the state
   $state->startFile($this, $context_, $descr);
@@ -154,7 +155,8 @@ sub parseRoot {
 # Parse an SMakefile
 #
 # The method checks changes of the specification files and can cause refresh
-# of the whole project.
+# of the whole project. If the description file is not changed, the method
+# immediately ends.
 #
 # Usage: parse($repository, $context, $path)
 #    context ...... parser context
@@ -162,18 +164,26 @@ sub parseRoot {
 sub parse {
   my ($this, $context, $path) = @_;
 
-  # -- open storage transaction
-  $context->getRepository()->openTransaction();
-  
-  # -- parse the description file
-  $this->parseRoot($context, $path);
-  
-  # -- commit the storage transaction
-  $context->getRepository()->commitTransaction();
+  # -- check if the description files are changed
+  my $description = $context->getRepository()->getDescription($path);
+  if(defined($description)) {
+    # -- the file exists
+    my $dlist = $description->getChildren();
+    foreach my $d (@$dlist) {
+      my $path = $d->getPath();
+      if($context->hasChanged($d->getPath(), $d->getMark())) {
+        # -- TODO: refresh the project
+        print "Project is changed, refresh it\n";
+        return ;
+      }
+    }
     
-  # -- check changes of the project specification
-#  my $canonical = SMake::Utils::Dirutils::getCwd($path);
-#  my $description = $repository->getDescription($canonical);
+    # -- no file is changed, return
+    return;
+  } 
+
+  # -- the file is not known, parse it
+  $this->parseRoot($context, $path);
 }
 
 return 1;

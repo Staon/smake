@@ -77,11 +77,13 @@ sub hasChanged {
   }
     
   # -- compare the mark
-  if($stored) {
-    my $current = $decider->getStamp($repository->getPhysicalPath($path));
-    if($stored ne $current) {
-      return $prefix . ':' . $current;
-    }
+  my $file = $repository->getPhysicalPath($path);
+  my $current = "";
+  if(-f $file) {
+    $current = $decider->getStamp($file);
+  }
+  if(!$stored || ($stored ne $current)) {
+    return $prefix . ':' . $current;
   }
 
   return undef;

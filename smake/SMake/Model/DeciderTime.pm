@@ -18,6 +18,7 @@
 # Decider based on file's time stamps
 package SMake::Model::DeciderTime;
 
+use File::stat;
 use SMake::Model::Decider;
 
 @ISA = qw(SMake::Model::Decider);
@@ -33,7 +34,7 @@ sub new {
 sub getStamp {
   my ($this, $path) = @_;
   
-  my $st = stat($src) or die "unknown file '$path'";
+  my $st = stat($path) or die "unknown file '$path'";
   return $st->mtime;
 }
 

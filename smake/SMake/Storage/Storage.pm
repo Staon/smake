@@ -55,9 +55,20 @@ sub commitTransaction {
 #
 # Usage: createDescription($repository, $path, $mark)
 #    repository ... owning repository
+#    parent ....... parent description object (can be undef for root objects)
 #    path ......... logical path of the description file
 #    mark ......... decider's mark of the description file
 sub createDescription {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get description object
+#
+# Usage: getDescription($repository, $path)
+#    repository ... owning repository
+#    path ......... logical path of the description file
+# Returns: the object or undef
+sub getDescription {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -68,6 +79,15 @@ sub createDescription {
 #    name ......... name of the project
 #    path ......... logical path of the project
 sub createProject {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get project object
+#
+# Usage: getProject($repository, $name)
+#    repository ... owning repository
+#    name ......... name of the project
+sub getProject {
   SMake::Utils::Abstract::dieAbstract();
 }
 

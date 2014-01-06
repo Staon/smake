@@ -26,19 +26,29 @@ use SMake::Storage::File::Artifact;
 
 # Create new project object
 #
-# Usage: new($repository, $name, $path)
+# Usage: new($repository, $storage, $name, $path)
 #    repository .. the smake repository
+#    storage ..... owning file storage
 #    name ........ name of the project
 #    path ........ logical project path
 sub new {
-  my ($class, $repository, $name, $path) = @_;
+  my ($class, $repository, $storage, $name, $path) = @_;
   my $this = bless(SMake::Model::Project->new(), $class);
   $this->{repository} = $repository;
+  $this->{storage} = $storage;
   $this->{name} = $name;
   $this->{path} = $path;
   $this->{descriptions} = {};
   $this->{artifacts} = {};
   return $this;
+}
+
+# Create key from attributes (static method)
+#
+# Usage: createKey($name)
+sub createKey {
+  my ($name) = @_;
+  return $name;
 }
 
 sub getRepository {
@@ -48,7 +58,7 @@ sub getRepository {
 
 sub getKey {
   my ($this) = @_;
-  return $this->getName();
+  return createKey($this->{name});
 }
 
 sub getName {
@@ -63,27 +73,17 @@ sub getPath {
 
 sub attachDescription {
   my ($this, $description) = @_;
-  $this->{descriptions}->{$description->getKey()} = $description;
+  $this->{descriptions}->{$description->getKey()} = 1;
+  $description->addProject($this);
 }
 
 sub createArtifact {
   my ($this, $path, $name, $type, $args) = @_;
   
   my $artifact = SMake::Storage::File::Artifact->new(
-      $this->getRepository(), $this, $path, $name, $type, $args);
+      $this->getRepository(), $this->{storage}, $this, $path, $name, $type, $args);
   $this->{artifacts}->{$artifact->getKey()} = $artifact;
   return $artifact;
-}
-
-# Compose new description list
-#
-# This method is used to clean list of descriptions in the storage root
-# after a transaction.
-#
-# Usage: updateDescriptionList(\%list)
-sub updateDescriptionList {
-  my ($this, $list) = @_;
-  @$list{keys %{$this->{descriptions}}} = values %{$this->{descriptions}};
 }
 
 return 1;

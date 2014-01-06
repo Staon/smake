@@ -18,11 +18,25 @@
 # File project storage
 package SMake::Storage::File::Storage;
 
+my $Is_QNX = $^O eq 'qnx';
+
 use SMake::Storage::Storage;
 
 @ISA = qw(SMake::Storage::Storage);
 
+use Data::Dumper;
+use File::Spec;
 use SMake::Storage::File::Transaction;
+use SMake::Utils::Dirutils;
+
+if($Is_QNX) {
+  require Digest::SHA::PurePerl;
+  import Digest::SHA::PurePerl qw(sha1_hex);
+}
+else {
+  require Digest::SHA;
+  import Digest::SHA qw(sha1_hex);
+}
 
 # Create new file storage
 #
@@ -34,61 +48,139 @@ sub new {
   $this->{path} = $path;
   $this->{descriptions} = {};
   $this->{projects} = {};
+  
   return $this;
+}
+
+# Load data of the storage
+#
+# Usage: loadStorage($repository)
+sub loadStorage {
+  my ($this, $repository_) = @_;
+  
+  # -- load table of descriptions
+  my $filename = File::Spec->catfile($this->{path}, "descriptions");
+  if(-f $filename) {
+    my $data;
+    {
+      local $/ = undef;
+      local *DESCFILE;
+      open(DESCFILE, "<$filename");
+      $data = <DESCFILE>;
+      close(DESCFILE);
+    }
+  
+    { 
+      local $storage = $this;
+      local $repository = $repository_;
+      local $descriptions;
+      my $info = eval $data;
+      if(!defined($info) && (defined($@) && $@ ne "")) {
+        die "it's not possible to read storage data from file '$filename'!";
+      }
+      $this->{descriptions} = $descriptions;
+    }
+  }
 }
 
 sub destroyStorage {
   # -- nothing to do
 }
 
-# Open storage transaction
+# Save content of a project into a file
 #
-# Usage: openTransaction($repository)
-# Exception: it can die when an error occurs
+# Usage: storeProject($repository, $key, $project)
+sub storeProject {
+  my ($this, $repository, $key, $project) = @_;
+
+  # -- make directory (to be sure)
+  my $directory = File::Spec->catdir($this->{path}, "projects");
+  SMake::Utils::Dirutils::makeDirectory($directory);
+  
+  # -- generate unique file name
+  my $filename = sha1_hex($key);
+  $filename = File::Spec->catfile($directory, $filename);
+
+  # -- dump the project
+  {
+    local *PRJFILE;
+    open(PRJFILE, ">$filename");
+    my $dumper = Data::Dumper->new([$project], [qw(project)]);
+    $dumper->Indent(1);
+    $dumper->Seen({'repository' => $repository, 'storage' => $this});
+    print PRJFILE $dumper->Dump();
+    close(PRJFILE);
+  }
+}
+
+# Delete stored data of a project
+#
+# Usage: deleteProject($repository, $key)
+#    key ..... project's key
+sub deleteProject {
+  my ($this, $repository, $key) = @_;
+  
+  my $filename = sha1_hex($key);
+  $filename = File::Spec->catfile(($this->{path}, "projects"), $filename);
+  unlink($filename);
+}
+
+# Get description object according to its key
+#
+# Usage: getDescriptionKey($key)
+sub getDescriptionKey {
+  my ($this, $key) = @_;
+  die "not opened transaction" if(!defined($this->{transaction}));
+  return $this->{transaction}->getDescriptionKey($key);
+}
+
 sub openTransaction {
   my ($this, $repository) = @_;
   $this->{transaction} = SMake::Storage::File::Transaction->new($this);
 }
 
-# Commit currently opened transaction
-#
-# Usage: commitTransaction($repository)
-# Exception: it dies if an error occurs
 sub commitTransaction {
   my ($this, $repository) = @_;
   if(defined($this->{transaction})) {
     # -- commit changes
-    $this->{transaction}->commit();
-    # -- compose new description list
-    my $descrlist = {};
-    foreach my $prj (values($this->{projects})) {
-      $prj->updateDescriptionList($descrlist);
+    $this->{transaction}->commit($repository);
+    
+    # -- store the table of descriptions
+    {
+      my $filename = File::Spec->catfile($this->{path}, "descriptions");
+      local *DESCFILE;
+      open(DESCFILE, ">$filename");
+      my $dumper = Data::Dumper->new([$this->{descriptions}], [qw(descriptions)]);
+      $dumper->Indent(1);
+      $dumper->Seen({'repository' => $repository, 'storage' => $this});
+      print DESCFILE $dumper->Dump();
+      close(DESCFILE);
     }
   }
 }
 
-# Create new description object
-#
-# Usage: createDescription($repository, $path, $mark)
-#    repository ... owning repository
-#    path ......... logical path of the description file
-#    mark ......... decider's mark of the description file
 sub createDescription {
-  my ($this, $repository, $path, $mark) = @_;
+  my ($this, $repository, $parent, $path, $mark) = @_;
   die "not opened transaction" if(!defined($this->{transaction}));
-  return $this->{transaction}->createDescription($repository, $path, $mark);
+  return $this->{transaction}->createDescription($repository, $parent, $path, $mark);
 }
 
-# Create new project object
-#
-# Usage: createProject($repository, $name, $path)
-#    repository ... owning repository
-#    name ......... name of the project
-#    path ......... logical path of the project
+sub getDescription {
+  my ($this, $repository, $path) = @_;
+  die "not opened transaction" if(!defined($this->{transaction}));
+  return $this->{transaction}->getDescription($repository, $path);
+}
+
 sub createProject {
   my ($this, $repository, $name, $path) = @_;
   die "not opened transaction" if(!defined($this->{transaction}));
   return $this->{transaction}->createProject($repository, $name, $path);
+}
+
+sub getProject {
+  my ($this, $repository, $name, $path) = @_;
+  die "not opened transaction" if(!defined($this->{transaction}));
+  return $this->{transaction}->getProject($repository, $name);
 }
 
 return 1;
