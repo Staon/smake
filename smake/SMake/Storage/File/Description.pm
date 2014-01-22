@@ -48,6 +48,16 @@ sub new {
   return $this;
 }
 
+# Destroy the object (break cycles in references as the Perl uses reference counters)
+#
+# Usage: destroy()
+sub destroy {
+  my ($this) = @_;
+  
+  $this->{repository} = undef;
+  $this->{storage} = undef;
+}
+
 # Create key from atributes (static method)
 #
 # Usage: createKey($path)
@@ -68,7 +78,12 @@ sub getKey {
 
 sub getParent {
   my ($this) = @_;
-  return $this->{storage}->getDescriptionKey($this->{parent});
+  if(defined($this->{parent})) {
+    return $this->{storage}->getDescriptionKey($this->{parent});
+  }
+  else {
+    return undef;
+  }
 }
 
 sub getPath {
@@ -100,6 +115,15 @@ sub getChildren {
     push @retval, @{$desc->getChildren()};
   }
   return \@retval;
+}
+
+# Get list of ids of projects attached to this description
+#
+# Usage: getProjectKeys()
+# Returns: @list
+sub getProjectKeys {
+  my ($this) = @_;
+  return keys(%{$this->{projects}});
 }
 
 return 1;

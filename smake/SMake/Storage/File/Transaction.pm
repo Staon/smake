@@ -29,8 +29,14 @@ sub new {
   my ($class, $storage) = @_;
   return bless({
     storage => $storage,
-    projects => SMake::Storage::File::TransTable->new($storage->{projects}),
-    descriptions => SMake::Storage::File::TransTable->new($storage->{descriptions}),
+    descriptions => SMake::Storage::File::TransTable->new(
+        sub { return $storage->{descriptions}->{$_[0]}; },
+        sub { $storage->{descriptions}->{$_[0]} = $_[1]; },
+        sub { delete $storage->{descriptions}->{$_[0]}; }),
+    projects => SMake::Storage::File::TransTable->new(
+        sub { return $storage->loadProject($_[1], $_[0]); },
+        sub { $storage->storeProject($_[2], $_[0], $_[1]); },
+        sub { $storage->deleteProject($_[1], $_[0]); }),
   }, $class);
 }
 
@@ -65,6 +71,31 @@ sub getDescription {
       SMake::Storage::File::Description::createKey($path));
 }
 
+# Remove a description and its successors
+#
+# Usage: removeDescription($repository, $path)
+sub removeDescription {
+  my ($this, $repository, $path) = @_;
+  
+  my $description = $this->{descriptions}->get(
+      SMake::Storage::File::Description::createKey($path));
+  if(defined($description)) {
+  	if(defined($description->getParent())) {
+  	  die "only root description can be removed!";
+  	}
+
+    # -- get list of dependent descriptions to be removed
+    my $descs = $description->getChildren();
+    foreach $description (@$descs) {
+      my @projects = $description->getProjectKeys();
+      foreach my $project (@projects) {
+        $this->{projects}->remove($project);
+      }
+      $this->{descriptions}->remove($description->getKey());
+    } 
+  }
+}
+
 # Get description object (identified by a key)
 #
 # Usage: getDescriptionKey($key)
@@ -84,7 +115,7 @@ sub createProject {
   
   my $prj = SMake::Storage::File::Project->new(
       $repository, $this->{storage}, $name, $path);
-  my $item = $this->{projects}->get($prj->getKey());
+  my $item = $this->{projects}->get($prj->getKey(), $repository);
   if(defined($item)) {
     die "project '" . $prj->getKey() . "' already exists!";
   }
@@ -99,7 +130,7 @@ sub createProject {
 sub getProject {
   my ($this, $repository, $name) = @_;
   return $this->{projects}->get(
-      SMake::Storage::File::Project::createKey($name));
+      SMake::Storage::File::Project::createKey($name), $repository);
 }
 
 # Commit the transaction
@@ -110,10 +141,8 @@ sub commit {
 
   # -- commit and store data
   my $storage = $this->{storage};
-  $this->{descriptions}->commit(sub { }, sub { });
-  $this->{projects}->commit(
-      sub { $storage->deleteProject($repository, $_[0]); },
-      sub { $storage->storeProject($repository, $_[0], $_[1]); });
+  $this->{descriptions}->commit();
+  $this->{projects}->commit($repository);
 }
 
 return 1;

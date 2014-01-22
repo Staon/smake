@@ -50,4 +50,11 @@ sub getStage {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Append target resource
+#
+# Usage: appendTarget($resource)
+sub appendTarget {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

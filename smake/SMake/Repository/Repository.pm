@@ -136,6 +136,17 @@ sub createDescription {
   return $this->{storage}->createDescription($this, $parent, $path, $mark);
 }
 
+# Remove a description from the storage
+#
+# The method removes whole tree of descriptions which the description belongs to.
+#
+# Usage: removeDescription($description)
+#    description ... a description object. The whole tree is removed!
+sub removeDescription {
+  my ($this, $description) = @_;
+  $this->{storage}->removeDescription($this, $description->getTopParent()->getPath());
+}
+
 # Get description object
 #
 # Usage: getDescription($path)

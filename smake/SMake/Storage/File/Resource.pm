@@ -31,15 +31,28 @@ use SMake::Model::Resource;
 #    prefix ....... a relative path based on the artifact
 #    name ......... name of the resource (as a relative path based on the artifact)
 #    type ......... type of the resource (for example "src")
+#    task ......... task which generates the resource
 sub new {
-  my ($class, $repository, $storage, $basepath, $prefix, $name, $type) = @_;
+  my ($class, $repository, $storage, $basepath, $prefix, $name, $type, $task) = @_;
   my $this = bless(SMake::Model::Resource->new(), $class);
   $this->{repository} = $repository;
   $this->{storage} = $storage;
   $this->{name} = $prefix->joinPaths($name);
   $this->{path} = $basepath->joinPaths($prefix, $name);
   $this->{type} = $type;
+  $this->{task} = $task;
   return $this;
+}
+
+# Destroy the object (break cycles in references as the Perl uses reference counters)
+#
+# Usage: destroy()
+sub destroy {
+  my ($this) = @_;
+  
+  $this->{repository} = undef;
+  $this->{storage} = undef;
+  $this->{task} = undef;
 }
 
 sub getRepository {

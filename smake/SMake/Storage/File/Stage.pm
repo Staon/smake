@@ -22,6 +22,8 @@ use SMake::Model::Stage;
 
 @ISA = qw(SMake::Model::Stage);
 
+use SMake::Storage::File::Task;
+
 # Create new stage object
 #
 # Usage: new($repository, $storage, $artifact, $name)
@@ -32,7 +34,23 @@ sub new {
   $this->{storage} = $storage;
   $this->{artifact} = $artifact;
   $this->{name} = $name;
+  $this->{tasks} = [];
   return $this;
+}
+
+# Destroy the object (break cycles in references as the Perl uses reference counters)
+#
+# Usage: destroy()
+sub destroy {
+  my ($this) = @_;
+  
+  $this->{repository} = undef;
+  $this->{storage} = undef;
+  $this->{artifact} = undef;
+  foreach my $task (@{$this->{tasks}}) {
+    $task->destroy();
+  }
+  $this->{tasks} = undef;
 }
 
 sub getRepository {
@@ -53,6 +71,15 @@ sub getName {
 sub getArtifact {
   my ($this) = @_;
   return $this->{artifact};
+}
+
+sub createTask {
+  my ($this, $type, $arguments) = @_;
+  
+  my $task = SMake::Storage::File::Task->new(
+      $this->{repository}, $this->{storage}, $this, $type, $arguments);
+  push @{$this->{tasks}}, $task;
+  return $task;
 }
 
 return 1;

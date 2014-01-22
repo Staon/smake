@@ -16,7 +16,7 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Implementation of the task object for the external repository
-package SMake::Repository::External::Task;
+package SMake::Storage::File::Task;
 
 use SMake::Model::Task;
 
@@ -32,9 +32,24 @@ sub new {
   $this->{storage} = $storage;
   $this->{stage} = $stage;
   $this->{type} = $type;
-  $this->{args} = $args;
-  
+  $this->{args} = defined($args)?$args:{};
+  $this->{targets} = {};
+  $this->{sources} = {};
+   
   return $this;
+}
+
+# Destroy the object (break cycles in references as the Perl uses reference counters)
+#
+# Usage: destroy()
+sub destroy {
+  my ($this) = @_;
+  
+  $this->{repository} = undef;
+  $this->{storage} = undef;
+  $this->{stage} = undef;
+  $this->{targets} = undef;
+  $this->{sources} = undef;
 }
 
 sub getRepository {
@@ -55,6 +70,14 @@ sub getArguments {
 sub getStage {
   my ($this) = @_;
   return $this->{stage};
+}
+
+# Append target resource
+#
+# Usage: appendTarget($resource)
+sub appendTarget {
+  my ($this, $resource) = @_;
+  $this->{targets}->{$resource->getKey()} = $resource;
 }
 
 return 1;

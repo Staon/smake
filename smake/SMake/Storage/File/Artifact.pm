@@ -51,6 +51,25 @@ sub new {
   return $this;
 }
 
+# Destroy the object (break cycles in references as the Perl uses reference counters)
+#
+# Usage: destroy()
+sub destroy {
+  my ($this) = @_;
+  
+  $this->{repository} = undef;
+  $this->{storage} = undef;
+  $this->{project} = undef;
+  foreach my $resource (@{$this->{resources}}) {
+    $resource->destroy();
+  }
+  $this->{resources} = undef;
+  foreach my $stage (@{$this->{stages}}) {
+    $stage->destroy();
+  }
+  $this->{stages} = undef;
+}
+
 sub getRepository {
   my ($this) = @_;
   return $this->{repository};
@@ -91,10 +110,10 @@ sub attachDescription {
   $this->{descriptions}->{$description->getKey()} = 1;
 }
 
-sub createResource {
-  my ($this, $prefix, $name, $type) = @_;
+sub createResourceRaw {
+  my ($this, $prefix, $name, $type, $task) = @_;
   my $resource = SMake::Storage::File::Resource->new(
-      $this->{repository}, $this->{storage}, $this->{path}, $prefix, $name, $type);
+      $this->{repository}, $this->{storage}, $this->{path}, $prefix, $name, $type, $task);
   $this->{resources}->{$resource->getKey()} = $resource;
   return $resource;
 }

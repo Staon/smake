@@ -26,6 +26,7 @@ use SMake::Storage::Storage;
 
 use Data::Dumper;
 use File::Spec;
+use SMake::Storage::File::Cache;
 use SMake::Storage::File::Transaction;
 use SMake::Utils::Dirutils;
 
@@ -47,7 +48,7 @@ sub new {
   my $this = bless(SMake::Storage::Storage->new(), $class);
   $this->{path} = $path;
   $this->{descriptions} = {};
-  $this->{projects} = {};
+  $this->{projects} = SMake::Storage::File::Cache->new(10);
   
   return $this;
 }
@@ -93,6 +94,9 @@ sub destroyStorage {
 sub storeProject {
   my ($this, $repository, $key, $project) = @_;
 
+  # -- store into the cache
+  $this->{projects}->insertProject($project);
+  
   # -- make directory (to be sure)
   my $directory = File::Spec->catdir($this->{path}, "projects");
   SMake::Utils::Dirutils::makeDirectory($directory);
@@ -113,13 +117,62 @@ sub storeProject {
   }
 }
 
+# Get a project from the cache or load it from file
+#
+# Usage: loadProject($repository, $key)
+# Returns: the project or undef (if it's not known)
+sub loadProject {
+  my ($this, $repository_, $key) = @_;
+  
+  # -- check the cache
+  {
+    my $project = $this->{projects}->getProject($key);
+    return $project if(defined($project));
+  }
+  
+  # -- generate file name
+  my $filename = sha1_hex($key);
+  $filename = File::Spec->catfile(($this->{path}, "projects"), $filename);
+  
+  if(-f $filename) {
+    # -- read the content
+    my $data;
+    {
+      local $/ = undef;
+      local *PRJFILE;
+      open(PRJFILE, "<$filename");
+      $data = <PRJFILE>;
+      close(PRJFILE);
+    }
+
+    { 
+      local $storage = $this;
+      local $repository = $repository_;
+      local $project;
+      my $info = eval $data;
+      if(!defined($info) && (defined($@) && $@ ne "")) {
+        die "it's not possible to read project data from file '$filename'!";
+      }
+      
+      $this->{projects}->insertProject($project);
+      return $project;
+    }
+  }
+  
+  return undef;
+}
+
 # Delete stored data of a project
 #
 # Usage: deleteProject($repository, $key)
 #    key ..... project's key
 sub deleteProject {
   my ($this, $repository, $key) = @_;
+
+  # -- remove from the cache
+  $this->{projects}->removeProject($key);
   
+  # -- delete the file
   my $filename = sha1_hex($key);
   $filename = File::Spec->catfile(($this->{path}, "projects"), $filename);
   unlink($filename);
@@ -169,6 +222,12 @@ sub getDescription {
   my ($this, $repository, $path) = @_;
   die "not opened transaction" if(!defined($this->{transaction}));
   return $this->{transaction}->getDescription($repository, $path);
+}
+
+sub removeDescription {
+  my ($this, $repository, $path) = @_;
+  die "not opened transaction" if(!defined($this->{transaction}));
+  $this->{transaction}->removeDescription($repository, $path);
 }
 
 sub createProject {

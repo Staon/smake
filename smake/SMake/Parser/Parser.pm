@@ -105,10 +105,13 @@ sub switchState {
 sub parseFile {
   my ($this, $context_, $path, $state) = @_;
   
-  # -- create the description object
-  my $mark = $context_->hasChanged($path);
-  my $descr = $context_->getRepository()->createDescription(
-      $context_->getDescriptionSafe(), $path, $mark);
+  # -- get or create the description object
+  my $descr = $context_->getRepository()->getDescription($path);
+  if(!defined($descr)) {
+    my $mark = $context_->hasChanged($path);
+    $descr = $context_->getRepository()->createDescription(
+        $context_->getDescriptionSafe(), $path, $mark);
+  }
 
   # -- notify the state
   $state->startFile($this, $context_, $descr);
@@ -167,19 +170,20 @@ sub parse {
   # -- check if the description files are changed
   my $description = $context->getRepository()->getDescription($path);
   if(defined($description)) {
-    # -- the file exists
+    # -- the file exists - check changes in the whole description tree
+    $description = $description->getTopParent();
     my $dlist = $description->getChildren();
     foreach my $d (@$dlist) {
       my $path = $d->getPath();
       if($context->hasChanged($d->getPath(), $d->getMark())) {
-        # -- TODO: refresh the project
-        print "Project is changed, refresh it\n";
-        return ;
+        $context->getReporter()->reportf(
+            2, "info", $SUBSYSTEM,
+            "description file '%s' has changed, refresh the tree",
+            $path->printableString());
+        $context->getRepository()->removeDescription($description);
+        last;
       }
     }
-    
-    # -- no file is changed, return
-    return;
   } 
 
   # -- the file is not known, parse it

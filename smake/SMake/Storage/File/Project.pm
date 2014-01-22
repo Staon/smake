@@ -43,6 +43,18 @@ sub new {
   return $this;
 }
 
+# Destroy the object (break cycles in references as the Perl uses reference counters)
+#
+# Usage: destroy()
+sub destroy {
+  my ($this) = @_;
+  $this->{repository} = undef;
+  $this->{storage} = undef;
+  foreach my $artifact (@{$this->{artifacts}}) {
+    $artifact->destroy();
+  }
+}
+
 # Create key from attributes (static method)
 #
 # Usage: createKey($name)

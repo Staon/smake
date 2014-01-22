@@ -20,14 +20,16 @@ package SMake::Storage::File::TransTable;
 
 # Create new table
 #
-# Usage: new($base)
-#    base .... base hash table
+# Usage: new($getfce, $insertfce, $deletefce)
 sub new {
-  my ($class, $base) = @_;
+  my ($class, $getfce, $insertfce, $deletefce) = @_;
   return bless({
     base => $base,
     inserted => {},
     deleted => {},
+    getfce => $getfce,
+    insertfce => $insertfce,
+    deletefce => $deletefce,
   }, $class);
 }
 
@@ -53,10 +55,10 @@ sub remove {
 
 # Get an item
 #
-# Usage: get($key)
+# Usage: get($key, ...)
 # Returns: the value or undef
 sub get {
-  my ($this, $key) = @_;
+  my ($this, $key) = splice(@_, 0, 2);
   
   # -- deleted item
   return undef if(exists $this->{deleted}->{$key});
@@ -66,27 +68,23 @@ sub get {
   return $value if(defined($value));
   
   # -- not changed item
-  return $this->{base}->{$key};
+  return &{$this->{getfce}}($key, @_);
 }
 
 # Commit changes
 #
-# Usage: commit($delfunc, $insfunc)
-#    delfunc .... a functor which is called for each deleted item
-#    insfunc .... a functor which is called for each inserted item
+# Usage: commit(...)
 sub commit {
-  my ($this, $delfunc, $insfunc) = @_;
+  my $this = shift;
 
   # -- deleted items  
   foreach my $item (keys %{$this->{deleted}}) {
-    &$delfunc($item);
-    delete ${$this->{base}}{$item};
+    &{$this->{deletefce}}($item, @_);
   }
   
   # -- inserted items
   foreach my $item (keys %{$this->{inserted}}) {
-    &$insfunc($item, $this->{inserted}->{$item});
-    $this->{base}->{$item} = $this->{inserted}->{$item};
+    &{$this->{insertfce}}($item, $this->{inserted}->{$item}, @_);
   }
 }
 

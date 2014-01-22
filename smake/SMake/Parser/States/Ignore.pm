@@ -15,11 +15,30 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Some constants related to the model
-package SMake::Model::Const;
+# Ignore project specification if the project is already parsed
+package SMake::Parser::States::Ignore;
 
-$SOURCE_STAGE = "src";
-$SOURCE_RESOURCE = "src";
-$SOURCE_TASK = "src";
+use SMake::Parser::States::State;
+
+@ISA = qw(SMake::Parser::States::State);
+
+# Create new state
+#
+# Usage: new($rootstate)
+sub new {
+  my ($class, $root) = @_;
+  my $this = bless(SMake::Parser::States::State->new(), $class);
+  $this->{root} = $root;
+  return $this;
+}
+
+sub executeDirective {
+  my ($this, $parser, $context, $directive, $line) = splice(@_, 0, 5);
+  my $method = $this->normalizeMethod($directive);
+  if($method eq "endProject") {
+    $parser->switchState($this->{root});
+  }
+  # else ignore the directive
+}
 
 return 1;

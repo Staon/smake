@@ -23,6 +23,7 @@ use SMake::Parser::States::State;
 @ISA = qw(SMake::Parser::States::State);
 
 use SMake::Parser::Parser;
+use SMake::Parser::States::Ignore;
 use SMake::Parser::States::Project;
 
 # Create the state
@@ -42,6 +43,11 @@ sub finishFile {
   # -- there is no work here
 }
 
+sub subdirs {
+  my ($this, $parser, $context, $subdirs) = @_;
+  die "directive Subdirs must be used inside a project";
+}
+
 # Directive project
 #
 # Usage: project($name);
@@ -49,20 +55,31 @@ sub project {
   my ($this, $parser, $context, $name) = @_;
   $context->getReporter()->report(
       5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "Project('$name')");
-  
-  # -- create project object
-  my $prjdir = $context->getCurrentDir();
-  my $project = $context->getRepository()->createProject($name, $prjdir);
-  
-  # -- attach current description object with the project
-  $project->attachDescription($context->getDescription());
 
-  # -- set context
-  $context -> pushProject($project);
+  # -- get project object
+  my $project = $context->getRepository()->getProject($name);
+  if(!defined($project)) {
+  	# -- new project, create the object
+    my $prjdir = $context->getCurrentDir();
+    $project = $context->getRepository()->createProject($name, $prjdir);
   
-  # -- switch parser's state
-  $parser->switchState(
-      SMake::Parser::States::Project->new($this));
+    # -- attach current description object with the project
+    $project->attachDescription($context->getDescription());
+
+    # -- set context
+    $context -> pushProject($project);
+  
+    # -- switch parser's state
+    $parser->switchState(
+        SMake::Parser::States::Project->new($this));
+  }
+  else {
+    # -- already parsed project, ignore rest of the project description
+  	$context->getReporter()->report(
+  	    3, "info", $SMake::Parser::Parser::SUBSYSTEM, "project '$name' has been already parsed.");
+  	$parser->switchState(
+  	    SMake::Parser::States::Ignore->new($this));
+  }
 }
 
 return 1;

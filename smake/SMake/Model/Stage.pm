@@ -48,4 +48,12 @@ sub getProject {
   return $this->getArtifact()->getProject();
 }
 
+# Create new task
+#
+# Usage: createTask($type, \%arguments)
+# Returns: new task
+sub createTask {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

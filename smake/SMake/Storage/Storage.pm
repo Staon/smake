@@ -72,6 +72,15 @@ sub getDescription {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Remove a description object and its successors
+#
+# Usage: removeDescription($repository, $description)
+#    repository ... owning repository
+#    path ......... logical path of the description file
+sub removeDescription {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Create new project object
 #
 # Usage: createProject($repository, $name, $path)

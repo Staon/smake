@@ -47,12 +47,17 @@ sub finishFile {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+sub normalizeMethod {
+  my ($this, $directive) = @_;
+  return lcfirst($directive);
+}
+
 # Execute directive
 #
 # Usage: executeDirective($stackdepth, $parser, $context, $directive, ...)
 sub executeDirective {
   my ($this, $parser, $context, $directive, $line) = splice(@_, 0, 5);
-  my $method = lcfirst($directive);
+  my $method = $this->normalizeMethod($directive);
   if($this->can($method)) {
     $this->$method($parser, $context, @_);
   }
@@ -66,6 +71,13 @@ sub executeDirective {
   }
 }
 
+# Subdirs directive
+#
+# The directive allows composing of project descriptions from several description
+# files located in subdirectories
+#
+# Usage: subdirs(\@subdirs)
+#    subdirs .... list of subdirectories
 sub subdirs {
   my ($this, $parser, $context, $subdirs) = @_;
   $context->getReporter()->report(
