@@ -16,6 +16,7 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 use SMake::Data::Path;
+use SMake::Mangler::Mangler;
 use SMake::Model::DeciderBox;
 use SMake::Model::DeciderTime;
 use SMake::Parser::Context;
@@ -65,5 +66,10 @@ print $version->printableString() . "\n";
 #my $path = SMake::Data::Path->fromSystem("home/ondrej");
 #$path = $path->joinPaths("ahoj/cau", SMake::Data::Path->new("blbost"), "SMakefile");
 #print $path->systemRelative(), "\n";
+
+my $mangler = SMake::Mangler::Mangler->new();
+$path = SMake::Data::Path->new("runtime/lib/ondrart.lib");
+$path = $mangler->mangleName($context, 'Name() . "/" . Dir() . "." . Suffix()', $path);
+print $path->printableString(), "\n";
 
 exit 0;

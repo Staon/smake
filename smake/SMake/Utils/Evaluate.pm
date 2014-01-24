@@ -28,6 +28,34 @@ sub AUTOLOAD {
   }
 }
 
+# Evaluate a script
+#
+# Usage: evaluateScript($script, \%context)
+#    script...... path of the file
+#    context .... hash table of configuration values. All keys are transformed
+#        into global variables (only for the file) with filled values.
+# Returns: undef if everything is OK, an error message otherwise.
+sub evaluateScript {
+  my ($script, $context) = @_;
+  
+  local *evaluation_context = \$context;
+  my $full_script = "";
+  for my $varname (keys(%$context)) {
+    $full_script .= 'local *' . $varname . ' = \$evaluation_context->{' 
+        . $varname . '};' . "\n";
+  }
+  $full_script .= $script;
+  local $SIG{__WARN__} = sub { die @_ };
+  my $info = eval $full_script;
+  if(!defined($info) && (defined($@) && $@ ne "")) {
+    my $message = $@;
+    $message =~ s/\n*$//;
+    return $message;
+  }
+  
+  return undef;
+}
+
 # Evaluate a specification file (SMakefile, configuration file etc.)
 #
 # Usage: evaluateSpecFile($path, \%context)
@@ -51,25 +79,7 @@ sub evaluateSpecFile {
   	return "File $path doesn't exist.";
   }
   
-  # -- execute the file
-  {
-  	local *evaluation_context = \$context;
-  	my $full_script = "";
-  	for my $varname (keys(%$context)) {
-  	  $full_script .= 'local *' . $varname . ' = \$evaluation_context->{' 
-  	      . $varname . '};' . "\n";
-  	}
-  	$full_script .= $script;
-    local $SIG{__WARN__} = sub { die @_ };
-    my $info = eval $full_script;
-    if(!defined($info) && (defined($@) && $@ ne "")) {
-      my $message = $@;
-      $message =~ s/\n*$//;
-      return $message;
-    }
-  }
-  
-  return undef;
+  return evaluateScript($script, $context);
 }
 
 return 1;
