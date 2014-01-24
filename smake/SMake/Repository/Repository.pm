@@ -19,6 +19,7 @@
 package SMake::Repository::Repository;
 
 use SMake::Model::ProfileFactory;
+use SMake::ToolChain::ToolChain;
 
 # Create new repository
 #
@@ -33,6 +34,8 @@ sub new {
   	variants => {},
   	profilefactory => SMake::Model::ProfileFactory->new(),
     profiles => [],
+    toolchain => SMake::ToolChain::ToolChain->new(
+        defined($parent)?$parent->getToolChain():undef),
   }, $class);
   
   # -- load storage data
@@ -45,6 +48,22 @@ sub new {
 sub destroyRepository {
   my ($this) = @_;
   $this->{storage}->destroyStorage($this);
+}
+
+# Get used tool chain
+#
+# Usage: getToolChain()
+sub getToolChain {
+  my ($this) = @_;
+  return $this->{toolchain};
+}
+
+# Set the tool chain
+#
+# Usage: setToolChain($toolchain)
+sub setToolChain {
+  my ($this, $toolchain) = @_;
+  $this->{toolchain} = $toolchain;
 }
 
 # Create instance of a named profile. If the profile is not found, the parent

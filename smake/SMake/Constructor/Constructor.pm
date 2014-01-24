@@ -15,12 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic resolver interface
-package SMake::Resolver::Resolver;
+# Generic artifact constructor
+package SMake::Constructor::Constructor;
 
 use SMake::Utils::Abstract;
 
-# Create new resolver class
+$SUBSYSTEM = "constructor";
+
+# Create new constructor object
 #
 # Usage: new()
 sub new {
@@ -28,14 +30,12 @@ sub new {
   return bless({}, $class);
 }
 
-# Resolve a resource
+# Construct artifact
 #
-# Usage: resolveResource($context, $queue, $resource)
-#    context ..... parser context, project and artifact are valid
-#    queue ....... resource queue
-#    resource .... resolved resource
-# Returns: true if the resource is handled
-sub resolveResource {
+# Usage: constructArtifact($context, $artifact)
+#    context .... parser context
+#    artifact ... the artifact object
+sub constructArtifact {
   SMake::Utils::Abstract::dieAbstract();
 }
 

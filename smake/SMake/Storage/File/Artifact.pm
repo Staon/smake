@@ -129,4 +129,9 @@ sub createStage {
   return $stage;
 }
 
+sub getResources {
+  my ($this) = @_;
+  return [values($this->{resources})]
+}
+
 return 1;

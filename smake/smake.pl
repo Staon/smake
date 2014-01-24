@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
+use SMake::Constructor::Generic;
 use SMake::Data::Path;
 use SMake::Mangler::Mangler;
 use SMake::Model::DeciderBox;
@@ -26,7 +27,10 @@ use SMake::Parser::VersionRequest;
 use SMake::Reporter::Reporter;
 use SMake::Reporter::TargetConsole;
 use SMake::Repository::Repository;
+use SMake::Resolver::Chain;
+use SMake::Resolver::Compile;
 use SMake::Storage::File::Storage;
+use SMake::ToolChain::ToolChain;
 use SMake::Utils::Dirutils;
 
 # -- reporter
@@ -41,8 +45,17 @@ $decider->registerDecider("timestamp", SMake::Model::DeciderTime->new());
 my $reppath = $ENV{'SMAKE_REPOSITORY'};
 my $storage = SMake::Storage::File::Storage->new($reppath);
 
-# -- external repository
+# -- repository
 my $repository = SMake::Repository::Repository->new(undef, $storage);
+
+# -- toolchain
+my $mangler = SMake::Mangler::Mangler->new();
+my $toolchain = SMake::ToolChain::ToolChain->new(undef, $mangler);
+my $resolver = SMake::Resolver::Chain->new(
+    SMake::Resolver::Compile->new('.*', '[.]cpp$', 'Dir() . Name() . ".o"'));
+my $constructor = SMake::Constructor::Generic->new($resolver);
+$toolchain->registerConstructor("lib", $constructor);
+$repository->setToolChain($toolchain);
 
 # -- parser
 my $parser = SMake::Parser::Parser->new();
@@ -67,7 +80,6 @@ print $version->printableString() . "\n";
 #$path = $path->joinPaths("ahoj/cau", SMake::Data::Path->new("blbost"), "SMakefile");
 #print $path->systemRelative(), "\n";
 
-my $mangler = SMake::Mangler::Mangler->new();
 $path = SMake::Data::Path->new("runtime/lib/ondrart.lib");
 $path = $mangler->mangleName($context, 'Name() . "/" . Dir() . "." . Suffix()', $path);
 print $path->printableString(), "\n";

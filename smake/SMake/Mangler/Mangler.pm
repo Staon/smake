@@ -43,7 +43,13 @@ sub suffix {
 
 sub dir {
   my ($mangler, $context, $resource) = @_;
-  return $resource->getDirpath()->asString();
+  my $dir = $resource->getDirpath();
+  if(!$dir->isEmpty()) {
+  	return $dir->asString() . "/";
+  }
+  else {
+    return '';
+  }
 }
 
 ##########################################################################

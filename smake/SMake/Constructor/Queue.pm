@@ -15,28 +15,33 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic resolver interface
-package SMake::Resolver::Resolver;
+# Queue of resources prepared for resolving
+package SMake::Constructor::Queue;
 
-use SMake::Utils::Abstract;
-
-# Create new resolver class
+# Create new queue
 #
 # Usage: new()
 sub new {
   my ($class) = @_;
-  return bless({}, $class);
+  return bless([], $class);
 }
 
-# Resolve a resource
+# Push a resource into the queue
 #
-# Usage: resolveResource($context, $queue, $resource)
-#    context ..... parser context, project and artifact are valid
-#    queue ....... resource queue
-#    resource .... resolved resource
-# Returns: true if the resource is handled
-sub resolveResource {
-  SMake::Utils::Abstract::dieAbstract();
+# Usage: pushResource($resource)
+sub pushResource {
+  my ($this, $resource) = @_;
+  push @$this, $resource;
+}
+
+# Get and remove resource from the top of the queue
+#
+# Usage: getResource()
+# Returns: the resource or undef
+sub getResource {
+  my ($this) = @_;
+  my $resource = shift @$this;
+  return $resource;
 }
 
 return 1;

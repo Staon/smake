@@ -79,6 +79,18 @@ sub getRepository {
   return $this->{repository};
 }
 
+# Get the toolchain
+sub getToolChain {
+  my ($this) = @_;
+  return $this->{repository}->getToolChain();
+}
+
+# Get the name mangler
+sub getMangler {
+  my ($this) = @_;
+  return $this->{repository}->getToolChain()->getMangler();
+}
+
 # Push current description
 #
 # Usage: setDescription($description)
@@ -148,7 +160,7 @@ sub popArtifact {
 }
 
 # Get current artifact
-sub getArtifact() {
+sub getArtifact {
   my ($this) = @_;
   return $this->{artifact}->topObject();
 }

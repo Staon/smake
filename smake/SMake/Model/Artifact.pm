@@ -103,6 +103,29 @@ sub createStage {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get list of resources of the artifact
+#
+# Usage: getResources()
+# Returns: \@list
+sub getResources {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# A helper method - create a task in a stage
+#
+# Usage: createTaskInStage($stage, $task, \%args)
+#    stage ..... name of the stage
+#    task ...... type of the task
+#    args ...... optional task arguments
+sub createTaskInStage {
+  my ($this, $stage, $task, $args) = @_;
+  
+  # -- stage object
+  my $stageobj = $this->createStage($stage);
+  # -- task object
+  return $stageobj->createTask($task, $args);
+}
+
 # A helper method - append source resources
 #
 # Usage: appendSourceResources($prefix, \@srclist)
@@ -125,11 +148,11 @@ sub appendSourceResources {
       return $src;
     }
 
-    # -- create source stage
-    my $stage = $this->createStage($SMake::Model::Const::SOURCE_STAGE);
-    
-    # -- create source task
-    my $task = $stage->createTask($SMake::Model::Const::SOURCE_TASK, undef);
+    # -- create task
+    my $task = $this->createTaskInStage(
+        $SMake::Model::Const::SOURCE_STAGE,
+        $SMake::Model::Const::SOURCE_TASK,
+        undef);
     
     # -- create resource
     my $resource = $this->createResource(
