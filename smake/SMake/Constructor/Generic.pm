@@ -27,12 +27,14 @@ use SMake::Utils::Utils;
 
 # Create new generic constructor
 #
-# Usage: new($resolver)
+# Usage: new($resolver, $resources)
 #    resolver .... resolver object
+#    resources ... list of records of main resources
 sub new {
-  my ($class, $resolver) = @_;
+  my ($class, $resolver, $resources) = @_;
   my $this = bless(SMake::Constructor::Constructor->new(), $class);
   $this->{resolver} = $resolver;
+  $this->{resources} = (defined($resources))?$resources:[];
   
   return $this;
 }
@@ -47,7 +49,10 @@ sub constructArtifact {
     $queue->pushResource($resource);
   }
   
-  # -- TODO: create main resources
+  # -- create main resources
+  foreach my $record (@{$this->{resources}}) {
+    $record->createMainResource($context, $artifact);
+  }
 
   # -- resolve resources
   for(

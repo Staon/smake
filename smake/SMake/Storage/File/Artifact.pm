@@ -48,6 +48,7 @@ sub new {
   $this->{descriptions} = {};
   $this->{resources} = {};
   $this->{stages} = {};
+  $this->{main_resources} = {};
   return $this;
 }
 
@@ -131,7 +132,24 @@ sub createStage {
 
 sub getResources {
   my ($this) = @_;
-  return [values($this->{resources})]
+  return [values(%{$this->{resources}})];
+}
+
+sub appendMainResource {
+  my ($this, $type, $resource) = @_;
+  
+  # -- check existence of the resource
+  my $r = $this->{resources}->{$resource->getKey()};
+  if(!defined($r) || ($r != $resource)) {
+    die "the main resource must be part of the artifact";
+  }
+  
+  $this->{main_resources}->{$type} = $resource;
+}
+
+sub getMainResource {
+  my ($this, $type) = @_;
+  return $this->{main_resources}->{$type};
 }
 
 return 1;

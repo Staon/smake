@@ -57,4 +57,11 @@ sub appendTarget {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Append a source resource
+#
+# Usage: appendSource($resource)
+sub appendSource {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

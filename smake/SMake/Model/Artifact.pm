@@ -71,7 +71,7 @@ sub attachDescription {
 
 # Create new resource
 #
-# Usage: createResource($prefix, $name)
+# Usage: createResource($prefix, $name, $type, $task)
 #    prefix .... relative logical path based on the artifact
 #    name ...... name of the resource
 #    type ...... type of the resource
@@ -108,6 +108,24 @@ sub createStage {
 # Usage: getResources()
 # Returns: \@list
 sub getResources {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Add a main resource
+#
+# Usage: addMainResource($type, $resource)
+#    type ...... type of the main resource
+#    resource .. the resource. The resource must be a resource of the
+#                artifact!
+sub appendMainResource {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get main resource of the artifact
+#
+# Usage: getMainResource($type)
+# Returns: the resource or undef
+sub getMainResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 

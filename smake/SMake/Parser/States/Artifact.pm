@@ -48,7 +48,10 @@ sub startFile {
 }
 
 sub finishFile {
-  # -- nothing to do
+  my ($this, $parser, $context, $description) = @_;
+  
+  # -- clean resource prefix
+  $context->popResourcePrefix();
 }
 
 sub src {

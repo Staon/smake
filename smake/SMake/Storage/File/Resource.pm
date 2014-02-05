@@ -85,4 +85,9 @@ sub getRelativePath {
   return $this->{name};
 }
 
+sub getTask {
+  my ($this) = @_;
+  return $this->{task};
+}
+
 return 1;

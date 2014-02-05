@@ -53,4 +53,9 @@ sub getRelativePath {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get task which is a creator of the resource
+sub getTask {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

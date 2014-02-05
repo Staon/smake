@@ -72,12 +72,14 @@ sub getStage {
   return $this->{stage};
 }
 
-# Append target resource
-#
-# Usage: appendTarget($resource)
 sub appendTarget {
   my ($this, $resource) = @_;
   $this->{targets}->{$resource->getKey()} = $resource;
+}
+
+sub appendSource {
+  my ($this, $resource) = @_;
+  $this->{sources}->{$resource->getKey()} = $resource;
 }
 
 return 1;

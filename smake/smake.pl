@@ -16,6 +16,7 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 use SMake::Constructor::Generic;
+use SMake::Constructor::MainResource;
 use SMake::Data::Path;
 use SMake::Mangler::Mangler;
 use SMake::Model::DeciderBox;
@@ -29,6 +30,7 @@ use SMake::Reporter::TargetConsole;
 use SMake::Repository::Repository;
 use SMake::Resolver::Chain;
 use SMake::Resolver::Compile;
+use SMake::Resolver::Link;
 use SMake::Storage::File::Storage;
 use SMake::ToolChain::ToolChain;
 use SMake::Utils::Dirutils;
@@ -52,8 +54,14 @@ my $repository = SMake::Repository::Repository->new(undef, $storage);
 my $mangler = SMake::Mangler::Mangler->new();
 my $toolchain = SMake::ToolChain::ToolChain->new(undef, $mangler);
 my $resolver = SMake::Resolver::Chain->new(
-    SMake::Resolver::Compile->new('.*', '[.]cpp$', 'Dir() . Name() . ".o"'));
-my $constructor = SMake::Constructor::Generic->new($resolver);
+    SMake::Resolver::Compile->new('.*', '[.]cpp$', 'Dir() . Name() . ".o"'),
+    SMake::Resolver::Link->new('.*', '[.]o$', "static_lib"));
+
+my $constructor = SMake::Constructor::Generic->new(
+  $resolver, [
+    SMake::Constructor::MainResource->new(
+        "static_lib", 'Dir() . Name() . ".a"', "liblink", "lib", {}),
+  ]);
 $toolchain->registerConstructor("lib", $constructor);
 $repository->setToolChain($toolchain);
 
