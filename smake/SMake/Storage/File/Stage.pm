@@ -82,4 +82,26 @@ sub createTask {
   return $task;
 }
 
+sub getDependencies {
+  my ($this) = @_;
+  my $self = $this->getAddress();
+  
+  my %addresses = ();
+  
+  # -- dependencies defined by resources
+  foreach my $task (@{$this->{tasks}}) {
+    my $sources = $task->getSources();
+    foreach my $source (@$sources) {
+      my $address = $source->getStage()->getAddress();
+      if(!$address->isEqual($self)) {
+        $addresses{$address->getKey()} = $address;
+      }
+    }
+  }
+
+  # -- TODO: explicit dependencies
+  
+  return [values %addresses];
+}
+
 return 1;

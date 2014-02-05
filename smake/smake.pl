@@ -17,7 +17,9 @@
 
 use SMake::Constructor::Generic;
 use SMake::Constructor::MainResource;
+use SMake::Data::Address;
 use SMake::Data::Path;
+use SMake::Executor::Executor;
 use SMake::Mangler::Mangler;
 use SMake::Model::DeciderBox;
 use SMake::Model::DeciderTime;
@@ -73,6 +75,13 @@ my $path = SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefi
 $repository->openTransaction();
 $parser -> parse($context, $path);
 $repository->commitTransaction();
+
+# -- execute the project
+my $executor = SMake::Executor::Executor->new();
+$executor->executeRoots(
+    $reporter,
+    $repository,
+    [SMake::Data::Address->new("Haha", "foo.lib", "liblink")]);
 
 $repository -> destroyRepository();
 

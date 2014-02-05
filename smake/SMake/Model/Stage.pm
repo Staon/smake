@@ -22,6 +22,7 @@ use SMake::Model::Object;
 
 @ISA = qw(SMake::Model::Object);
 
+use SMake::Data::Address;
 use SMake::Utils::Abstract;
 
 # Create new stage object
@@ -54,6 +55,23 @@ sub getProject {
 # Returns: new task
 sub createTask {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of dependencies
+#
+# Usage: getDependencies()
+# Returns: \@list - list of stage addresses (SMake::Data::Address)
+sub getDependencies {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Create address of this stage
+sub getAddress {
+  my ($this) = @_;
+  return SMake::Data::Address->new(
+      $this->getProject()->getName(),
+      $this->getArtifact()->getName(),
+      $this->getName());
 }
 
 return 1;

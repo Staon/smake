@@ -45,6 +45,7 @@ sub doJob {
   # -- create the task and the resource
   my $artifact = $context->getArtifact();
   my $task = $artifact->createTaskInStage("compile", "cxx", undef);
+  $task->appendSource($resource);
   my $tgres = $artifact->createResource($tgpath, "product", $task);
   $queue->pushResource($tgres);
 }

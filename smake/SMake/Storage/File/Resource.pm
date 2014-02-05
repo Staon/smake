@@ -89,4 +89,9 @@ sub getTask {
   return $this->{task};
 }
 
+sub getStage {
+  my ($this) = @_;
+  return $this->{task}->getStage();
+}
+
 return 1;

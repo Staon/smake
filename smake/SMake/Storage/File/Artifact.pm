@@ -25,6 +25,8 @@ use SMake::Model::Artifact;
 use SMake::Storage::File::Resource;
 use SMake::Storage::File::Stage;
 
+use Data::Dumper;
+
 # Create new artifact object
 #
 # Usage: new($repository, $storage, $project, $path, $name, $type, \%args)
@@ -128,6 +130,11 @@ sub createStage {
     $this->{stages}->{$stage->getKey()} = $stage;
   }
   return $stage;
+}
+
+sub getStage {
+  my ($this, $name) = @_;
+  return $this->{stages}->{$name};
 }
 
 sub getResources {

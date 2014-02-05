@@ -98,4 +98,11 @@ sub createArtifact {
   return $artifact;
 }
 
+# Usage: getArtifact($name)
+# Returns: the artifact or undef
+sub getArtifact {
+  my ($this, $name) = @_;
+  return $this->{artifacts}->{$name};
+}
+
 return 1;

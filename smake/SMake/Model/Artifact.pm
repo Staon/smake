@@ -101,6 +101,14 @@ sub createStage {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get stage
+#
+# Usage: getStage($name)
+# Returns: the stage or undef
+sub getStage {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get list of resources of the artifact
 #
 # Usage: getResources()

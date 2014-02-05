@@ -111,6 +111,7 @@ sub storeProject {
     open(PRJFILE, ">$filename");
     my $dumper = Data::Dumper->new([$project], [qw(project)]);
     $dumper->Indent(1);
+    $dumper->Purity(1);
     $dumper->Seen({'repository' => $repository, 'storage' => $this});
     print PRJFILE $dumper->Dump();
     close(PRJFILE);
@@ -205,6 +206,7 @@ sub commitTransaction {
       open(DESCFILE, ">$filename");
       my $dumper = Data::Dumper->new([$this->{descriptions}], [qw(descriptions)]);
       $dumper->Indent(1);
+      $dumper->Purity(1);
       $dumper->Seen({'repository' => $repository, 'storage' => $this});
       print DESCFILE $dumper->Dump();
       close(DESCFILE);

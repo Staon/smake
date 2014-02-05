@@ -60,4 +60,12 @@ sub createArtifact {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get artifact
+#
+# Usage: getArtifact($name)
+# Returns: the artifact or undef
+sub getArtifact {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

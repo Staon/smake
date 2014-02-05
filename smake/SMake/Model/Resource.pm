@@ -58,4 +58,9 @@ sub getTask {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get stage which the resource is created in
+sub getStage {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;
