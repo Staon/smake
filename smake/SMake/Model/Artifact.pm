@@ -72,14 +72,13 @@ sub attachDescription {
 # Create new resource
 #
 # Usage: createResource($prefix, $name, $type, $task)
-#    prefix .... relative logical path based on the artifact
-#    name ...... name of the resource
+#    name ...... name of the resource (relative path based on the artifact)
 #    type ...... type of the resource
 #    task ...... a task which generates this resource
 sub createResource {
-  my ($this, $prefix, $name, $type, $task) = @_;
+  my ($this, $name, $type, $task) = @_;
   
-  my $resource = $this->createResourceRaw($prefix, $name, $type, $task);
+  my $resource = $this->createResourceRaw($name, $type, $task);
   $task->appendTarget($resource);
   return $resource;
 }
@@ -87,7 +86,6 @@ sub createResource {
 # Create new resource
 #
 # Usage: createResource($prefix, $name, $type)
-#    prefix .... relative logical path based on the artifact
 #    name ...... name of the resource
 #    type ...... type of the resource
 #    task ...... a task which generates this resource
@@ -174,7 +172,7 @@ sub appendSourceResources {
     
     # -- create resource
     my $resource = $this->createResource(
-        $prefix, $name, $SMake::Model::Const::SOURCE_RESOURCE, $task);
+        $prefix->joinPaths($name), $SMake::Model::Const::SOURCE_RESOURCE, $task);
   }
   
   return undef;

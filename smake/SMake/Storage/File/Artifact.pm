@@ -112,9 +112,9 @@ sub attachDescription {
 }
 
 sub createResourceRaw {
-  my ($this, $prefix, $name, $type, $task) = @_;
+  my ($this, $name, $type, $task) = @_;
   my $resource = SMake::Storage::File::Resource->new(
-      $this->{repository}, $this->{storage}, $this->{path}, $prefix, $name, $type, $task);
+      $this->{repository}, $this->{storage}, $this->{path}, $name, $type, $task);
   $this->{resources}->{$resource->getKey()} = $resource;
   return $resource;
 }

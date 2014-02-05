@@ -56,7 +56,6 @@ my $toolchain = SMake::ToolChain::ToolChain->new(undef, $mangler);
 my $resolver = SMake::Resolver::Chain->new(
     SMake::Resolver::Compile->new('.*', '[.]cpp$', 'Dir() . Name() . ".o"'),
     SMake::Resolver::Link->new('.*', '[.]o$', "static_lib"));
-
 my $constructor = SMake::Constructor::Generic->new(
   $resolver, [
     SMake::Constructor::MainResource->new(

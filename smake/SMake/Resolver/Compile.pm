@@ -43,9 +43,9 @@ sub doJob {
       $context, $this->{mangler}, $resource->getRelativePath());
 
   # -- create the task and the resource
-  my $task = $context->getArtifact()->createTaskInStage("compile", "cxx", undef);
-  my $tgres = $context->getArtifact()->createResource(
-      $tgpath->getDirpath(), $tgpath->getBasepath(), "product", $task);
+  my $artifact = $context->getArtifact();
+  my $task = $artifact->createTaskInStage("compile", "cxx", undef);
+  my $tgres = $artifact->createResource($tgpath, "product", $task);
   $queue->pushResource($tgres);
 }
 

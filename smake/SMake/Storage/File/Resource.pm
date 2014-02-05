@@ -28,17 +28,16 @@ use SMake::Model::Resource;
 #    repository ... a repository which the resource belongs to
 #    storage ...... owning file storage
 #    basepath ..... path of the artifact
-#    prefix ....... a relative path based on the artifact
 #    name ......... name of the resource (as a relative path based on the artifact)
 #    type ......... type of the resource (for example "src")
 #    task ......... task which generates the resource
 sub new {
-  my ($class, $repository, $storage, $basepath, $prefix, $name, $type, $task) = @_;
+  my ($class, $repository, $storage, $basepath, $name, $type, $task) = @_;
   my $this = bless(SMake::Model::Resource->new(), $class);
   $this->{repository} = $repository;
   $this->{storage} = $storage;
-  $this->{name} = $prefix->joinPaths($name);
-  $this->{path} = $basepath->joinPaths($prefix, $name);
+  $this->{name} = $name;
+  $this->{path} = $basepath->joinPaths($name);
   $this->{type} = $type;
   $this->{task} = $task;
   return $this;

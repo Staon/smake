@@ -44,15 +44,14 @@ sub createMainResource {
   my ($this, $context, $artifact) = @_;
   
   # -- create a task which creates the main resource
-  my $stage = $artifact->createStage($this->{stage});
-  my $task = $stage->createTask($this->{task}, $this->{args});
+  my $task = $artifact->createTaskInStage(
+      $this->{stage}, $this->{task}, $this->{args});
   
   # -- create the resource
   my $prefix = $context->getResourcePrefix();
   my $path = $prefix->joinPaths($artifact->getName());
   my $name = $context->getMangler()->mangleName($context, $this->{mangler}, $path);
-  my $resource = $artifact->createResource(
-      $name->getDirpath(), $name->getBasepath(), "product", $task);
+  my $resource = $artifact->createResource($name, "product", $task);
   
   # -- append the main resource
   $artifact->appendMainResource($this->{maintype}, $resource);
