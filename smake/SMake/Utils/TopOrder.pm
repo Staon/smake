@@ -18,6 +18,9 @@
 # A helper object to compute topological order
 package SMake::Utils::TopOrder;
 
+use List::PriorityQueue;
+use SMake::Utils::TopOrderNode;
+
 # Create new object
 #
 # Usage: new(\&keyfce, \&childrenfce, \@roots)
@@ -28,14 +31,9 @@ sub new {
   my $this = bless({
     keyfce => $keyfce,
     childrenfce => $childrenfce,
-    order => [],
+    nodes => {},
   }, $class);
   return $this;
-}
-
-sub createMixin {
-  my ($object) = @_;
-  return [$object, [], 0, 0]; # [object, children, color (0 idle, 1 open, 2 closed), depth]
 }
 
 # Compute the order
@@ -53,50 +51,50 @@ sub compute {
   {
     # -- prepare DFS
     my @stack = ();
-    my %touched = ();
     foreach my $root (@$roots) {
-      my $mixin = createMixin($root);
-      push @stack, $mixin;
-      $touched{&{$this->{keyfce}}($root)} = $mixin;
+      my $node = SMake::Utils::TopOrderNode->new($root);
+      push @stack, $node;
+      $this->{nodes}->{&{$this->{keyfce}}($root)} = $node;
     }
   
     # -- run DFS
     while(@stack) {
-      my $mixin = $stack[$#stack];
+      my $node = $stack[$#stack];
       
-      if($mixin->[2] == 1) { # -- opened node
+      if($node->getColor() eq "opened") {
         # -- close the node
-        $mixin->[2] = 2; # -- closed
+        $node->setColor("closed");
         pop @stack;
         
         # insert into the list of objects
-        unshift @{$this->{order}}, $mixin; 
+        unshift @{$this->{order}}, $node; 
       }
-      elsif($mixin->[2] == 0) { # -- idle
+      elsif($node->getColor() eq "idle") {
         # -- open the node
-        $mixin->[2] = 1;  # -- opened
+        $node->setColor("opened");
       
         # -- iterate children
-        my $children = &{$this->{childrenfce}}($mixin->[0]);
+        my $children = &{$this->{childrenfce}}($node->getObject());
         foreach my $child (@$children) {
           my $key = &{$this->{keyfce}}($child);
-          if(!defined($touched{$key})) {
-          	my $childmixin = createMixin($child);
-            push @stack, $childmixin;
-            $touched{$key} = $childmixin;
-            push @{$mixin->[1]}, $childmixin;
+          if(!defined($this->{nodes}->{$key})) {
+          	my $childnode = SMake::Utils::TopOrderNode->new($child);
+          	$node->appendChild($childnode);
+            push @stack, $childnode;
+            $this->{nodes}->{$key} = $childnode;
           }
           else {
-          	my $childmixin = $touched{$key};
-          	if($childmixin->[2] == 1) {
-          	  # -- cycled dependency, create DFS stack to report the cycle
-          	  my $retval = [];
-          	  foreach my $m (@stack) {
-          	    push @$retval, $m->[0];
-          	  }
-          	  return (0, $retval);
+          	my $childnode = $this->{nodes}->{$key};
+            $node->appendChild($childnode);
+          	
+          	# -- detect dependency cycle
+          	if($childnode->getColor() eq "opened") {
+              my $retval = [$childnode->getObject()];
+              foreach my $n (@stack) {
+                push @$retval, $n->getObject();
+              }
+              return (0, $retval);
           	}
-            push @{$mixin->[1]}, $childmixin;
           }
         }
       }
@@ -106,39 +104,56 @@ sub compute {
     }
   }
 
-  # -- compute maximal depths from roots
-  {
-    foreach my $mixin (@{$this->{order}}) {
-      my $depth = $mixin->[3] + 1;
-      foreach my $child (@{$mixin->[1]}) {
-        if($child->[3] < $depth) {
-          $child->[3] = $depth;
-        }
-      }
-      $mixin->[1] = undef; # -- memory optimization, the list is not needed anymore
-    }
+  # -- revert edges to be prepared for leaf cutting
+  foreach my $node (values(%{$this->{nodes}})) {
+    $node->revertEdges();
   }
   
-  # -- sort the list to get elements in the same depth in one group
-  my @sorted = sort { $b->[3] <=> $a->[3] } @{$this->{order}};
-  $this->{order} = \@sorted;
+  # -- construct the priority queue
+  $this->{queue} = List::PriorityQueue->new();
+  foreach my $node (values(%{$this->{nodes}})) {
+    $this->{queue}->insert(
+        &{$this->{keyfce}}($node->getObject()), $node->getDegree());
+  }
   
   return (1);
 }
 
-sub printList {
+# Get list of all leaves
+#
+# Usage: getLeaves()
+# Returns: \@list or undef, if the queue is empty
+sub getLeaves {
   my ($this) = @_;
 
-  my $first = 1;  
-  foreach my $mixin (@{$this->{order}}) {
-    if($first) {
-      $first = 0;
-    }
-    else {
-      print " ";
-    }
-    print "[" . $mixin->[3] . ": " . &{$this->{keyfce}}($mixin->[0]) . "]";
+  # -- empty queue
+  return undef if($this->{queue}->empty());
+
+  # -- get list of top objects
+  my $item = $this->{queue}->popPriority(0);
+  my $list = [];
+  while(defined($item)) {
+    my $node = $this->{nodes}->{$item};
+    push @$list, $node->getObject();
+    
+    $item = $this->{queue}->popPriority(0);
   }
+
+  return $list;  
+}
+
+# Finish an object
+#
+# The method finishes an object. It means that dependencies are cleared and dependent
+# objects can become leaves which can be got by the method getLeaves().
+#
+# Usage: finishObject($object)
+sub finishObject {
+  my ($this, $object) = @_;
+
+  my $key = &{$this->{keyfce}}($object);  
+  my $node = $this->{nodes}->{$key};
+  $node->finish($this->{keyfce}, $this->{queue});
 }
 
 return 1;

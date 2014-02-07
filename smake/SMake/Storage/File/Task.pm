@@ -82,13 +82,9 @@ sub appendSource {
   $this->{sources}->{$resource->getKey()} = $resource;
 }
 
-# Get list of sources
-#
-# Usage: getSources()
-# Returns: \@list
 sub getSources {
   my ($this) = @_;
-  return [values($this->{sources})];
+  return [values(%{$this->{sources}})];
 }
 
 return 1;

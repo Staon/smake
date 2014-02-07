@@ -81,7 +81,10 @@ my $executor = SMake::Executor::Executor->new();
 $executor->executeRoots(
     $reporter,
     $repository,
-    [SMake::Data::Address->new("Haha", "foo.lib", "liblink")]);
+    [
+      SMake::Data::Address->new("Haha", "foo.lib", "liblink"),
+      SMake::Data::Address->new("Haha", "hello.lib", "liblink"),
+    ]);
 
 $repository -> destroyRepository();
 

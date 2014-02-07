@@ -85,8 +85,23 @@ sub executeRoots {
   my ($info, $cyclelist) = $toporder->compute($roots);
 
   if($info) {
-    print "OK: ";
-    $toporder->printList();  
+  	my $toplist = $toporder->getLeaves();
+  	while(defined($toplist)) {
+  	  # -- print the list
+  	  foreach my $address (@$toplist) {
+  	    print $address->getKey() . " ";
+  	  }
+  	  print "\n";
+  	  
+  	  # -- finish objects
+  	  foreach my $address (@$toplist) {
+  	  	print "finish: " . $address->getKey() . "\n";
+  	    $toporder->finishObject($address);
+  	  }
+  	  
+  	  # -- get next objects
+  	  $toplist = $toporder->getLeaves();
+  	}
   }
   else {
     print "a cycle: ";
