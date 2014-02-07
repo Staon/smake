@@ -67,7 +67,16 @@ sub src {
           $context->getReporter(),
           $SMake::Parser::Parser::SUBSYSTEM,
           "complex or empty paths ('%s') are not allowed for directive 'Src'",
-          $src);
+          $wrong);
+  }
+}
+
+sub deps {
+  my ($this, $parser, $context, $deptype, $deplist) = @_;
+  
+  my $artifact = $context->getArtifact();
+  foreach my $dep (@$deplist) {
+    $artifact->createDependency($deptype, $artifact->getProject()->getName(), $dep);
   }
 }
 

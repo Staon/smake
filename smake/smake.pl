@@ -55,6 +55,7 @@ my $repository = SMake::Repository::Repository->new(undef, $storage);
 # -- toolchain
 my $mangler = SMake::Mangler::Mangler->new();
 my $toolchain = SMake::ToolChain::ToolChain->new(undef, $mangler);
+# ---- library artifact
 my $resolver = SMake::Resolver::Chain->new(
     SMake::Resolver::Compile->new('.*', '[.]cpp$', 'Dir() . Name() . ".o"'),
     SMake::Resolver::Link->new('.*', '[.]o$', "static_lib"));
@@ -64,6 +65,17 @@ my $constructor = SMake::Constructor::Generic->new(
         "static_lib", 'Dir() . Name() . ".a"', "liblink", "lib", {}),
   ]);
 $toolchain->registerConstructor("lib", $constructor);
+# ---- binary artifact
+$resolver = SMake::Resolver::Chain->new(
+    SMake::Resolver::Compile->new('.*', '[.]cpp$', 'Dir() . Name() . ".o"'),
+    SMake::Resolver::Link->new('.*', '[.]o$', "binary"));
+$constructor = SMake::Constructor::Generic->new(
+  $resolver, [
+    SMake::Constructor::MainResource->new(
+        "binary", 'Dir() . Name()', "binlink", "bin", {}),
+  ]);
+$toolchain->registerConstructor("bin", $constructor);
+
 $repository->setToolChain($toolchain);
 
 # -- parser

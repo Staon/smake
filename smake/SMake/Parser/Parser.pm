@@ -68,6 +68,12 @@ sub directive_SSh {
   executeDirective(@_);
 }
 
+sub directive_SA {
+  SMake::Utils::ArgChecker::checkScalar($_[0], $_[1], 1);
+  SMake::Utils::ArgChecker::checkArray($_[0], $_[2], 2);
+  executeDirective(@_);
+}
+
 ##########################################################################
 #                                Parser
 ##########################################################################
@@ -86,6 +92,7 @@ sub new {
       Artifact => \&directive_SSh,
       EndArtifact => \&directive_,
       Src => \&directive_A,
+      Deps => \&directive_SA,
     },
   }, $class);
 }

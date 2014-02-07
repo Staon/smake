@@ -22,6 +22,7 @@ use SMake::Model::Artifact;
 
 @ISA = qw(SMake::Model::Artifact);
 
+use SMake::Storage::File::Dependency;
 use SMake::Storage::File::Resource;
 use SMake::Storage::File::Stage;
 
@@ -51,6 +52,7 @@ sub new {
   $this->{resources} = {};
   $this->{stages} = {};
   $this->{main_resources} = {};
+  $this->{dependencies} = [];
   return $this;
 }
 
@@ -157,6 +159,16 @@ sub appendMainResource {
 sub getMainResource {
   my ($this, $type) = @_;
   return $this->{main_resources}->{$type};
+}
+
+sub createDependency {
+  my ($this, $deptype, $depprj, $departifact) = @_;
+  
+  my $dependency = SMake::Storage::File::Dependency->new(
+      $this->{repository}, $this->{storage}, $this, $deptype, $depprj, $departifact);
+  push @{$this->{dependencies}}, $dependency;
+  
+  return $dependency;
 }
 
 return 1;

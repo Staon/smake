@@ -135,6 +135,16 @@ sub getMainResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Create new dependency
+#
+# Usage: createDependency($deptype, $depprj, $departifact)
+#    deptype ....... dependency type
+#    depprj ........ name of the dependency project
+#    departifact ... name of the dependency artifact
+sub createDependency {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # A helper method - create a task in a stage
 #
 # Usage: createTaskInStage($stage, $task, \%args)
