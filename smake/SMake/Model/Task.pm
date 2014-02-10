@@ -64,4 +64,18 @@ sub appendSource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Append an external dependency
+#
+# Usage: appendDependency($dep)
+sub appendDependency {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of external dependencies
+#
+# Returns: \@list
+sub getDependencies {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

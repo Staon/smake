@@ -30,39 +30,9 @@ $SUBSYSTEM = "executor";
 sub getChildren {
   my ($reporter, $repository, $address) = @_;
   
-  # -- get project
-  my $project = $repository->getProject($address->getProject());
-  if(!defined($project)) {
-    SMake::Utils::Utils::dieReport(
-        $reporter,
-        $SMake::Executor::Executor::SUBSYSTEM,
-        "project '%s' is not known", $address->getProject());
-  }
-  
-  # -- get artifact
-  my $artifact = $project->getArtifact($address->getArtifact());
-  if(!defined($artifact)) {
-    SMake::Utils::Utils::dieReport(
-        $reporter,
-        $SMake::Executor::Executor::SUBSYSTEM,
-        "artifact '%s' is not defined in the project '%s'",
-        $address->getArtifact(),
-        $address->getProject());
-  }
-  
-  # -- get stage
-  my $stage = $artifact->getStage($address->getStage());
-  if(!defined($stage)) {
-    SMake::Utils::Utils::dieReport(
-        $reporter,
-        $SMake::Executor::Executor::SUBSYSTEM,
-        "stage '%s' is not defined in the artifact '%s' of the project '%s'",
-        $address->getStage(),
-        $address->getArtifact(),
-        $address->getProject());
-  }
-  
-  return $stage->getDependencies();
+  my ($project, $artifact, $stage) = $address->getObjects(
+      $reporter, $SUBSYSTEM, $repository);
+  return $stage->getDependencies($reporter, $SUBSYSTEM);
 }
 
 # Create new executor object

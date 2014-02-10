@@ -35,6 +35,7 @@ sub new {
   $this->{args} = defined($args)?$args:{};
   $this->{targets} = {};
   $this->{sources} = {};
+  $this->{dependencies} = [];
    
   return $this;
 }
@@ -50,6 +51,7 @@ sub destroy {
   $this->{stage} = undef;
   $this->{targets} = undef;
   $this->{sources} = undef;
+  $this->{dependencies} = undef;
 }
 
 sub getRepository {
@@ -85,6 +87,16 @@ sub appendSource {
 sub getSources {
   my ($this) = @_;
   return [values(%{$this->{sources}})];
+}
+
+sub appendDependency {
+  my ($this, $dependency) = @_;
+  push @{$this->{dependencies}}, $dependency;
+}
+
+sub getDependencies {
+  my ($this) = @_;
+  return [@{$this->{dependencies}}];
 }
 
 return 1;

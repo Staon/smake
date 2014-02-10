@@ -32,6 +32,7 @@ use SMake::Reporter::TargetConsole;
 use SMake::Repository::Repository;
 use SMake::Resolver::Chain;
 use SMake::Resolver::Compile;
+use SMake::Resolver::Dependency;
 use SMake::Resolver::Link;
 use SMake::Storage::File::Storage;
 use SMake::ToolChain::ToolChain;
@@ -68,7 +69,8 @@ $toolchain->registerConstructor("lib", $constructor);
 # ---- binary artifact
 $resolver = SMake::Resolver::Chain->new(
     SMake::Resolver::Compile->new('.*', '[.]cpp$', 'Dir() . Name() . ".o"'),
-    SMake::Resolver::Link->new('.*', '[.]o$', "binary"));
+    SMake::Resolver::Link->new('.*', '[.]o$', "binary"),
+    SMake::Resolver::Dependency->new('^link$', "binary"));
 $constructor = SMake::Constructor::Generic->new(
   $resolver, [
     SMake::Constructor::MainResource->new(
@@ -94,8 +96,7 @@ $executor->executeRoots(
     $reporter,
     $repository,
     [
-      SMake::Data::Address->new("Haha", "foo.lib", "liblink"),
-      SMake::Data::Address->new("Haha", "hello.lib", "liblink"),
+      SMake::Data::Address->new("Haha", "hello", "binlink"),
     ]);
 
 $repository -> destroyRepository();

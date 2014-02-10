@@ -55,6 +55,18 @@ sub resolveResource {
   return $status;
 }
 
+sub resolveDependency {
+  my ($this, $context, $dependency) = @_;
+  my $status = 0;
+  my $stop = 0;
+  foreach my $resolver (@{$this->{list}}) {
+    ($status, $stop) = $this->resolvePartialDep(
+        $context, $resolver, $dependency, $status);
+    last if($stop);
+  }
+  return $status;
+}
+
 # Resolve a resource through a child resolver
 #
 # Usage: resolvePartial($context, $resolver, $queue, $resource, $status)
@@ -67,6 +79,20 @@ sub resolveResource {
 #    status ...... new return value of the container resolver
 #    stop ........ if it's true, the container resolver stops work
 sub resolvePartial {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Resolve a dependency record through a child resolve
+#
+# Usage: resolvePartialDep($context, $resolver, $dependency, $status)
+#    context ...... parser context
+#    resolver ..... the child resolver
+#    dependency ... the dependency record
+#    status ....... current return value of the container resolver
+# Returns:
+#    status ....... new return value of the container resolver
+#    stop ......... if it's true, the container resolver stops work
+sub resolvePartialDep {
   SMake::Utils::Abstract::dieAbstract();
 }
 

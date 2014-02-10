@@ -22,7 +22,9 @@ use SMake::Model::Stage;
 
 @ISA = qw(SMake::Model::Stage);
 
+use SMake::Executor::Executor;
 use SMake::Storage::File::Task;
+use SMake::Utils::Utils;
 
 # Create new stage object
 #
@@ -83,13 +85,14 @@ sub createTask {
 }
 
 sub getDependencies {
-  my ($this) = @_;
+  my ($this, $reporter, $subsystem) = @_;
   my $self = $this->getAddress();
   
   my %addresses = ();
   
   # -- dependencies defined by resources
   foreach my $task (@{$this->{tasks}}) {
+  	# -- source resources
     my $sources = $task->getSources();
     foreach my $source (@$sources) {
       my $address = $source->getStage()->getAddress();
@@ -97,9 +100,17 @@ sub getDependencies {
         $addresses{$address->getKey()} = $address;
       }
     }
+    
+    # -- external dependencies
+    my $dependencies = $task->getDependencies();
+    foreach my $dep (@$dependencies) {
+      my ($project, $artifact, $resource) = $dep->getObjects(
+          $reporter, $subsystem, $this->{repository});
+      my $stage = $resource->getStage();
+      my $address = $stage->getAddress();
+      $addresses{$address->getKey()} = $address;
+    }
   }
-
-  # -- TODO: explicit dependencies
   
   return [values %addresses];
 }

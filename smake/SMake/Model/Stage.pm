@@ -57,10 +57,12 @@ sub createTask {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get list of dependencies
+# Get list of dependencies of the stage
 #
-# Usage: getDependencies()
-# Returns: \@list - list of stage addresses (SMake::Data::Address)
+# Usage: getDependencies($reporter, $subsystem)
+#    reporter ...... a reporter object
+#    subsystem ..... id of the logging subsystem
+# Returns: \@list .. list of dependencies as a list of stage addresses
 sub getDependencies {
   SMake::Utils::Abstract::dieAbstract();
 }

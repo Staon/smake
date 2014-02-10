@@ -52,6 +52,7 @@ sub new {
   $this->{resources} = {};
   $this->{stages} = {};
   $this->{main_resources} = {};
+  $this->{main} = undef;
   $this->{dependencies} = [];
   return $this;
 }
@@ -73,6 +74,10 @@ sub destroy {
     $stage->destroy();
   }
   $this->{stages} = undef;
+  foreach my $dep (@{$this->{dependencies}}) {
+    $dep->destroy();
+  }
+  $this->{dependencies} = undef;
 }
 
 sub getRepository {
@@ -154,11 +159,19 @@ sub appendMainResource {
   }
   
   $this->{main_resources}->{$type} = $resource;
+  if(!defined($this->{main})) {
+    $this->{main} = $resource;
+  }
 }
 
 sub getMainResource {
   my ($this, $type) = @_;
   return $this->{main_resources}->{$type};
+}
+
+sub getDefaultMainResource {
+  my ($this) = @_;
+  return $this->{main};
 }
 
 sub createDependency {
@@ -169,6 +182,11 @@ sub createDependency {
   push @{$this->{dependencies}}, $dependency;
   
   return $dependency;
+}
+
+sub getDependencyRecords {
+  my ($this) = @_;
+  return [@{$this->{dependencies}}];
 }
 
 return 1;

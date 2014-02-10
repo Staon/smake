@@ -67,6 +67,18 @@ sub constructArtifact {
           $resource->getName());
     }
   }
+  
+  # -- resolve dependency records
+  my $dependencies = $artifact->getDependencyRecords();
+  foreach my $dependency (@$dependencies) {
+    if(!$this->{resolver}->resolveDependency($context, $dependency)) {
+      SMake::Utils::Utils::dieReport(
+          $context->getReporter(),
+          $SMake::Constructor::Constructor::SUBSYSTEM,
+          "there is no dependency resolver registered for dependency '%s'",
+          $dependency->getDependencyType());
+    }
+  }
 }
 
 return 1;

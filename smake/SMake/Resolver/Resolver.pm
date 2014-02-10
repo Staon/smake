@@ -39,4 +39,14 @@ sub resolveResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Resolve a dependency record
+#
+# Usage: resolveDependency($context, $dependency)
+#    context ..... parser context, project and artifact are valid
+#    dependency .. the dependency object
+# Returns: true if the dependency is handled
+sub resolveDependency {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

@@ -50,6 +50,10 @@ sub resolveResource {
   }
 }
 
+sub resolveDependency {
+  return 0;
+}
+
 # Do the resolver's job
 #
 # Usage: doJob($context, $resource)

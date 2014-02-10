@@ -44,4 +44,15 @@ sub resolvePartial {
   }
 }
 
+sub resolvePartialDep {
+  my ($this, $context, $resolver, $dependency, $status) = @_;
+
+  if($resolver->resolveDependency($context, $dependency)) {
+    return (1, 0);
+  }
+  else {
+    return ($status, 0);
+  }
+}
+
 return 1;

@@ -49,4 +49,58 @@ sub getDependencyArtifact {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get type of the references main resource
+#
+# Usage: name of the type or undef if the default main resource should be used
+sub getDependencyMainResource {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get model objects addressed by this dependency object
+#
+# Usage: getObjects($reporter, $subsystem, $repository)
+# Returns: ($project, $artifact, $resource)
+sub getObjects {
+  my ($this, $reporter, $subsystem, $repository) = @_;
+  
+  my $project = $repository->getProject($this->getDependencyProject());
+  if(!defined($project)) {
+    SMake::Utils::Utils::dieReport(
+        $reporter,
+        $subsystem,
+        "unknown dependent project '%s'",
+        $this->getDependencyProject());
+  }
+    
+  my $artifact = $project->getArtifact($this->getDependencyArtifact());
+  if(!defined($artifact)) {
+    SMake::Utils::Utils::dieReport(
+        $reporter,
+        $subsystem,
+        "unknown dependent artifact '%s' in the project '%s'",
+        $this->getDependencyProject(),
+        $this->getDependencyArtifact());
+  }
+  
+  my $restype = $this->getDependencyMainResource();
+  my $resource;
+  if(!defined($resname)) {
+    $resource = $artifact->getDefaultMainResource();
+  }
+  else {
+    $resource = $artifact->getMainResource($restype);
+  }
+  if(!defined($resource)) {
+    SMake::Utils::Utils::dieReport(
+        $reporter,
+        $subsystem,
+        "unknown dependent main resource '%s' of the artifact '%s' in the project '%s'",
+        (defined($restype)?$restype:"default"),
+        $this->getDependencyProject(),
+        $this->getDependencyArtifact());
+  }
+
+  return ($project, $artifact, $resource);
+}
+
 return 1;

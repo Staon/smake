@@ -31,8 +31,9 @@ use SMake::Model::Dependency;
 #    deptype ........... type of the dependency
 #    depprj ............ name of the dependency project
 #    departifact ....... name of the dependency artifact
+#    depmain ........... type of the dependency main resource (undef for the default)
 sub new {
-  my ($class, $repository, $storage, $artifact, $deptype, $depprj, $departifact) = @_;
+  my ($class, $repository, $storage, $artifact, $deptype, $depprj, $departifact, $depmain) = @_;
   my $this = bless(SMake::Model::Dependency->new(), $class);
   $this->{repository} = $repository;
   $this->{storage} = $storage;
@@ -40,8 +41,17 @@ sub new {
   $this->{deptype} = $deptype;
   $this->{depprj} = $depprj;
   $this->{departifact} = $departifact;
+  $this->{depmain} = $depmain;
   
   return $this;
+}
+
+sub destroy {
+  my ($this) = @_;
+  
+  $this->{repository} = undef;
+  $this->{storage} = undef;
+  $this->{artifact} = undef;
 }
 
 sub getDependencyType {
@@ -57,6 +67,11 @@ sub getDependencyProject {
 sub getDependencyArtifact {
   my ($this) = @_;
   return $this->{departifact};
+}
+
+sub getDependencyMainResource {
+  my ($this) = @_;
+  return $this->{depmain};
 }
 
 return 1;

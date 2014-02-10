@@ -135,6 +135,14 @@ sub getMainResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get default main resource
+#
+# Usage: getDefaultMainResource()
+# Returns: the resource or undef
+sub getDefaultMainResource {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Create new dependency
 #
 # Usage: createDependency($deptype, $depprj, $departifact)
@@ -142,6 +150,14 @@ sub getMainResource {
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact
 sub createDependency {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of dependency objects
+#
+# Usage: getDependencyRecords()
+# Returns: \@list
+sub getDependencyRecords {
   SMake::Utils::Abstract::dieAbstract();
 }
 

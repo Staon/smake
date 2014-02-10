@@ -79,4 +79,46 @@ sub printAddressList {
   }
 }
 
+# Get model objects addressed by this object
+#
+# Usage: getObjects($reporter, $subsystem, $repository)
+# Returns: ($project, $artifact, $stage)
+sub getObjects {
+  my ($this, $reporter, $subsystem, $repository) = @_;
+  
+  # -- get project
+  my $project = $repository->getProject($this->{project});
+  if(!defined($project)) {
+    SMake::Utils::Utils::dieReport(
+        $reporter,
+        $subsystem,
+        "project '%s' is not known", $this->{project});
+  }
+  
+  # -- get artifact
+  my $artifact = $project->getArtifact($this->{artifact});
+  if(!defined($artifact)) {
+    SMake::Utils::Utils::dieReport(
+        $reporter,
+        $subsystem,
+        "artifact '%s' is not defined in the project '%s'",
+        $this->{artifact},
+        $this->{project});
+  }
+  
+  # -- get stage
+  my $stage = $artifact->getStage($this->{stage});
+  if(!defined($stage)) {
+    SMake::Utils::Utils::dieReport(
+        $reporter,
+        $subsystem,
+        "stage '%s' is not defined in the artifact '%s' of the project '%s'",
+        $this->{stage},
+        $this->{artifact},
+        $this->{project});
+  }
+  
+  return ($project, $artifact, $stage);
+}
+
 return 1;
