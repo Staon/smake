@@ -19,7 +19,9 @@
 package SMake::Executor::Executor;
 
 use SMake::Data::Address;
+use SMake::Executor::Stage;
 use SMake::Utils::TopOrder;
+use SMake::Utils::Utils;
 
 $SUBSYSTEM = "executor";
 
@@ -43,41 +45,75 @@ sub new {
   return bless({}, $class);
 }
 
+sub appendStageExecutors {
+  my ($this, $reporter, $repository, $exlist, $toporder) = @_;
+  
+  my $toplist = $toporder->getLeaves();
+  foreach my $address (@$toplist) {
+  	$reporter->reportf(
+  	    2, "info", $SUBSYSTEM, "enter stage %s", $address->printableString());
+  	    
+    my $stage = SMake::Executor::Stage->new($reporter, $repository, $address);
+    push @$exlist, $stage;
+  }
+}
+
 # Execute commands
 #
 # Usage: execute($reporter, $repository, \@roots)
 sub executeRoots {
   my ($this, $reporter, $repository, $roots) = @_;
   
+  # -- compute topological order of the stages
   my $toporder = SMake::Utils::TopOrder->new(
       sub { return $_[0]->getKey(); },
       sub { return getChildren($reporter, $repository, $_[0]); });
   my ($info, $cyclelist) = $toporder->compute($roots);
 
+  # -- execute stages
   if($info) {
-  	my $toplist = $toporder->getLeaves();
-  	while(defined($toplist)) {
-  	  # -- print the list
-  	  foreach my $address (@$toplist) {
-  	    print $address->getKey() . " ";
+  	# -- prepare first stages to be executed
+  	my $stagelist = [];
+  	$this->appendStageExecutors($reporter, $repository, $stagelist, $toporder);
+  	
+  	# -- iterate until there is a work
+  	while(@$stagelist) {
+  	  my $newlist = [];
+  	  foreach my $stage (@$stagelist) {
+  	    if($stage->execute($reporter, $repository)) {
+  	      # -- some work is still to be done
+  	      push @$newlist, $stage;
+  	    }
+  	    else {
+  	      # -- the stage is finished
+  	      $toporder->finishObject($stage->getAddress());
+  	      $reporter->reportf(
+  	          3,
+  	          "info",
+  	          $SUBSYSTEM,
+  	          "leave stage %s",
+  	          $stage->getAddress()->printableString());
+  	    }
   	  }
-  	  print "\n";
   	  
-  	  # -- finish objects
-  	  foreach my $address (@$toplist) {
-  	  	print "finish: " . $address->getKey() . "\n";
-  	    $toporder->finishObject($address);
-  	  }
+  	  # -- append new prepared stages
+  	  $this->appendStageExecutors($reporter, $repository, $newlist, $toporder);
   	  
-  	  # -- get next objects
-  	  $toplist = $toporder->getLeaves();
+  	  # -- switch to next loop iteration
+  	  $stagelist = $newlist;
   	}
   }
   else {
-    print "a cycle: ";
-    SMake::Data::Address::printAddressList($cyclelist);
+    # -- a cycle in stage dependencies is detected
+    $reporter->reportf(
+        1, "critical", $SUBSYSTEM, "a cycle is detected between stage dependencies: ");
+    foreach my $address (@$cyclelist) {
+      $reporter->reportf(
+        1, "critical", $SUBSYSTEM, "    %s", $address->printableString());
+    }
+    SMake::Utils::Utils::dieReport(
+        $reporter, $SUBSYSTEM, "stopped, it's not possible to continue in work");
   }
-  print "\n";
 }
 
 return 1;

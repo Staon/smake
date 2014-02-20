@@ -23,7 +23,7 @@ use SMake::Utils::TopOrderNode;
 
 # Create new object
 #
-# Usage: new(\&keyfce, \&childrenfce, \@roots)
+# Usage: new(\&keyfce, \&childrenfce)
 #    keyfce ....... compute a hash table key for an object
 #    childrenfce .. compute list of children of an object
 sub new {

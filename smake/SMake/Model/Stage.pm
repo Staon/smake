@@ -57,6 +57,22 @@ sub createTask {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get a task
+#
+# Usage: getTask($taskid)
+# Returns: the task or undef
+sub getTask {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of tasks which belongs the stage
+#
+# Usage: getTasks()
+# Returns: \@task_list list of task IDs
+sub getTasks {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get list of dependencies of the stage
 #
 # Usage: getDependencies($reporter, $subsystem)

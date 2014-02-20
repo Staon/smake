@@ -78,4 +78,19 @@ sub getDependencies {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get a printable representation of the task's key
+sub printableKey {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of ids of taks which this is dependent on
+#
+# Usage: getDependentTasks($reporter, $subsystem)
+#    reporter .... a reporter object
+#    subsystem ... logging subsystem
+# Returns: \@list of task ids
+sub getDependentTasks {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

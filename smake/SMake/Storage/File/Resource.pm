@@ -91,7 +91,12 @@ sub getTask {
 
 sub getStage {
   my ($this) = @_;
-  return $this->{task}->getStage();
+  if(defined($this->{task})) {
+    return $this->{task}->getStage();
+  }
+  else {
+    return undef;
+  }
 }
 
 return 1;

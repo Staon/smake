@@ -55,12 +55,14 @@ sub getRelativePath {
 
 # Get task which is a creator of the resource
 #
-# Returns: the tast or undef, if the resource is an external resource
+# Returns: the task or undef, if the resource is an external resource
 sub getTask {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Get stage which the resource is created in
+#
+# Returns: the stage or undef, if the resource is an external resource
 sub getStage {
   SMake::Utils::Abstract::dieAbstract();
 }

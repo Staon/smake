@@ -36,7 +36,8 @@ sub new {
   $this->{storage} = $storage;
   $this->{artifact} = $artifact;
   $this->{name} = $name;
-  $this->{tasks} = [];
+  $this->{tasks} = {};
+  $this->{taskid} = 0;
   return $this;
 }
 
@@ -49,7 +50,7 @@ sub destroy {
   $this->{repository} = undef;
   $this->{storage} = undef;
   $this->{artifact} = undef;
-  foreach my $task (@{$this->{tasks}}) {
+  foreach my $task (values %{$this->{tasks}}) {
     $task->destroy();
   }
   $this->{tasks} = undef;
@@ -79,9 +80,29 @@ sub createTask {
   my ($this, $type, $arguments) = @_;
   
   my $task = SMake::Storage::File::Task->new(
-      $this->{repository}, $this->{storage}, $this, $type, $arguments);
-  push @{$this->{tasks}}, $task;
+      $this->{repository},
+      $this->{storage},
+      $this,
+      $this->{taskid}++,
+      $type,
+      $arguments);
+  $this->{tasks}->{$task->getKey()} = $task;
   return $task;
+}
+
+sub getTask {
+  my ($this, $taskid) = @_;
+  return $this->{tasks}->{$taskid};
+}
+
+sub getTasks {
+  my ($this) = @_;
+  
+  my $list = [];
+  foreach my $task (values %{$this->{tasks}}) {
+    push @$list, $task->getKey();
+  }
+  return $list;
 }
 
 sub getDependencies {
@@ -91,10 +112,11 @@ sub getDependencies {
   my %addresses = ();
   
   # -- dependencies defined by resources
-  foreach my $task (@{$this->{tasks}}) {
+  foreach my $task (values %{$this->{tasks}}) {
   	# -- source resources
     my $sources = $task->getSources();
     foreach my $source (@$sources) {
+      # -- TODO: handle external resources
       my $address = $source->getStage()->getAddress();
       if(!$address->isEqual($self)) {
         $addresses{$address->getKey()} = $address;

@@ -62,21 +62,10 @@ sub isEqual {
       && ($this->{stage} eq $address->{stage});
 }
 
-# A helper statis function: print a list of addresses
-#
-# Usage: printAddressList(\@list)
-sub printAddressList {
-  my ($list) = @_;
-  my $first = 1;
-  foreach my $address (@$list) {
-    if($first) {
-      $first = 0;
-    }
-    else {
-      print " ";
-    }
-    print $address->getKey();
-  }
+# Get a printable string of the address
+sub printableString {
+  my ($this) = @_;
+  return $this->getKey();
 }
 
 # Get model objects addressed by this object

@@ -24,13 +24,14 @@ use SMake::Model::Task;
 
 # Create new task object
 #
-# Usage: new($repository, $storage, $stage, $type, \%args)
+# Usage: new($repository, $storage, $stage, $taskid, $type, \%args)
 sub new {
-  my ($class, $repository, $storage, $stage, $type, $args) = @_;
+  my ($class, $repository, $storage, $stage, $taskid, $type, $args) = @_;
   my $this = bless(SMake::Model::Task->new(), $class);
   $this->{repository} = $repository;
   $this->{storage} = $storage;
   $this->{stage} = $stage;
+  $this->{taskid} = $taskid;
   $this->{type} = $type;
   $this->{args} = defined($args)?$args:{};
   $this->{targets} = {};
@@ -57,6 +58,11 @@ sub destroy {
 sub getRepository {
   my ($this) = @_;
   return $this->{repository};
+}
+
+sub getKey {
+  my ($this) = @_;
+  return $this->{taskid};
 }
 
 sub getType {
@@ -97,6 +103,21 @@ sub appendDependency {
 sub getDependencies {
   my ($this) = @_;
   return [@{$this->{dependencies}}];
+}
+
+sub getDependentTasks {
+  my ($this, $reporter, $subsystem) = @_;
+  
+  my $list = [];
+  foreach my $source (values %{$this->{sources}}) {
+  	my $srctask = $source->getTask();
+  	# -- not external resource and dependencies inside the stage
+  	if(defined($srctask)
+  	   && ($this->{stage}->getKey() eq $srctask->getStage()->getKey())) {
+      push @$list, $srctask->getKey(); 
+    }
+  }
+  return $list;
 }
 
 return 1;
