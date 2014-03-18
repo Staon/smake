@@ -38,6 +38,8 @@ use SMake::Storage::File::Storage;
 use SMake::ToolChain::ToolChain;
 use SMake::Utils::Dirutils;
 
+local $SIG{__WARN__} = sub { die @_ };
+
 # -- reporter
 my $reporter = SMake::Reporter::Reporter->new();
 $reporter->addTarget(SMake::Reporter::TargetConsole->new(1, 5, ".*"));
