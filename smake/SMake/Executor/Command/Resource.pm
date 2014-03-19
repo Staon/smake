@@ -15,22 +15,39 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic command node
-package SMake::Executor::CommandNode;
+# Resource command option
+package SMake::Executor::Command::Resource;
 
-use SMake::Utils::Abstract;
+use SMake::Executor::Command::Node;
 
-# Create new command node
+@ISA = qw(SMake::Executor::Command::Node);
+
+# Create new resource command node
+#
+# Usage: new($resource)
 sub new {
-  my ($class) = @_;
-  return bless({}, $class);
+  my ($class, $resource) = @_;
+  my $this = bless(SMake::Executor::Command::Node->new(), $class);
+  $this->{resource} = $resource;
 }
 
-# Get node name
-#
-# Usage: getName()
 sub getName {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this) = @_;
+  return $this->{resource}->getKey();
+}
+
+# Get the resource
+sub getResource {
+  my ($this) = @_;
+  return $this->{resource};
+}
+
+# Get physical path of the resource
+#
+# Usage: getPhysicalPath($repository)
+sub getPhysicalPath {
+  my ($this, $repository) = @_;
+  return $repository->getPhysicalPath($this->{resource}->getPath());
 }
 
 return 1;

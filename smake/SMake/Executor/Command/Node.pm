@@ -15,32 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Group of command nodes
-package SMake::Executor::CommandGroup;
+# Generic command node
+package SMake::Executor::Command::Node;
 
-use SMake::Executor::CommandNode;
+use SMake::Utils::Abstract;
 
-@ISA = qw(SMake::Executor::CommandNode);
-
-# Create new command group
-#
-# Usage: new($name)
+# Create new command node
 sub new {
-  my ($class, $name) = @_;
-  my $this = bless(SMake::Executor::CommandNode->new());
-  $this->{name} = $name;
-  $this->{children} = {};
-  
-  return $this;
+  my ($class) = @_;
+  return bless({}, $class);
 }
 
+# Get node name
+#
+# Usage: getName()
 sub getName {
-  my ($this) = @_;
-  return $this->{name};
-}
-
-sub addChild {
-	
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 return 1;
