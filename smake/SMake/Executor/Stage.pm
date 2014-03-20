@@ -23,41 +23,46 @@ use SMake::Utils::TopOrder;
 use SMake::Utils::Utils;
 
 sub getChildren {
-  my ($reporter, $repository, $executor, $taskid) = @_;
+  my ($context, $executor, $taskid) = @_;
   
   my ($project, $artifact, $stage) = $executor->getAddress()->getObjects(
-      $reporter, $SMake::Executor::Executor::SUBSYSTEM, $repository);
+      $context->getReporter(),
+      $SMake::Executor::Executor::SUBSYSTEM,
+      $context->getRepository());
   my $task = $stage->getTask($taskid);
   die "unknown task" if(!defined($task));
-  return $task->getDependentTasks($reporter, $SMake::Executor::Executor::SUBSYSTEM);
+  return $task->getDependentTasks(
+      $context->getReporter(), $SMake::Executor::Executor::SUBSYSTEM);
 }
 
 # Create new stage executor
 #
-# Usage: new($reporter, $repository, $address)
+# Usage: new($context, $address)
 sub new {
-  my ($class, $reporter, $repository, $address) = @_;
+  my ($class, $context, $address) = @_;
   my $this = bless({
     address => $address,
   }, $class);
   $this->{toporder} = SMake::Utils::TopOrder->new(
       sub { return $_[0]; },
-      sub { return getChildren($reporter, $repository, $this, $_[0]); });
+      sub { return getChildren($context, $this, $_[0]); });
 
   # -- compute topological order of tasks inside the stage
   my ($project, $artifact, $stage) = $address->getObjects(
-      $reporter, $SMake::Executor::Executor::SUBSYSTEM, $repository);
+      $context->getReporter(),
+      $SMake::Executor::Executor::SUBSYSTEM,
+      $context->getRepository());
   my $tasks = $stage->getTasks();
   my ($info, $cyclelist) = $this->{toporder}->compute($tasks);
   if(!$info) {
-    $reporter->reportf(
+    $context->getReporter()->reportf(
         1,
         "critical",
         $SMake::Executor::Exectuor::SUBSYSTEM,
         "a cycle is detected between task dependencies: ");
     foreach my $taskid (@$cyclelist) {
       my $task = $stage->getTask($taskid);
-      $reporter->reportf(
+      $context->getReporter()->reportf(
         1,
         "critical",
         $SMake::Executor::Exectuor::SUBSYSTEM,
@@ -66,7 +71,7 @@ sub new {
         $task->printableKey());
     }
     SMake::Utils::Utils::dieReport(
-        $reporter,
+        $context->getReporter(),
         $SMake::Executor::Exectuor::SUBSYSTEM,
         "stopped, it's not possible to continue in work");
   }
@@ -76,10 +81,10 @@ sub new {
 
 # Execute the stage
 #
-# Usage: execute($reporter, $repository)
+# Usage: execute($context)
 # Returns: false if the stage is finished, true if there are other work
 sub execute {
-  my ($this, $reporter, $repository) = @_;
+  my ($this, $context) = @_;
 
   my $tasks = $this->{toporder}->getLeaves();
   return 0 if(!defined($tasks));  # -- nothing to do anymore

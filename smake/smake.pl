@@ -19,6 +19,7 @@ use SMake::Constructor::Generic;
 use SMake::Constructor::MainResource;
 use SMake::Data::Address;
 use SMake::Data::Path;
+use SMake::Executor::Context;
 use SMake::Executor::Executor;
 use SMake::Mangler::Mangler;
 use SMake::Model::DeciderBox;
@@ -94,9 +95,9 @@ $repository->commitTransaction();
 
 # -- execute the project
 my $executor = SMake::Executor::Executor->new();
+my $execcontext = SMake::Executor::Context->new($reporter, $repository);
 $executor->executeRoots(
-    $reporter,
-    $repository,
+    $execcontext,
     [
       SMake::Data::Address->new("Haha", "hello", "binlink"),
     ]);

@@ -15,33 +15,27 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Resource command option
-package SMake::Executor::Command::Resource;
+# Generic interface of command builders
+package SMake::Executor::Command::Builder;
 
-use SMake::Executor::Command::Node;
+use SMake::Utils::Abstract;
 
-@ISA = qw(SMake::Executor::Command::Node);
-
-# Create new resource command node
+# Create new command builder
 #
-# Usage: new($path)
-#    path .... absolute filesystem path of the resource
+# Usage: new()
 sub new {
-  my ($class, $path) = @_;
-  my $this = bless(SMake::Executor::Command::Node->new(), $class);
-  $this->{path} = $path;
-  return $this;
+  my ($class) = @_;
+  return bless({}, $class);
 }
 
-sub getName {
-  my ($this) = @_;
-  return $this->{path}->asString();
-}
-
-# Get the resource
-sub getPath {
-  my ($this) = @_;
-  return $this->{path};
+# Build command tree for specified task
+#
+# Usage: build($context, $task)
+#    context ..... executor context
+#    task ........ the task
+# Returns: \@commands ... list of constructed abstract commands
+sub build {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 return 1;

@@ -14,34 +14,3 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
-
-# Resource command option
-package SMake::Executor::Command::Resource;
-
-use SMake::Executor::Command::Node;
-
-@ISA = qw(SMake::Executor::Command::Node);
-
-# Create new resource command node
-#
-# Usage: new($path)
-#    path .... absolute filesystem path of the resource
-sub new {
-  my ($class, $path) = @_;
-  my $this = bless(SMake::Executor::Command::Node->new(), $class);
-  $this->{path} = $path;
-  return $this;
-}
-
-sub getName {
-  my ($this) = @_;
-  return $this->{path}->asString();
-}
-
-# Get the resource
-sub getPath {
-  my ($this) = @_;
-  return $this->{path};
-}
-
-return 1;
