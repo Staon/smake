@@ -50,7 +50,11 @@ sub new {
   
   # -- build abstract command tree
   my $builder = $context->getToolChain()->getBuilder();
-  $this->{command} = $builder->build($context, $task);
+  my $commands = $builder->build($context, $task);
+  
+  # -- translate command to a shell commands
+  my $translator = $context->getToolChain()->getTranslator();
+  
   
   return $this;
 }

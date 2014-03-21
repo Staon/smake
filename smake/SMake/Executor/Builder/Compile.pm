@@ -63,6 +63,8 @@ sub build {
       $sources->appendChild($this->createResourceNode($context, $resource));
     }
   }
+  
+  return [$command];
 }
 
 return 1;

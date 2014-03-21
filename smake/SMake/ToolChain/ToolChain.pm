@@ -21,17 +21,19 @@ package SMake::ToolChain::ToolChain;
 
 # Create new empty tool chain
 #
-# Usage: new($parent)
-#    parent .... parent tool chain (can be undef)
-#    mangler ... name mangler
-#    builder ... command builder
+# Usage: new($parent, $mangler, $builder, $translator)
+#    parent ....... parent tool chain (can be undef)
+#    mangler ...... name mangler
+#    builder ...... command builder
+#    translator ... a translator abstract commands to shell commands
 sub new {
-  my ($class, $parent, $mangler, $builder) = @_;
+  my ($class, $parent, $mangler, $builder, $translator) = @_;
   return bless({
   	parent => $parent,
     constructors => {},
     mangler => $mangler,
     builder => $builder,
+    translator => $translator,
   }, $class);
 }
 
@@ -79,6 +81,12 @@ sub getMangler() {
 sub getBuilder {
   my ($this) = @_;
   return $this->{builder};
+}
+
+# Get command translator
+sub getTranslator {
+  my ($this) = @_;
+  return $this->{translator};
 }
 
 return 1;
