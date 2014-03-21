@@ -85,6 +85,11 @@ sub appendTarget {
   $this->{targets}->{$resource->getKey()} = $resource;
 }
 
+sub getTargets {
+  my ($this) = @_;
+  return [values(%{$this->{targets}})];
+}
+
 sub appendSource {
   my ($this, $resource) = @_;
   $this->{sources}->{$resource->getKey()} = $resource;

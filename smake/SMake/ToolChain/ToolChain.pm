@@ -24,12 +24,14 @@ package SMake::ToolChain::ToolChain;
 # Usage: new($parent)
 #    parent .... parent tool chain (can be undef)
 #    mangler ... name mangler
+#    builder ... command builder
 sub new {
-  my ($class, $parent, $mangler) = @_;
+  my ($class, $parent, $mangler, $builder) = @_;
   return bless({
   	parent => $parent,
     constructors => {},
     mangler => $mangler,
+    builder => $builder,
   }, $class);
 }
 
@@ -68,6 +70,15 @@ sub getConstructor {
 sub getMangler() {
   my ($this) = @_;
   return $this->{mangler};
+}
+
+# Get command builder
+#
+# Usage: getBuilder();
+# Returns: the builder
+sub getBuilder {
+  my ($this) = @_;
+  return $this->{builder};
 }
 
 return 1;

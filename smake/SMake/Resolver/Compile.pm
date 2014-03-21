@@ -24,14 +24,18 @@ use SMake::Resolver::Resource;
 
 # Create new resolver
 #
-# Usage: new($type, $file, $mangler)
+# Usage: new($type, $file, $mangler, $stage, $tasktype)
 #    type ...... mask of type of the resources
 #    file ...... mask of path of the resources
 #    mangler ... mangler description
+#    stage ..... name of the stage, which the compilation task is run in
+#    tasktype .. type of the compilation task
 sub new {
-  my ($class, $type, $file, $mangler) = @_;
+  my ($class, $type, $file, $mangler, $stage, $tasktype) = @_;
   my $this = bless(SMake::Resolver::Resource->new($type, $file), $class);
   $this->{mangler} = $mangler;
+  $this->{stage} = $stage;
+  $this->{tasktype} = $tasktype;
   return $this;
 }
 
@@ -44,7 +48,8 @@ sub doJob {
 
   # -- create the task and the resource
   my $artifact = $context->getArtifact();
-  my $task = $artifact->createTaskInStage("compile", "cxx", undef);
+  print "create task: " . $this->{stage} . " " . $this->{tasktype} . "\n";
+  my $task = $artifact->createTaskInStage($this->{stage}, $this->{tasktype}, undef);
   $task->appendSource($resource);
   my $tgres = $artifact->createResource($tgpath, "product", $task);
   $queue->pushResource($tgres);

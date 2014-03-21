@@ -19,6 +19,7 @@
 package SMake::Executor::Stage;
 
 use SMake::Executor::Executor;
+use SMake::Executor::Task;
 use SMake::Utils::TopOrder;
 use SMake::Utils::Utils;
 
@@ -42,6 +43,7 @@ sub new {
   my ($class, $context, $address) = @_;
   my $this = bless({
     address => $address,
+    tasklist => [],
   }, $class);
   $this->{toporder} = SMake::Utils::TopOrder->new(
       sub { return $_[0]; },
@@ -58,25 +60,42 @@ sub new {
     $context->getReporter()->reportf(
         1,
         "critical",
-        $SMake::Executor::Exectuor::SUBSYSTEM,
+        $SMake::Executor::Executor::SUBSYSTEM,
         "a cycle is detected between task dependencies: ");
     foreach my $taskid (@$cyclelist) {
       my $task = $stage->getTask($taskid);
       $context->getReporter()->reportf(
         1,
         "critical",
-        $SMake::Executor::Exectuor::SUBSYSTEM,
+        $SMake::Executor::Executor::SUBSYSTEM,
         "    %s.%s",
         $address->printableString(),
         $task->printableKey());
     }
     SMake::Utils::Utils::dieReport(
         $context->getReporter(),
-        $SMake::Executor::Exectuor::SUBSYSTEM,
+        $SMake::Executor::Executor::SUBSYSTEM,
         "stopped, it's not possible to continue in work");
   }
   
   return $this;
+}
+
+sub appendTaskExecutor {
+  my ($this, $context) = @_;
+  
+  my $tasks = $this->{toporder}->getLeaves();
+  foreach my $task (@$tasks) {
+    my $executor = SMake::Executor::Task->new($context, $this->{address}, $task);
+    push @{$this->{tasklist}}, $executor;
+    $context->getReporter()->reportf(
+        2,
+        "info",
+        $SMake::Executor::Executor::SUBSYSTEM,
+        "enter task %s.%s",
+        $this->{address}->printableString(),
+        $task);
+  }
 }
 
 # Execute the stage
@@ -86,17 +105,33 @@ sub new {
 sub execute {
   my ($this, $context) = @_;
 
-  my $tasks = $this->{toporder}->getLeaves();
-  return 0 if(!defined($tasks));  # -- nothing to do anymore
-  
-  foreach my $taskid (@$tasks) {
-  	print "finish task " . $this->{address}->printableString() . "." . $taskid . "\n";
-  	$this->{toporder}->finishObject($taskid);
-  	
-    # -- TODO: schedule the tasks
+  $this->appendTaskExecutor($context);
+  if(@{$this->{tasklist}}) {
+    my $newlist = [];
+    foreach my $task (@{$this->{tasklist}}) {
+      if($task->execute($context)) {
+        push @$newlist, $task;
+      }
+      else {
+        $this->{toporder}->finishObject($task->getTaskID());
+        $context->getReporter()->reportf(
+            3,
+            "info",
+            $SMake::Executor::Executor::SUBSYSTEM,
+            "leave task %s.%s",
+            $this->{address}->printableString(),
+            $task->getTaskID());
+      }
+    }
+    $this->{tasklist} = $newlist;
   }
   
-  return 1;
+  if(@{$this->{tasklist}}) {
+    return 1;  # -- still some work
+  }
+  else {
+    return 0;  # -- finished stage
+  }
 }
 
 # Get the stage address

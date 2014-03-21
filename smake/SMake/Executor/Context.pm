@@ -29,14 +29,22 @@ sub new {
   }, $class);
 }
 
+# Get the reporter
 sub getReporter() {
   my ($this) = @_;
   return $this->{reporter};
 }
 
+# Get the repository
 sub getRepository() {
   my ($this) = @_;
   return $this->{repository};
+}
+
+# Get configured toolchain
+sub getToolChain {
+  my ($this) = @_;
+  return $this->{repository}->getToolChain();
 }
 
 return 1;

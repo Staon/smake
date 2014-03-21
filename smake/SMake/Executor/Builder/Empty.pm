@@ -15,30 +15,25 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Some constants related to the model
-package SMake::Model::Const;
+# Empty command builder
+package SMake::Executor::Builder::Empty;
 
-# -- source files
-$SOURCE_STAGE = "src";
-$SOURCE_RESOURCE = "src";
-$SOURCE_TASK = "src";
+use SMake::Executor::Builder::Builder;
 
-# -- created files
-$PRODUCT_RESOURCE = "product";
+@ISA = qw(SMake::Executor::Builder::Builder);
 
-# -- compiling
-$COMPILE_STAGE = "compile";
-$C_TASK = "c";
-$CXX_TASK = "cxx";
+# Create new empty builder
+#
+# Usage: new()
+sub new {
+  my ($class) = @_;
+  my $this = bless(SMake::Executor::Builder::Builder->new(), $class);
+  return $this;
+}
 
-# -- static libraries
-$LIB_MAIN_TYPE = "static_lib";
-$LIB_STAGE = "liblink";
-$LIB_TASK = "lib";
-
-# -- executable binaries
-$BIN_MAIN_TYPE = "binary";
-$BIN_STAGE = "binlink";
-$BIN_TASK = "bin";
+sub build {
+  my ($this, $context, $task) = @_;
+  return [];  # -- no commands
+}
 
 return 1;

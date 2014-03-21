@@ -15,30 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Some constants related to the model
-package SMake::Model::Const;
+# Constants for the execution model
+package SMake::Executor::Const;
 
-# -- source files
-$SOURCE_STAGE = "src";
-$SOURCE_RESOURCE = "src";
-$SOURCE_TASK = "src";
-
-# -- created files
-$PRODUCT_RESOURCE = "product";
-
-# -- compiling
-$COMPILE_STAGE = "compile";
-$C_TASK = "c";
-$CXX_TASK = "cxx";
-
-# -- static libraries
-$LIB_MAIN_TYPE = "static_lib";
-$LIB_STAGE = "liblink";
-$LIB_TASK = "lib";
-
-# -- executable binaries
-$BIN_MAIN_TYPE = "binary";
-$BIN_STAGE = "binlink";
-$BIN_TASK = "bin";
+$PRODUCT_GROUP = "product";
+$SOURCE_GROUP = "src";
 
 return 1;

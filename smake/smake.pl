@@ -19,9 +19,13 @@ use SMake::Constructor::Generic;
 use SMake::Constructor::MainResource;
 use SMake::Data::Address;
 use SMake::Data::Path;
+use SMake::Executor::Builder::Compile;
+use SMake::Executor::Builder::Empty;
+use SMake::Executor::Builder::Group;
 use SMake::Executor::Context;
 use SMake::Executor::Executor;
 use SMake::Mangler::Mangler;
+use SMake::Model::Const;
 use SMake::Model::DeciderBox;
 use SMake::Model::DeciderTime;
 use SMake::Parser::Context;
@@ -58,26 +62,48 @@ my $repository = SMake::Repository::Repository->new(undef, $storage);
 
 # -- toolchain
 my $mangler = SMake::Mangler::Mangler->new();
-my $toolchain = SMake::ToolChain::ToolChain->new(undef, $mangler);
+my $cmdbuilder = SMake::Executor::Builder::Group->new(
+    [$SMake::Model::Const::SOURCE_TASK, SMake::Executor::Builder::Empty->new()],
+    [$SMake::Model::Const::C_TASK, SMake::Executor::Builder::Compile->new()],
+    [$SMake::Model::Const::CXX_TASK, SMake::Executor::Builder::Compile->new()],
+    [$SMake::Model::Const::LIB_TASK, SMake::Executor::Builder::Compile->new()],
+    [$SMake::Model::Const::BIN_TASK, SMake::Executor::Builder::Compile->new()]);
+my $toolchain = SMake::ToolChain::ToolChain->new(undef, $mangler, $cmdbuilder);
 # ---- library artifact
 my $resolver = SMake::Resolver::Chain->new(
-    SMake::Resolver::Compile->new('.*', '[.]cpp$', 'Dir() . Name() . ".o"'),
+    SMake::Resolver::Compile->new(
+        '.*', '[.]c$', 'Dir() . Name() . ".o"',
+        $SMake::Model::Const::COMPILE_STAGE,
+        $SMake::Model::Const::C_TASK),
+    SMake::Resolver::Compile->new(
+        '.*', '[.]cpp$', 'Dir() . Name() . ".o"',
+        $SMake::Model::Const::COMPILE_STAGE,
+        $SMake::Model::Const::CXX_TASK),
     SMake::Resolver::Link->new('.*', '[.]o$', "static_lib"));
 my $constructor = SMake::Constructor::Generic->new(
   $resolver, [
     SMake::Constructor::MainResource->new(
-        "static_lib", 'Dir() . Name() . ".a"', "liblink", "lib", {}),
+        $SMake::Model::Const::LIB_MAIN_TYPE,
+        'Dir() . Name() . ".a"',
+        $SMake::Model::Const::LIB_STAGE,
+        $SMake::Model::Const::LIB_TASK, {}),
   ]);
 $toolchain->registerConstructor("lib", $constructor);
 # ---- binary artifact
 $resolver = SMake::Resolver::Chain->new(
-    SMake::Resolver::Compile->new('.*', '[.]cpp$', 'Dir() . Name() . ".o"'),
+    SMake::Resolver::Compile->new(
+        '.*', '[.]cpp$', 'Dir() . Name() . ".o"',
+        $SMake::Model::Const::COMPILE_STAGE,
+        $SMake::Model::Const::CXX_TASK),
     SMake::Resolver::Link->new('.*', '[.]o$', "binary"),
     SMake::Resolver::Dependency->new('^link$', "binary"));
 $constructor = SMake::Constructor::Generic->new(
   $resolver, [
     SMake::Constructor::MainResource->new(
-        "binary", 'Dir() . Name()', "binlink", "bin", {}),
+        $SMake::Model::Const::BIN_MAIN_TYPE,
+        'Dir() . Name()',
+        $SMake::Model::Const::BIN_STAGE,
+        $SMake::Model::Const::BIN_TASK, {}),
   ]);
 $toolchain->registerConstructor("bin", $constructor);
 

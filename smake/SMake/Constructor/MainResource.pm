@@ -18,6 +18,8 @@
 # Record of main resource for the generic constructor
 package SMake::Constructor::MainResource;
 
+use SMake::Model::Const;
+
 # Create new record
 #
 # Usage: new($maintype, $mangler, $stage, $task, \%args)
@@ -51,7 +53,8 @@ sub createMainResource {
   my $prefix = $context->getResourcePrefix();
   my $path = $prefix->joinPaths($artifact->getName());
   my $name = $context->getMangler()->mangleName($context, $this->{mangler}, $path);
-  my $resource = $artifact->createResource($name, "product", $task);
+  my $resource = $artifact->createResource(
+      $name, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
   
   # -- append the main resource
   $artifact->appendMainResource($this->{maintype}, $resource);

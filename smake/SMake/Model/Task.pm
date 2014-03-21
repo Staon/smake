@@ -57,10 +57,26 @@ sub appendTarget {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get list of target resources
+#
+# Usage: getTargets()
+# Returns: \@list
+sub getTargets {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Append a source resource
 #
 # Usage: appendSource($resource)
 sub appendSource {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of source resources
+#
+# Usage: getSources()
+# Returns: \@list
+sub getSources {
   SMake::Utils::Abstract::dieAbstract();
 }
 
