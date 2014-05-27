@@ -54,7 +54,14 @@ sub new {
   
   # -- translate command to a shell commands
   my $translator = $context->getToolChain()->getTranslator();
-  
+  my $wd = SMake::Data::Path->fromSystem(
+      $context->getRepository()->getPhysicalPath($task->getWDPath()));
+  my $shellcmds = [];
+  foreach my $command (@$commands) {
+  	my $scmds = $translator->translate($context, $command, $wd);
+    push @$shellcmds, @$scmds;
+  }
+  $this->{commands} = $shellcmds;
   
   return $this;
 }
@@ -66,8 +73,15 @@ sub new {
 sub execute {
   my ($this, $context) = @_;
   
-  print "finish task " . $this->{stageid}->printableString() . "." . $this->{taskid} . "\n";
-  return 0;
+  if($#{$this->{commands}} >= 0) {
+    my $command = shift(@{$this->{commands}});
+    print "Execute command: $command\n";
+    return 1;  	
+  }
+  else {
+    print "finish task " . $this->{stageid}->printableString() . "." . $this->{taskid} . "\n";
+    return 0;
+  }
 }
 
 # Get task's ID

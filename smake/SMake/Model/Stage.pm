@@ -51,7 +51,10 @@ sub getProject {
 
 # Create new task
 #
-# Usage: createTask($type, \%arguments)
+# Usage: createTask($type, $wd, \%arguments)
+#    type ....... type of the task
+#    wd ......... task's working directory (a path object in repository meaning)
+#    arguments .. task's generic arguments
 # Returns: new task
 sub createTask {
   SMake::Utils::Abstract::dieAbstract();

@@ -25,7 +25,7 @@ sub new {
   my $this;
   if($#_ == 0 && ref($_[0]) eq $class) {
   	# -- copy ctor
-  	$this = [@$_[0]];
+  	$this = [@{$_[0]}];
   }
   else {
     # -- several arguments => path strings
@@ -59,10 +59,55 @@ sub systemAbsolute {
   return "/" . $this->asString();
 }
 
+# Make a relative filesystem path
 sub systemRelative {
   my ($this) = @_;
   # TODO: do some portable solution
   return $this->asString();
+}
+
+# The method creates a filesystem path based on a specified working directory.
+# It tries to make a relative path. If the relative path is too long, system
+# absolute path is created instead of. This path must be an absolute directory
+# path.
+#
+# Usage: makeSystemArgument($wd, $basename)
+#    wd ......... the working directory
+#    basename ... a file basename which is appended to constructed path. It can
+#                 be empty to construct only directory path.
+# Return: a string which represents the path
+sub makeSystemArgument {
+  my ($this, $wd, $basename) = @_;
+  # TODO: do some portable solution
+
+  # -- search for common prefix
+  my $pref = 0;
+  while($pref <= $#$this && $pref <= $#$wd && $this->[$pref] eq $wd->[$pref]) {
+    ++$pref;
+  }
+  return $this->systemAbsolute() if($pref == 0);
+  
+  # -- construct relative path
+  my @path = ();
+  foreach my $i ($pref .. $#$wd) {
+    push @path, "..";
+  }
+  foreach my $i ($pref .. $#$this) {
+    push @path, $this->[$i];
+  }
+  
+  # -- if the relative path is shorter then the absolute, return it
+  if($#path < $#$this) {
+    my $str = "";
+    foreach my $p (@path) {
+      $str .= $p . "/";
+    }
+    $str .= $basename;
+    return $str;
+  }
+  else {
+    return $this->systemAbsolute();
+  }
 }
 
 # Get a string key to be used as a key in a hash table
@@ -144,6 +189,20 @@ sub asString {
   else {
     return "";
   }
+}
+
+# Get size of the path
+sub getSize {
+  my ($this) = @_;
+  return $#$this + 1;
+}
+
+# Get part of the path at specified index
+#
+# Usage: getPart($index)
+sub getPart {
+  my ($this, $index) = @_;
+  return $this->[$index];
 }
 
 sub printableString {

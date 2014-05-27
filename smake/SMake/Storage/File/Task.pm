@@ -22,17 +22,20 @@ use SMake::Model::Task;
 
 @ISA = qw(SMake::Model::Task);
 
+use SMake::Data::Path;
+
 # Create new task object
 #
-# Usage: new($repository, $storage, $stage, $taskid, $type, \%args)
+# Usage: new($repository, $storage, $stage, $taskid, $type, $wd, \%args)
 sub new {
-  my ($class, $repository, $storage, $stage, $taskid, $type, $args) = @_;
+  my ($class, $repository, $storage, $stage, $taskid, $type, $wd, $args) = @_;
   my $this = bless(SMake::Model::Task->new(), $class);
   $this->{repository} = $repository;
   $this->{storage} = $storage;
   $this->{stage} = $stage;
   $this->{taskid} = $taskid;
   $this->{type} = $type;
+  $this->{wdir} = SMake::Data::Path->new($wd);
   $this->{args} = defined($args)?$args:{};
   $this->{targets} = {};
   $this->{sources} = {};
@@ -78,6 +81,11 @@ sub getArguments {
 sub getStage {
   my ($this) = @_;
   return $this->{stage};
+}
+
+sub getWDPath {
+  my ($this) = @_;
+  return $this->{wdir};
 }
 
 sub appendTarget {

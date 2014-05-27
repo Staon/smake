@@ -47,7 +47,7 @@ sub createMainResource {
   
   # -- create a task which creates the main resource
   my $task = $artifact->createTaskInStage(
-      $this->{stage}, $this->{task}, $this->{args});
+      $this->{stage}, $this->{task}, $artifact->getPath(), $this->{args});
   
   # -- create the resource
   my $prefix = $context->getResourcePrefix();

@@ -45,7 +45,8 @@ sub build {
 # Returns: the physical path
 sub getResourcePath {
   my ($this, $context, $resource) = @_;
-  return $context->getRepository()->getPhysicalPath($resource->getPath());
+  return SMake::Data::Path->fromSystem(
+      $context->getRepository()->getPhysicalPath($resource->getPath()))
 }
 
 # A helper method - create resource node of a resource

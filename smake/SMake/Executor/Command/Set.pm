@@ -61,4 +61,9 @@ sub getChild {
   return $this->{children}->{$name};
 }
 
+# Get list of children nodes
+sub getChildren {
+  return values(%{$this->{children}});
+}
+
 return 1;

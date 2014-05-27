@@ -163,17 +163,18 @@ sub getDependencyRecords {
 
 # A helper method - create a task in a stage
 #
-# Usage: createTaskInStage($stage, $task, \%args)
+# Usage: createTaskInStage($stage, $task, $wd, \%args)
 #    stage ..... name of the stage
 #    task ...... type of the task
+#    wd ........ task's working directory (a path object with repository meaning)
 #    args ...... optional task arguments
 sub createTaskInStage {
-  my ($this, $stage, $task, $args) = @_;
+  my ($this, $stage, $task, $wd, $args) = @_;
   
   # -- stage object
   my $stageobj = $this->createStage($stage);
   # -- task object
-  return $stageobj->createTask($task, $args);
+  return $stageobj->createTask($task, $wd, $args);
 }
 
 # A helper method - append source resources
@@ -202,6 +203,7 @@ sub appendSourceResources {
     my $task = $this->createTaskInStage(
         $SMake::Model::Const::SOURCE_STAGE,
         $SMake::Model::Const::SOURCE_TASK,
+        $this->getPath(),
         undef);
     
     # -- create resource

@@ -75,4 +75,10 @@ sub getChild {
   return undef;
 }
 
+# Get list of children nodes
+sub getChildren {
+  my ($this) = @_;
+  return [@{$this->{children}}];
+}
+
 return 1;

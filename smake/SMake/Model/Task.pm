@@ -50,6 +50,13 @@ sub getStage {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get working path of the task
+#
+# The path has meaning in the context of the repository
+sub getWDPath {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Append target resource
 #
 # Usage: appendTarget($resource)

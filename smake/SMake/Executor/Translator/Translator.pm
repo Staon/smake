@@ -15,33 +15,27 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Resource command option
-package SMake::Executor::Command::Resource;
+# Generic command translator interface
+package SMake::Executor::Translator::Translator;
 
-use SMake::Executor::Command::Node;
+use SMake::Utils::Abstract;
 
-@ISA = qw(SMake::Executor::Command::Node);
-
-# Create new resource command node
-#
-# Usage: new($path)
-#    path .... absolute filesystem path of the resource
+# Create new translator record
 sub new {
-  my ($class, $path) = @_;
-  my $this = bless(SMake::Executor::Command::Node->new(), $class);
-  $this->{path} = $path;
-  return $this;
+  my ($class) = @_;
+  return bless({}, $class);
 }
 
-sub getName {
-  my ($this) = @_;
-  return $this->{path}->asString();
-}
-
-# Get the resource path (absolute filesystem path)
-sub getPath {
-  my ($this) = @_;
-  return $this->{path};
+# Translate command
+#
+# Usage: translate($context, $command, $wd)
+#    context ...... executor context
+#    command ...... logical command tree
+#    wd ........... absolute physical path of the task's working directory
+# Return:
+#    \@commands ... list of shell commands
+sub translate {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 return 1;

@@ -22,9 +22,13 @@ use SMake::Data::Path;
 use SMake::Executor::Builder::Compile;
 use SMake::Executor::Builder::Empty;
 use SMake::Executor::Builder::Group;
+use SMake::Executor::Const;
 use SMake::Executor::Context;
 use SMake::Executor::Executor;
-use SMake::Executor::Translator;
+use SMake::Executor::Translator::Compositor;
+use SMake::Executor::Translator::FileList;
+use SMake::Executor::Translator::Select;
+use SMake::Executor::Translator::Table;
 use SMake::Mangler::Mangler;
 use SMake::Model::Const;
 use SMake::Model::DeciderBox;
@@ -70,7 +74,28 @@ my $cmdbuilder = SMake::Executor::Builder::Group->new(
     [$SMake::Model::Const::LIB_TASK, SMake::Executor::Builder::Compile->new()],
     [$SMake::Model::Const::BIN_TASK, SMake::Executor::Builder::Compile->new()],
 );
-my $cmdtranslator = SMake::Executor::Translator->new(
+my $cmdtranslator = SMake::Executor::Translator::Table->new(
+    [$SMake::Model::Const::CXX_TASK, SMake::Executor::Translator::Compositor->new(
+        "cc",
+        SMake::Executor::Translator::FileList->new(
+            $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
+        SMake::Executor::Translator::FileList->new(
+            $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
+    )],
+    [$SMake::Model::Const::LIB_TASK, SMake::Executor::Translator::Compositor->new(
+        "wlib",
+        SMake::Executor::Translator::FileList->new(
+            $SMake::Executor::Const::PRODUCT_GROUP, "", "", "", "", "", 0),
+        SMake::Executor::Translator::FileList->new(
+            $SMake::Executor::Const::SOURCE_GROUP, "", "", "+", "", " ", 1),
+    )],
+    [$SMake::Model::Const::BIN_TASK, SMake::Executor::Translator::Compositor->new(
+        "cc",
+        SMake::Executor::Translator::FileList->new(
+            $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
+        SMake::Executor::Translator::FileList->new(
+            $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
+    )],
 );
 my $toolchain = SMake::ToolChain::ToolChain->new(undef, $mangler, $cmdbuilder, $cmdtranslator);
 # ---- library artifact
