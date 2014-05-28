@@ -15,48 +15,41 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic compilation builder
-package SMake::Executor::Builder::Compile;
+# A sequence of builders
+package SMake::Executor::Builder::Sequence;
 
 use SMake::Executor::Builder::Builder;
 
 @ISA = qw(SMake::Executor::Builder::Builder);
 
-use SMake::Executor::Command::Group;
-use SMake::Executor::Command::Option;
-use SMake::Executor::Command::Resource;
-use SMake::Executor::Command::Set;
-use SMake::Executor::Const;
-use SMake::Model::Const;
-
-# Create new compilation builder
+# Create new builder sequencer
 #
-# Usage: new($bldfce*)
-#    bldfce .... name of a building function. The builder sequentially invokes
-#                the functions. Set of possible functions can be found in
-#                the Builder class. If the list is empty, the addResources
-#                function is called.
+# Usage: new($builder*)
 sub new {
   my $class = shift;
   my $this = bless(SMake::Executor::Builder::Builder->new(), $class);
-  if($#_ >= 0) {
-    $this->{builders} = [@_];
-  }
-  else {
-    $this->{builders} = ["addResources"];  	
-  }
-  
+  $this->{builders} = [];
+  $this->appendBuilders(@_);
   return $this;
+}
+
+# Append builders into the sequence
+#
+# Usage: appendBuilders($builder*)
+sub appendBuilders {
+  my $this = shift;
+  push @{$this->{builders}}, @_;
 }
 
 sub build {
   my ($this, $context, $task) = @_;
   
-  my $command = SMake::Executor::Command::Set->new($task->getType());
-  foreach my $bld (@{$this->{builders}}) {
-    $this->$bld($context, $task, $command);
+  my $retval = [];
+  foreach my $builder (@{$this->{builders}}) {
+    my $commands = $builder->build($context, $task);
+    push @$retval, @$commands;
   }
-  return [$command];
+  return $retval;
 }
 
 return 1;

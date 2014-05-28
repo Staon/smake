@@ -44,10 +44,12 @@ sub translateValue {
   my ($this, $context, $command, $wd, $value) = @_;
   
   # -- search for a translation record
-  my $strval = $value->getValue();
-  foreach my $record (@{$this->{records}}) {
-    if($strval =~ /$record->[0]/) {
-      return [$record->[1]];
+  if(defined($value)) {
+    my $strval = $value->getValue();
+    foreach my $record (@{$this->{records}}) {
+      if($strval =~ /$record->[0]/) {
+        return [$record->[1]];
+      }
     }
   }
   

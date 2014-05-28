@@ -82,7 +82,9 @@ sub wait {
     # -- prepare current working directory
     my $dirkeeper = SMake::Utils::Chdir->new();
     $dirkeeper->pushDir(
-        $record->[2], $context->getReporter(), $SMake::Executor::Executor::SUBSYSTEM);
+        $record->[2]->systemAbsolute(),
+        $context->getReporter(),
+        $SMake::Executor::Executor::SUBSYSTEM);
 
     # -- run the command
     my $command = $record->[1];

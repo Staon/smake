@@ -53,4 +53,10 @@ sub getRunner {
   return $this->{repository}->getToolChain()->getRunner();
 }
 
+# Get name mangler
+sub getMangler {
+  my ($this) = @_;
+  return $this->{repository}->getToolChain()->getMangler();
+}
+
 return 1;

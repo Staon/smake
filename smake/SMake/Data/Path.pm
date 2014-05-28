@@ -74,9 +74,9 @@ sub systemRelative {
 # Usage: makeSystemArgument($wd, $basename)
 #    wd ......... the working directory
 #    basename ... a file basename which is appended to constructed path. It can
-#                 be empty to construct only directory path.
-# Return: a string which represents the path
-sub makeSystemArgument {
+#                 be undef to construct only directory path.
+# Return: ($relflag, $path) - relflag is true, if the returned path is relative
+sub systemArgument {
   my ($this, $wd, $basename) = @_;
   # TODO: do some portable solution
 
@@ -85,28 +85,58 @@ sub makeSystemArgument {
   while($pref <= $#$this && $pref <= $#$wd && $this->[$pref] eq $wd->[$pref]) {
     ++$pref;
   }
-  return $this->systemAbsolute() if($pref == 0);
-  
-  # -- construct relative path
-  my @path = ();
-  foreach my $i ($pref .. $#$wd) {
-    push @path, "..";
-  }
-  foreach my $i ($pref .. $#$this) {
-    push @path, $this->[$i];
-  }
-  
-  # -- if the relative path is shorter then the absolute, return it
-  if($#path < $#$this) {
-    my $str = "";
-    foreach my $p (@path) {
-      $str .= $p . "/";
+
+  my $relflag = 0;
+  my $retpath;  
+  if($pref > 0) {
+    # -- construct relative path
+    my $path = [];
+    foreach my $i ($pref .. $#$wd) {
+      push @$path, "..";
     }
-    $str .= $basename;
-    return $str;
+    foreach my $i ($pref .. $#$this) {
+      push @$path, $this->[$i];
+    }
+
+    # -- if the relative path is shorter than the absolute, return it
+    if($#path < $#$this) {
+      $retpath = bless($path, ref($this));
+      $relflag = 1;
+    }
+  }
+  
+  # -- create the absolute path
+  if(!$relflag) {
+    $retpath = new(ref($this), $this);
+  }
+  
+  # -- append base path
+  if(defined($basename)) {
+    $retpath = $retpath->joinPaths($basename);
+  }
+  
+  return ($relflag, $retpath);
+}
+
+# The method creates a filesystem path based on a specified working directory.
+# It tries to make a relative path. If the relative path is too long, system
+# absolute path is created instead of. This path must be an absolute directory
+# path.
+#
+# Usage: makeSystemArgument($wd, $basename)
+#    wd ......... the working directory
+#    basename ... a file basename which is appended to constructed path. It can
+#                 be empty to construct only directory path.
+# Return: a string which represents the path
+sub makeSystemArgument {
+  my ($this, $wd, $basename) = @_;
+  
+  my ($relflag, $path) = $this->systemArgument($wd, $basename);
+  if($relflag) {
+    return $path->systemRelative();
   }
   else {
-    return $this->systemAbsolute();
+    return $path->systemAbsolute();
   }
 }
 

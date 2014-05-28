@@ -120,12 +120,25 @@ sub appendProfile {
 
 # Convert a resource location to an absolute physical (filesystem) path
 #
+# Usage: getPhysicalPathObject($location)
+#    location .... a Path object which describes location of a resource in the
+#                  repository meaning
+# Returns: a Path object which describes the absolute physical path
+sub getPhysicalPathObject {
+  my ($this, $location) = @_;
+  # TODO: redirect to the source storage
+  return $location;
+}
+
+# Convert a resource location to an absolute physical (filesystem) path
+#
 # Usage: getPhysicalPath($location)
-# Returns: The physical absolute path
+#    location .... a Path object which describes location of a resource in the
+#                  repository meaning
+# Returns: A string which represents the path in meaning of the local filesystem.
 sub getPhysicalPath {
   my ($this, $location) = @_;
-  return $location->systemAbsolute();
-  # TODO: redirect to the source storage
+  $this->getPhysicalPathObject($location)->systemAbsolute();
 }
 
 # Open transaction of the project storage

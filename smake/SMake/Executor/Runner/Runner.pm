@@ -33,7 +33,7 @@ sub new {
 # Usage: prepareCommand($context, $command, $wd)
 #    context ...... executor context
 #    command ...... shell command
-#    wd ........... absolute system path of the working directory
+#    wd ........... absolute system path of the working directory (a Path object)
 # Returns: an identifier of the job
 sub prepareCommand {
   SMake::Utils::Abstract::dieAbstract();

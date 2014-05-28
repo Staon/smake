@@ -29,10 +29,10 @@ use SMake::Utils::Utils;
 #
 # The translator expects as the value a container of resources
 #
-# Usage: new($address, $prefix, $suffix, $itemprefix, $itemsuffix, $separator, $sort)
+# Usage: new($address, $prefix, $suffix, $itemprefix, $itemsuffix, $separator, $sort, $mangler)
 #    address ..... address of the container
 sub new {
-  my ($class, $address, $prefix, $suffix, $itemprefix, $itemsuffix, $separator, $sort) = @_;
+  my ($class, $address, $prefix, $suffix, $itemprefix, $itemsuffix, $separator, $sort, $mangler) = @_;
   my $this = bless(SMake::Executor::Translator::Value->new($address), $class);
   $this->{prefix} = $prefix;
   $this->{suffix} = $suffix;
@@ -40,6 +40,7 @@ sub new {
   $this->{itemsuffix} = $itemsuffix;
   $this->{separator} = $separator;
   $this->{sortflag} = $sort;
+  $this->{mangler} = $mangler;
   return $this;
 }
 
@@ -71,7 +72,18 @@ sub translateValue {
     
     # -- file
     my $path = $res->getPath();
-    $str .= $path->getDirpath()->makeSystemArgument($wd, $path->getBasename());
+    my $relpath;
+    ($relpath, $path) = $path->getDirpath()->systemArgument($wd, $path->getBasename());
+    # -- mangle the filename
+    if(defined($this->{mangler})) {
+      $path = $context->getMangler()->mangleName($context, $this->{mangler}, $path);
+    }
+    if($relpath) {
+      $str .= $path->systemRelative();
+    }
+    else {
+      $str .= $path->systemAbsolute();
+    }
     
     # -- item suffix
     $str .= $this->{itemsuffix};

@@ -19,6 +19,9 @@
 package SMake::Executor::Builder::Builder;
 
 use SMake::Executor::Command::Resource;
+use SMake::Executor::Const;
+use SMake::Executor::Executor;
+use SMake::Model::Const;
 use SMake::Utils::Abstract;
 
 # Create new command builder
@@ -45,8 +48,7 @@ sub build {
 # Returns: the physical path
 sub getResourcePath {
   my ($this, $context, $resource) = @_;
-  return SMake::Data::Path->fromSystem(
-      $context->getRepository()->getPhysicalPath($resource->getPath()))
+  return $context->getRepository()->getPhysicalPathObject($resource->getPath());
 }
 
 # A helper method - create resource node of a resource
@@ -57,6 +59,85 @@ sub createResourceNode {
   my ($this, $context, $resource) = @_;
   return SMake::Executor::Command::Resource->new(
       $this->getResourcePath($context, $resource));
+}
+
+# A builder function - add target resources into a logical command
+#
+# Usage: addTargetResources($context, $task, $command)
+#    context ...... Executor context
+#    task ......... Task object
+#    command ...... Root of the logical command (a Command::Set)
+sub addTargetResources {
+  my ($this, $context, $task, $command) = @_;
+  
+  # -- target resources
+  my $production = SMake::Executor::Command::Group->new(
+      $SMake::Executor::Const::PRODUCT_GROUP);
+  $command->putChild($production);
+  foreach my $resource (@{$task->getTargets()}) {
+    $production->appendChild($this->createResourceNode($context, $resource));
+  }
+}
+
+# A builder function - add source resources into a logical command
+#
+# Usage: addTargetResources($context, $task, $command)
+#    context ...... Executor context
+#    task ......... Task object
+#    command ...... Root of the logical command (a Command::Set)
+sub addSourceResources {
+  my ($this, $context, $task, $command) = @_;
+  
+  # -- source resources
+  my $sources = SMake::Executor::Command::Group->new(
+      $SMake::Executor::Const::SOURCE_GROUP);
+  $command->putChild($sources);
+  foreach my $resource (@{$task->getSources()}) {
+    my $restype = $resource->getType();
+    if($restype eq $SMake::Model::Const::SOURCE_RESOURCE
+       || $restype eq $SMake::Model::Const::PRODUCT_RESOURCE) {
+      $sources->appendChild($this->createResourceNode($context, $resource));
+    }
+  }
+}
+
+# A builder function - add source and target resources into a logical command
+#
+# Usage: addTargetResources($context, $task, $command)
+#    context ...... Executor context
+#    task ......... Task object
+#    command ...... Root of the logical command (a Command::Set)
+sub addResources {
+  my ($this, $context, $task, $command) = @_;
+  $this->addTargetResources($context, $task, $command);
+  $this->addSourceResources($context, $task, $command);
+}
+
+# A builder function - add group of libraries computed from artifact's
+#    dependencies
+#
+# Usage: addLibraries($context, $task, $command)
+#    context ...... Executor context
+#    task ......... Task object
+#    command ...... Root of the logical command (a Command::Set)
+sub addLibraries {
+  my ($this, $context, $task, $command) = @_;
+
+  my $libs = SMake::Executor::Command::Group->new(
+      $SMake::Executor::Const::LIB_GROUP);
+  $command->putChild($libs);
+  
+  my $artifact = $task->getStage()->getArtifact();
+  my $deps = $artifact->getDependencyRecords();
+  foreach my $dep (@$deps) {
+    if($dep->getDependencyType() eq $SMake::Model::Const::LINK_DEPENDENCY) {
+      my ($depprj, $depart, $depres) = $dep->getObjects(
+          $context->getReporter(),
+          $SMake::Executor::Executor::SUBSYSTEM,
+          $context->getRepository());
+      $libs->appendChild($this->createResourceNode($context, $depres));
+    }
+  }
 }
 
 return 1;

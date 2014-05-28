@@ -73,7 +73,8 @@ my $cmdbuilder = SMake::Executor::Builder::Group->new(
     [$SMake::Model::Const::C_TASK, SMake::Executor::Builder::Compile->new()],
     [$SMake::Model::Const::CXX_TASK, SMake::Executor::Builder::Compile->new()],
     [$SMake::Model::Const::LIB_TASK, SMake::Executor::Builder::Compile->new()],
-    [$SMake::Model::Const::BIN_TASK, SMake::Executor::Builder::Compile->new()],
+    [$SMake::Model::Const::BIN_TASK, SMake::Executor::Builder::Compile->new(
+        "addResources", "addLibraries")],
 );
 my $cmdtranslator = SMake::Executor::Translator::Table->new(
     [$SMake::Model::Const::CXX_TASK, SMake::Executor::Translator::Compositor->new(
@@ -94,6 +95,8 @@ my $cmdtranslator = SMake::Executor::Translator::Table->new(
         "cc",
         SMake::Executor::Translator::FileList->new(
             $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
+        SMake::Executor::Translator::FileList->new(
+            $SMake::Executor::Const::LIB_GROUP, "-liost ", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
         SMake::Executor::Translator::FileList->new(
             $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
     )],

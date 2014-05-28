@@ -54,13 +54,13 @@ sub new {
   
   # -- translate command to a shell commands
   my $translator = $context->getToolChain()->getTranslator();
-  $this->{wdir} = $context->getRepository()->getPhysicalPath($task->getWDPath());
-  my $wd = SMake::Data::Path->fromSystem($this->{wdir});
+  my $wd = $context->getRepository()->getPhysicalPathObject($task->getWDPath());
   my $shellcmds = [];
   foreach my $command (@$commands) {
   	my $scmds = $translator->translate($context, $command, $wd);
     push @$shellcmds, @$scmds;
   }
+  $this->{wdir} = $wd;
   $this->{commands} = $shellcmds;
   
   return $this;
@@ -79,7 +79,7 @@ sub execute {
     return 1 if(!defined($status));
     
     # -- TODO: report output of the command
-    print "@$status\n";
+    print $status->[1];
     
     $this->{jobid} = undef;
   }
@@ -92,8 +92,6 @@ sub execute {
   }
   else {
   	# -- TODO: report finished task
-    print "finish task " . $this->{stageid}->printableString() . "." 
-        . $this->{taskid} . "\n";
     return 0;
   }
 }

@@ -41,4 +41,7 @@ $BIN_MAIN_TYPE = "binary";
 $BIN_STAGE = "binlink";
 $BIN_TASK = "bin";
 
+# -- dependency types
+$LINK_DEPENDENCY = "link";
+
 return 1;

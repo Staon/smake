@@ -84,7 +84,7 @@ sub getObjects {
   
   my $restype = $this->getDependencyMainResource();
   my $resource;
-  if(!defined($resname)) {
+  if(!defined($restype)) {
     $resource = $artifact->getDefaultMainResource();
   }
   else {

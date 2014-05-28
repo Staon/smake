@@ -20,5 +20,6 @@ package SMake::Executor::Const;
 
 $PRODUCT_GROUP = "product";
 $SOURCE_GROUP = "src";
+$LIB_GROUP = "lib";
 
 return 1;
