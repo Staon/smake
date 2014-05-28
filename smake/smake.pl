@@ -25,6 +25,7 @@ use SMake::Executor::Builder::Group;
 use SMake::Executor::Const;
 use SMake::Executor::Context;
 use SMake::Executor::Executor;
+use SMake::Executor::Runner::Sequential;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Executor::Translator::Select;
@@ -78,12 +79,12 @@ my $cmdtranslator = SMake::Executor::Translator::Table->new(
     [$SMake::Model::Const::CXX_TASK, SMake::Executor::Translator::Compositor->new(
         "cc",
         SMake::Executor::Translator::FileList->new(
-            $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
+            $SMake::Executor::Const::PRODUCT_GROUP, "-c ", "", "-o ", "", "", 0),
         SMake::Executor::Translator::FileList->new(
             $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
     )],
     [$SMake::Model::Const::LIB_TASK, SMake::Executor::Translator::Compositor->new(
-        "wlib",
+        "wlib -b",
         SMake::Executor::Translator::FileList->new(
             $SMake::Executor::Const::PRODUCT_GROUP, "", "", "", "", "", 0),
         SMake::Executor::Translator::FileList->new(
@@ -97,7 +98,9 @@ my $cmdtranslator = SMake::Executor::Translator::Table->new(
             $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
     )],
 );
-my $toolchain = SMake::ToolChain::ToolChain->new(undef, $mangler, $cmdbuilder, $cmdtranslator);
+my $runner = SMake::Executor::Runner::Sequential->new();
+my $toolchain = SMake::ToolChain::ToolChain->new(
+    undef, $mangler, $cmdbuilder, $cmdtranslator, $runner);
 # ---- library artifact
 my $resolver = SMake::Resolver::Chain->new(
     SMake::Resolver::Compile->new(
@@ -113,7 +116,7 @@ my $constructor = SMake::Constructor::Generic->new(
   $resolver, [
     SMake::Constructor::MainResource->new(
         $SMake::Model::Const::LIB_MAIN_TYPE,
-        'Dir() . Name() . ".a"',
+        'Dir() . Name() . ".lib"',
         $SMake::Model::Const::LIB_STAGE,
         $SMake::Model::Const::LIB_TASK, {}),
   ]);
@@ -150,7 +153,7 @@ $repository->commitTransaction();
 
 # -- execute the project
 my $executor = SMake::Executor::Executor->new();
-my $execcontext = SMake::Executor::Context->new($reporter, $repository);
+my $execcontext = SMake::Executor::Context->new($reporter, $repository, $runner);
 $executor->executeRoots(
     $execcontext,
     [

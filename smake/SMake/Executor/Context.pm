@@ -47,4 +47,10 @@ sub getToolChain {
   return $this->{repository}->getToolChain();
 }
 
+# Get shell runner
+sub getRunner {
+  my ($this) = @_;
+  return $this->{repository}->getToolChain()->getRunner();
+}
+
 return 1;

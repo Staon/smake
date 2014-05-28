@@ -101,6 +101,9 @@ sub executeRoots {
   	  
   	  # -- switch to next loop iteration
   	  $stagelist = $newlist;
+  	  
+  	  # -- wait for some finished shell job
+  	  $context->getRunner()->wait($context);
   	}
   }
   else {

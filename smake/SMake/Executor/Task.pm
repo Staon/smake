@@ -54,8 +54,8 @@ sub new {
   
   # -- translate command to a shell commands
   my $translator = $context->getToolChain()->getTranslator();
-  my $wd = SMake::Data::Path->fromSystem(
-      $context->getRepository()->getPhysicalPath($task->getWDPath()));
+  $this->{wdir} = $context->getRepository()->getPhysicalPath($task->getWDPath());
+  my $wd = SMake::Data::Path->fromSystem($this->{wdir});
   my $shellcmds = [];
   foreach my $command (@$commands) {
   	my $scmds = $translator->translate($context, $command, $wd);
@@ -73,13 +73,27 @@ sub new {
 sub execute {
   my ($this, $context) = @_;
   
+  # -- get status of running command
+  if(defined($this->{jobid})) {
+    my $status = $context->getRunner()->getStatus($context, $this->{jobid});
+    return 1 if(!defined($status));
+    
+    # -- TODO: report output of the command
+    print "@$status\n";
+    
+    $this->{jobid} = undef;
+  }
+  
   if($#{$this->{commands}} >= 0) {
     my $command = shift(@{$this->{commands}});
-    print "Execute command: $command\n";
+    $this->{jobid} = $context->getRunner()->prepareCommand(
+        $context, $command, $this->{wdir});
     return 1;  	
   }
   else {
-    print "finish task " . $this->{stageid}->printableString() . "." . $this->{taskid} . "\n";
+  	# -- TODO: report finished task
+    print "finish task " . $this->{stageid}->printableString() . "." 
+        . $this->{taskid} . "\n";
     return 0;
   }
 }

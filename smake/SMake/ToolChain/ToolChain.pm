@@ -26,14 +26,16 @@ package SMake::ToolChain::ToolChain;
 #    mangler ...... name mangler
 #    builder ...... command builder
 #    translator ... a translator abstract commands to shell commands
+#    runner ....... a shell runner
 sub new {
-  my ($class, $parent, $mangler, $builder, $translator) = @_;
+  my ($class, $parent, $mangler, $builder, $translator, $runner) = @_;
   return bless({
   	parent => $parent,
     constructors => {},
     mangler => $mangler,
     builder => $builder,
     translator => $translator,
+    runner => $runner,
   }, $class);
 }
 
@@ -87,6 +89,12 @@ sub getBuilder {
 sub getTranslator {
   my ($this) = @_;
   return $this->{translator};
+}
+
+# Get shell runner
+sub getRunner {
+  my ($this) = @_;
+  return $this->{runner};
 }
 
 return 1;
