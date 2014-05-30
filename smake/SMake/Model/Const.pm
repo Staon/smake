@@ -44,4 +44,12 @@ $BIN_TASK = "bin";
 # -- dependency types
 $LINK_DEPENDENCY = "link";
 
+# -- external resources
+$EXTERNAL_RESOURCE = "external";
+$EXTERNAL_TASK = "install";
+
+# -- public resources
+$PUBLIC_RESOURCE = "public";
+$PUBLIC_TASK = "publish";
+
 return 1;

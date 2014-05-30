@@ -22,6 +22,8 @@ use SMake::Resolver::Resource;
 
 @ISA = qw(SMake::Resolver::Resource);
 
+use SMake::Model::Const;
+
 # Create new resolver
 #
 # Usage: new($type, $file, $mangler, $stage, $tasktype)
@@ -40,7 +42,7 @@ sub new {
 }
 
 sub doJob {
-  my ($this, $context, $queue, $resource) = @_;
+  my ($this, $context, $scanner, $queue, $resource) = @_;
 
   # -- create name of the new resource
   my $tgpath = $context->getMangler()->mangleName(
@@ -51,8 +53,12 @@ sub doJob {
   my $task = $artifact->createTaskInStage(
       $this->{stage}, $this->{tasktype}, $artifact->getPath(), undef);
   $task->appendSource($resource);
-  my $tgres = $artifact->createResource($tgpath, "product", $task);
+  my $tgres = $artifact->createResource(
+      $tgpath, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
   $queue->pushResource($tgres);
+  
+  # -- execute source scanner
+  $scanner->scanSource($context, $queue, $artifact, $resource, $task);
 }
 
 return 1;

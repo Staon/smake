@@ -91,6 +91,12 @@ sub getMangler {
   return $this->{repository}->getToolChain()->getMangler();
 }
 
+# Get source scanner
+sub getScanner {
+  my ($this) = @_;
+  return $this->{repository}->getToolChain()->getScanner();
+}
+
 # Push current description
 #
 # Usage: setDescription($description)

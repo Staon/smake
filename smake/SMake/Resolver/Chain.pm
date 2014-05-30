@@ -35,9 +35,9 @@ sub new {
 }
 
 sub resolvePartial {
-  my ($this, $context, $resolver, $queue, $resource, $status) = @_;
+  my ($this, $context, $resolver, $scanner, $queue, $resource, $status) = @_;
   
-  if($resolver->resolveResource($context, $queue, $resource)) {
+  if($resolver->resolveResource($context, $scanner, $queue, $resource)) {
     return (1, 1);
   }
   else {

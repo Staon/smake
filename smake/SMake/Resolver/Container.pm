@@ -43,13 +43,13 @@ sub appendResolver {
 }
 
 sub resolveResource {
-  my ($this, $context, $queue, $resource) = @_;
+  my ($this, $context, $scanner, $queue, $resource) = @_;
   
   my $status = 0;
   my $stop = 0;
   foreach my $resolver (@{$this->{list}}) {
     ($status, $stop) = $this->resolvePartial(
-        $context, $resolver, $queue, $resource, $status);
+        $context, $resolver, $scanner, $queue, $resource, $status);
     last if($stop);
   }
   return $status;
@@ -72,6 +72,7 @@ sub resolveDependency {
 # Usage: resolvePartial($context, $resolver, $queue, $resource, $status)
 #    context ..... parser context
 #    resolver .... the child resolver
+#    scanner ..... source scanner
 #    queue ....... resource queue
 #    resource .... the resource
 #    status ...... current return value of the container resolver

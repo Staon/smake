@@ -38,11 +38,11 @@ sub new {
 }
 
 sub resolveResource {
-  my ($this, $context, $queue, $resource) = @_;
+  my ($this, $context, $scanner, $queue, $resource) = @_;
   
   if(($resource->getType() =~ /$this->{typemask}/)
      && ($resource->getRelativePath()->asString() =~ /$this->{resmask}/)) {
-    $this->doJob($context, $queue, $resource);
+    $this->doJob($context, $scanner, $queue, $resource);
     return 1;
   }
   else {

@@ -23,6 +23,7 @@ use SMake::Constructor::Constructor;
 @ISA = qw(SMake::Constructor::Constructor);
 
 use SMake::Constructor::Queue;
+use SMake::Scanner::Chain;
 use SMake::Utils::Utils;
 
 # Create new generic constructor
@@ -54,12 +55,15 @@ sub constructArtifact {
     $record->createMainResource($context, $artifact);
   }
 
+  # -- make local scanner to allow adding of artifact dependent source scanners
+  my $scanner = SMake::Scanner::Chain->new(['.*', '.*', '.*', $context->getScanner()]);
+  
   # -- resolve resources
   for(
       $resource = $queue->getResource();
       defined($resource);
       $resource = $queue->getResource()) {
-    if(!$this->{resolver}->resolveResource($context, $queue, $resource)) {
+    if(!$this->{resolver}->resolveResource($context, $scanner, $queue, $resource)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
           $SMake::Constructor::Constructor::SUBSYSTEM,

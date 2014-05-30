@@ -45,6 +45,8 @@ use SMake::Resolver::Chain;
 use SMake::Resolver::Compile;
 use SMake::Resolver::Dependency;
 use SMake::Resolver::Link;
+use SMake::Scanner::Chain;
+use SMake::Scanner::HdrScanner;
 use SMake::Storage::File::Storage;
 use SMake::ToolChain::ToolChain;
 use SMake::Utils::Dirutils;
@@ -75,6 +77,7 @@ my $cmdbuilder = SMake::Executor::Builder::Group->new(
     [$SMake::Model::Const::LIB_TASK, SMake::Executor::Builder::Compile->new()],
     [$SMake::Model::Const::BIN_TASK, SMake::Executor::Builder::Compile->new(
         "addResources", "addLibraries")],
+    [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Builder::Compile->new()],
 );
 my $cmdtranslator = SMake::Executor::Translator::Table->new(
     [$SMake::Model::Const::CXX_TASK, SMake::Executor::Translator::Compositor->new(
@@ -100,10 +103,20 @@ my $cmdtranslator = SMake::Executor::Translator::Table->new(
         SMake::Executor::Translator::FileList->new(
             $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
     )],
+    [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Translator::Compositor->new(
+        "echo",
+        SMake::Executor::Translator::FileList->new(
+            $SMake::Executor::Const::PRODUCT_GROUP, "", "", "", "", " ", 0),
+        SMake::Executor::Translator::FileList->new(
+            $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 0),
+    )],
 );
 my $runner = SMake::Executor::Runner::Sequential->new();
+my $scanner = SMake::Scanner::Chain->new(
+    ['.*', '[.](c|cpp|h)$', '.*', SMake::Scanner::HdrScanner->new()],
+);
 my $toolchain = SMake::ToolChain::ToolChain->new(
-    undef, $mangler, $cmdbuilder, $cmdtranslator, $runner);
+    undef, $mangler, $cmdbuilder, $cmdtranslator, $runner, $scanner);
 # ---- library artifact
 my $resolver = SMake::Resolver::Chain->new(
     SMake::Resolver::Compile->new(
