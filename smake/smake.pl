@@ -113,7 +113,7 @@ my $cmdtranslator = SMake::Executor::Translator::Table->new(
 );
 my $runner = SMake::Executor::Runner::Sequential->new();
 my $scanner = SMake::Scanner::Chain->new(
-    ['.*', '[.](c|cpp|h)$', '.*', SMake::Scanner::HdrScanner->new()],
+    SMake::Scanner::HdrScanner->new('.*', '.*', '[.](c|cpp|h)$'),
 );
 my $toolchain = SMake::ToolChain::ToolChain->new(
     undef, $mangler, $cmdbuilder, $cmdtranslator, $runner, $scanner);

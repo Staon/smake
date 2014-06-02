@@ -42,7 +42,7 @@ sub new {
 }
 
 sub doJob {
-  my ($this, $context, $scanner, $queue, $resource) = @_;
+  my ($this, $context, $queue, $resource) = @_;
 
   # -- create name of the new resource
   my $tgpath = $context->getMangler()->mangleName(
@@ -58,7 +58,7 @@ sub doJob {
   $queue->pushResource($tgres);
   
   # -- execute source scanner
-  $scanner->scanSource($context, $queue, $artifact, $resource, $task);
+  $context->scanSource($queue, $artifact, $resource, $task);
 }
 
 return 1;

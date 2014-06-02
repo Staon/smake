@@ -32,7 +32,6 @@ sub new {
 #
 # Usage: resolveResource($context, $queue, $resource)
 #    context ..... parser context, project and artifact are valid
-#    scanner ..... chain source scanner (it can be modified)
 #    queue ....... resource queue
 #    resource .... resolved resource
 # Returns: true if the resource is handled

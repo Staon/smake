@@ -64,4 +64,25 @@ sub topObject {
   return $object;
 }
 
+# Clear all items at the stack
+#
+# Usage: clearStack();
+sub clearStack {
+  my ($this) = @_;
+  $this->[1] = [];
+}
+
+# Apply a functor on items in the stack. The top item is first
+#
+# Usage: applyFunctor($func)
+#    func .... a functor. The item is passed as the only one argument. The functor
+#              returns true if the processing should be stopped.
+sub applyFunctor {
+  my ($this, $func) = @_;
+  
+  foreach my $item (reverse(@{$this->[1]})) {
+    return if(&{$func}($item));
+  }
+}
+
 return 1;

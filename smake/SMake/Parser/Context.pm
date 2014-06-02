@@ -38,6 +38,8 @@ sub new {
   	project => SMake::Utils::Stack->new("project"),
   	artifact => SMake::Utils::Stack->new("artifact"),
   	resprefix => SMake::Utils::Stack->new("resource prefix"),
+  	resolver => SMake::Utils::Stack->new("resolver"),
+  	scanner => SMake::Utils::Stack->new("scanner"),
   }, $class);
 }
 
@@ -89,12 +91,6 @@ sub getToolChain {
 sub getMangler {
   my ($this) = @_;
   return $this->{repository}->getToolChain()->getMangler();
-}
-
-# Get source scanner
-sub getScanner {
-  my ($this) = @_;
-  return $this->{repository}->getToolChain()->getScanner();
 }
 
 # Push current description
@@ -187,6 +183,105 @@ sub popResourcePrefix {
 sub getResourcePrefix {
   my ($this) = @_;
   return $this->{resprefix}->topObject();
+}
+
+# Push new resource resolver
+#
+# Usage: pushResolver($resolver)
+sub pushResolver {
+  my ($this, $resolver) = @_;
+  $this->{resolver}->pushObject($resolver);
+}
+
+# Clear all pushed resource resolvers
+sub clearResolvers {
+  my ($this) = @_;
+  $this->{resolver}->clearStack();
+}
+
+# Resolve resource - use all pushed resolvers
+#
+# Usage: resolveResource($scanner, $queue, $resource)
+#    scanner ..... chain source scanner (it can be modified)
+#    queue ....... resource queue
+#    resource .... resolved resource
+# Returns: true if the resource is handled
+sub resolveResource {
+  my ($this, $queue, $resource) = @_;
+  
+  my $retval = 0;
+  $this->{resolver}->applyFunctor(sub {
+    my ($resolver) = @_;
+    if($resolver->resolveResource($this, $queue, $resource)) {
+      $retval = 1;
+      return 1;
+    }
+    else {
+      return 0;
+    }
+  });
+  return $retval;
+}
+
+# Resolve dependency record - use all pushed resolvers
+#
+# Usage: resolveDependency($dependency)
+#    dependency .. the dependency object
+# Returns: true if the dependency is handled
+sub resolveDependency {
+  my ($this, $dependency) = @_;
+
+  my $retval = 0;
+  $this->{resolver}->applyFunctor(sub {
+    my ($resolver) = @_;
+    if($resolver->resolveDependency($this, $dependency)) {
+      $retval = 1;
+      return 1;
+    }
+    else {
+      return 0;
+    }
+  });
+  return $retval;
+}
+
+# Push new resource scanner
+#
+# Usage: pushScanner($scanner)
+sub pushScanner {
+  my ($this, $scanner) = @_;
+  $this->{scanner}->pushObject($scanner);
+}
+
+# Clear all pushed scanners
+sub clearScanners {
+  my ($this) = @_;
+  $this->{scanner}->clearStack();
+}
+
+# Scan a source file
+#
+# Usage: scanSource($queue, $task, $resource, $task)
+#    queue .......... queue of resources during construction of an artifact
+#    artifact ....... resource's artifact
+#    resource ....... the scanned resource
+#    task ........... a task which the resource is a source for
+# Returns: true if the scanner processed the resource
+sub scanSource {
+  my ($this, $queue, $artifact, $resource, $task) = @_;
+
+  my $retval = 0;
+  $this->{scanner}->applyFunctor(sub {
+    my ($scanner) = @_;
+    if($scanner->scanSource($this, $queue, $artifact, $resource, $task)) {
+      $retval = 1;
+      return 1;
+    }
+    else {
+      return 0;
+    }
+  });
+  return $retval;
 }
 
 return 1;

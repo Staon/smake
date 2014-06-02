@@ -32,12 +32,13 @@ sub new {
 
 # Scan a source file
 #
-# Usage: scanSource($context, $task, $resource)
+# Usage: scanSource($context, $queue, $artifact, $resource, $task)
 #    context ........ parser context
 #    queue .......... queue of resources during construction of an artifact
 #    artifact ....... resource's artifact
 #    resource ....... the scanned resource
 #    task ........... a task which the resource is a source for
+# Returns: true if the scanner processed the resource
 sub scanSource {
   SMake::Utils::Abstract::dieAbstract();
 }

@@ -40,7 +40,7 @@ sub new {
 }
 
 sub doJob {
-  my ($this, $context, $scanner, $queue, $resource) = @_;
+  my ($this, $context, $queue, $resource) = @_;
 
   # -- get the main resource
   my $artifact = $context->getArtifact();

@@ -23,7 +23,6 @@ use SMake::Constructor::Constructor;
 @ISA = qw(SMake::Constructor::Constructor);
 
 use SMake::Constructor::Queue;
-use SMake::Scanner::Chain;
 use SMake::Utils::Utils;
 
 # Create new generic constructor
@@ -55,15 +54,17 @@ sub constructArtifact {
     $record->createMainResource($context, $artifact);
   }
 
-  # -- make local scanner to allow adding of artifact dependent source scanners
-  my $scanner = SMake::Scanner::Chain->new(['.*', '.*', '.*', $context->getScanner()]);
+  # -- push resolver and scanner into the context to allow pushing of artifact dependent
+  #    resolvers and scanners
+  $context->pushResolver($this->{resolver});
+  $context->pushScanner($context->getToolChain()->getScanner());
   
   # -- resolve resources
   for(
       $resource = $queue->getResource();
       defined($resource);
       $resource = $queue->getResource()) {
-    if(!$this->{resolver}->resolveResource($context, $scanner, $queue, $resource)) {
+    if(!$context->resolveResource($queue, $resource)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
           $SMake::Constructor::Constructor::SUBSYSTEM,
@@ -75,7 +76,7 @@ sub constructArtifact {
   # -- resolve dependency records
   my $dependencies = $artifact->getDependencyRecords();
   foreach my $dependency (@$dependencies) {
-    if(!$this->{resolver}->resolveDependency($context, $dependency)) {
+    if(!$context->resolveDependency($dependency)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
           $SMake::Constructor::Constructor::SUBSYSTEM,
@@ -83,6 +84,10 @@ sub constructArtifact {
           $dependency->getDependencyType());
     }
   }
+  
+  # -- clear pushed resolvers and scanners
+  $context->clearScanners();
+  $context->clearResolvers();
 }
 
 return 1;
