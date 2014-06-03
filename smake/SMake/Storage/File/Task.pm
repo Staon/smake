@@ -54,9 +54,7 @@ sub destroy {
   $this->{repository} = undef;
   $this->{storage} = undef;
   $this->{stage} = undef;
-  foreach my $timestamp (values %{$this->{targets}}) {
-    $timestamp->destroy();
-  }
+  $this->{targets} = undef;
   foreach my $timestamp (values %{$this->{sources}}) {
     $timestamp->destroy();
   }
@@ -95,13 +93,12 @@ sub getWDPath {
 
 sub appendTarget {
   my ($this, $resource) = @_;
-  $this->{targets}->{$resource->getKey()} = SMake::Storage::File::Timestamp->new(
-      $this->{repository}, $this->{storage}, $this, $resource);
+  $this->{targets}->{$resource->getKey()} = $resource;
 }
 
 sub getTargets {
   my ($this) = @_;
-  return [map { $_->getResource() } values(%{$this->{targets}})];
+  return [values(%{$this->{targets}})];
 }
 
 sub appendSource {
