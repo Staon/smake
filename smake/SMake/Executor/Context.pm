@@ -20,11 +20,12 @@ package SMake::Executor::Context;
 
 # Create new context
 #
-# Usage: new($reporter, $repository)
+# Usage: new($reporter, $decider, $repository)
 sub new {
-  my ($class, $reporter, $repository) = @_;
+  my ($class, $reporter, $decider, $repository) = @_;
   return bless({
     reporter => $reporter,
+    decider => $decider,
     repository => $repository,
   }, $class);
 }
@@ -33,6 +34,12 @@ sub new {
 sub getReporter() {
   my ($this) = @_;
   return $this->{reporter};
+}
+
+# Get filestamp decider box
+sub getDecider {
+  my ($this) = @_;
+  return $this->{decider};
 }
 
 # Get the repository

@@ -87,6 +87,14 @@ sub getSources {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get list of source timestamps
+#
+# Usage: getSourceTimestamp()
+# Returns: \@list
+sub getSourceTimestamps {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Append an external dependency
 #
 # Usage: appendDependency($dep)
@@ -106,7 +114,7 @@ sub printableKey {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get list of ids of taks which this is dependent on
+# Get list of ids of tasks which this is dependent on
 #
 # Usage: getDependentTasks($reporter, $subsystem)
 #    reporter .... a reporter object

@@ -15,26 +15,39 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic command translator interface
-package SMake::Executor::Translator::Translator;
+# Generic instruction - end commands after translation from logical
+# command trees.
+package SMake::Executor::Instruction::Instruction;
 
 use SMake::Utils::Abstract;
 
-# Create new translator record
+$WAIT = "wait";
+$NEXT = "next";
+$STOP = "stop";
+
+# Create new instruction
+#
+# Usage: new()
 sub new {
   my ($class) = @_;
   return bless({}, $class);
 }
 
-# Translate command
+# Execute the instruction
 #
-# Usage: translate($context, $command, $wd)
+# Usage: execute($context, $taskaddress, $wdir)
 #    context ...... executor context
-#    command ...... logical command tree
-#    wd ........... absolute physical path of the task's working directory
-# Return:
-#    \@commands ... list instruction objects
-sub translate {
+#    taskaddress .. address of current task
+#    wdir ......... task's working directory
+# Returns:
+#    one of the strings:
+#        SMake::Executor::Instruction::Instruction::WAIT ("wait")
+#             wait for command finish
+#        SMake::Executor::Instruction::Instruction::NEXT ("next")
+#             the command finished and next instruction should be executed
+#        SMake::Executor::Instruction::Instruction::WAIT ("stop")
+#             the command finished and the task should be finished too
+sub execute {
   SMake::Utils::Abstract::dieAbstract();
 }
 

@@ -68,7 +68,9 @@ sub get {
   return $value if(defined($value));
   
   # -- not changed item
-  return &{$this->{getfce}}($key, @_);
+  $value = &{$this->{getfce}}($key, @_);
+  $this->{inserted}->{$key} = $value if(defined($value));
+  return $value;
 }
 
 # Commit changes

@@ -23,6 +23,7 @@ use SMake::Model::Task;
 @ISA = qw(SMake::Model::Task);
 
 use SMake::Data::Path;
+use SMake::Storage::File::Timestamp;
 
 # Create new task object
 #
@@ -53,8 +54,12 @@ sub destroy {
   $this->{repository} = undef;
   $this->{storage} = undef;
   $this->{stage} = undef;
-  $this->{targets} = undef;
-  $this->{sources} = undef;
+  foreach my $timestamp (values %{$this->{targets}}) {
+    $timestamp->destroy();
+  }
+  foreach my $timestamp (values %{$this->{sources}}) {
+    $timestamp->destroy();
+  }
   $this->{dependencies} = undef;
 }
 
@@ -90,20 +95,27 @@ sub getWDPath {
 
 sub appendTarget {
   my ($this, $resource) = @_;
-  $this->{targets}->{$resource->getKey()} = $resource;
+  $this->{targets}->{$resource->getKey()} = SMake::Storage::File::Timestamp->new(
+      $this->{repository}, $this->{storage}, $this, $resource);
 }
 
 sub getTargets {
   my ($this) = @_;
-  return [values(%{$this->{targets}})];
+  return [map { $_->getResource() } values(%{$this->{targets}})];
 }
 
 sub appendSource {
   my ($this, $resource) = @_;
-  $this->{sources}->{$resource->getKey()} = $resource;
+  $this->{sources}->{$resource->getKey()} = SMake::Storage::File::Timestamp->new(
+      $this->{repository}, $this->{storage}, $this, $resource);
 }
 
 sub getSources {
+  my ($this) = @_;
+  return [map { $_->getResource() } values(%{$this->{sources}})];
+}
+
+sub getSourceTimestamps {
   my ($this) = @_;
   return [values(%{$this->{sources}})];
 }
@@ -123,7 +135,7 @@ sub getDependentTasks {
   
   my $list = [];
   foreach my $source (values %{$this->{sources}}) {
-  	my $srctask = $source->getTask();
+  	my $srctask = $source->getResource()->getTask();
   	# -- not external resource and dependencies inside the stage
   	if(defined($srctask)
   	   && ($this->{stage}->getKey() eq $srctask->getStage()->getKey())) {

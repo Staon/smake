@@ -15,27 +15,37 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic command translator interface
-package SMake::Executor::Translator::Translator;
+# List of paths to be combined into a timestamp mark
+package SMake::Decider::DeciderList;
 
-use SMake::Utils::Abstract;
-
-# Create new translator record
+# Create new list
+#
+# Usage: new()
 sub new {
   my ($class) = @_;
-  return bless({}, $class);
+  return bless({
+    paths => {},
+  }, $class);
 }
 
-# Translate command
+# Append paths into the list
 #
-# Usage: translate($context, $command, $wd)
-#    context ...... executor context
-#    command ...... logical command tree
-#    wd ........... absolute physical path of the task's working directory
-# Return:
-#    \@commands ... list instruction objects
-sub translate {
-  SMake::Utils::Abstract::dieAbstract();
+# Usage: appendPaths($path*)
+#    path .... absolute physical path (in the filesystem meaning)
+sub appendPaths {
+  my $this = shift;
+  foreach my $path (@_) {
+    $this->{paths}->{$path->asString()} = $path;
+  }
+}
+
+# Get ordered list of the paths
+#
+# Returns: \@list
+sub getOrderedList {
+  my ($this) = @_;
+  
+  return [map { $this->{paths}->{$_} } (sort {$a cmp $b} keys(%{$this->{paths}}))];
 }
 
 return 1;

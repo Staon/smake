@@ -15,13 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Command compositor - the compositor constructs one command from values
-# returned by its children.
+# Command compositor - the compositor constructs one shell command from values
+# returned by its children. All children must return an instance of the
+# SMake::Executor::Instruction::Shell object!
 package SMake::Executor::Translator::Compositor;
 
 use SMake::Executor::Translator::Translator;
 
 @ISA = qw(SMake::Executor::Translator::Translator);
+
+use SMake::Executor::Instruction::Shell;
 
 # Create new compositor
 #
@@ -52,10 +55,12 @@ sub translate {
   	}
   	else {
       my $vals = $record->translate($context, $command, $wd);
-      push @retvals, @$vals; 
+      foreach my $instr (@$vals) {
+        push @retvals, $instr->getCommand();
+      }
   	}
   }
-  return ["@retvals"];
+  return [SMake::Executor::Instruction::Shell->new("@retvals")];
 }
 
 return 1;

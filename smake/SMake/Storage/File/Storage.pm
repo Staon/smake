@@ -211,6 +211,8 @@ sub commitTransaction {
       print DESCFILE $dumper->Dump();
       close(DESCFILE);
     }
+    
+    $this->{transaction} = undef;
   }
 }
 

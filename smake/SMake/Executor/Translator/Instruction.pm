@@ -15,27 +15,29 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Decider based on file's time stamps
-package SMake::Model::DeciderTime;
+# Translator of a generic instruction object
+package SMake::Executor::Translator::Instruction;
 
-use File::stat;
-use SMake::Model::Decider;
+use SMake::Executor::Translator::Translator;
 
-@ISA = qw(SMake::Model::Decider);
+@ISA = qw(SMake::Executor::Translator::Translator);
 
-# Create new decider
+# Create new translator object
 #
-# Usage: new()
+# Usage: new($instruction, args...)
 sub new {
-  my ($class) = @_;
-  return bless(SMake::Model::Decider->new(), $class);
+  my ($class, $instruction) = splice(@_, 0, 2);
+  my $this = bless(SMake::Executor::Translator::Translator->new(), $class);
+  $this->{instruction} = $instruction;
+  $this->{arguments} = [@_];
+  return $this;
 }
 
-sub getStamp {
-  my ($this, $path) = @_;
+sub translate {
+  my ($this, $context, $command, $wd) = @_;
   
-  my $st = stat($path) or die "unknown file '$path'";
-  return $st->mtime;
+  my $i = $this->{instruction}->new(@{$this->{arguments}});
+  return [$i];
 }
 
 return 1;

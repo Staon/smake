@@ -19,34 +19,23 @@
 package SMake::Executor::Task;
 
 use SMake::Executor::Executor;
+use SMake::Executor::Instruction::Instruction;
 use SMake::Utils::Utils;
 
 # Create new task executor
 #
-# Usage: new($context, $stageid, $taskid)
+# Usage: new($context, $taskaddress)
 sub new {
-  my ($class, $context, $stageid, $taskid) = @_;
+  my ($class, $context, $taskaddress) = @_;
   my $this = bless({
-    stageid => $stageid,
-    taskid => $taskid,
+    taskaddress => $taskaddress,
   }, $class);
 
   # -- get model object
-  my ($project, $artifact, $stage) = $this->{stageid}->getObjects(
+  my ($project, $artifact, $stage, $task) = $this->{taskaddress}->getObjects(
       $context->getReporter(),
       $SMake::Executor::Executor::SUBSYSTEM,
       $context->getRepository());
-  my $task = $stage->getTask($this->{taskid});
-  if(!defined($task)) {
-    SMake::Utils::Utils::dieReport(
-        $context->getReporter(),
-        $SMake::Executor::Executor::SUBSYSTEM,
-        "there is something wrong, the task %s.%s is not known!",
-        $this->{stageid}->printableString(),
-        $this->{taskid});
-  }
-  
-  # -- TODO: check resource modifications
   
   # -- build abstract command tree
   my $builder = $context->getToolChain()->getBuilder();
@@ -55,13 +44,13 @@ sub new {
   # -- translate command to a shell commands
   my $translator = $context->getToolChain()->getTranslator();
   my $wd = $context->getRepository()->getPhysicalPathObject($task->getWDPath());
-  my $shellcmds = [];
+  my $instructions = [];
   foreach my $command (@$commands) {
-  	my $scmds = $translator->translate($context, $command, $wd);
-    push @$shellcmds, @$scmds;
+  	my $instrs = $translator->translate($context, $command, $wd);
+    push @$instructions, @$instrs;
   }
   $this->{wdir} = $wd;
-  $this->{commands} = $shellcmds;
+  $this->{instructions} = $instructions;
   
   return $this;
 }
@@ -73,33 +62,28 @@ sub new {
 sub execute {
   my ($this, $context) = @_;
   
-  # -- get status of running command
-  if(defined($this->{jobid})) {
-    my $status = $context->getRunner()->getStatus($context, $this->{jobid});
-    return 1 if(!defined($status));
-    
-    # -- TODO: report output of the command
-    print $status->[1];
-    
-    $this->{jobid} = undef;
+  while($#{$this->{instructions}} >= 0) {
+    my $status = $this->{instructions}->[0]->execute(
+        $context, $this->{taskaddress}, $this->{wdir});
+    if($status eq $SMake::Executor::Instruction::Instruction::WAIT) {
+      return 1;
+    }
+    if($status eq $SMake::Executor::Instruction::Instruction::STOP) {
+      $this->{instructions} = [];
+    }
+    if($status eq $SMake::Executor::Instruction::Instruction::NEXT) {
+      shift @{$this->{instructions}};
+    }
   }
   
-  if($#{$this->{commands}} >= 0) {
-    my $command = shift(@{$this->{commands}});
-    $this->{jobid} = $context->getRunner()->prepareCommand(
-        $context, $command, $this->{wdir});
-    return 1;  	
-  }
-  else {
-  	# -- TODO: report finished task
-    return 0;
-  }
+  # -- TODO: report finished task
+  return 0;
 }
 
 # Get task's ID
 sub getTaskID {
   my ($this) = @_;
-  return $this->{taskid};
+  return $this->{taskaddress}->getTask();
 }
 
 return 1;

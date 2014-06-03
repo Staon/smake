@@ -151,7 +151,7 @@ sub getLeaves {
 sub finishObject {
   my ($this, $object) = @_;
 
-  my $key = &{$this->{keyfce}}($object);  
+  my $key = &{$this->{keyfce}}($object);
   my $node = $this->{nodes}->{$key};
   $node->finish($this->{keyfce}, $this->{queue});
 }

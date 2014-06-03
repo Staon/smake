@@ -49,6 +49,7 @@ sub scanSource {
   if(($resource->getType() =~ /$this->{restype}/)
       && ($resource->getRelativePath()->asString() =~ /$this->{resname}/)
       && ($task->getType() =~ /$this->{tasktype}/)) {
+      	
     # -- scan the file  
     my $filename = $context->getRepository()->getPhysicalPath($resource->getPath());
     local *SRCFILE;
@@ -72,7 +73,6 @@ sub scanSource {
         # -- create the external resource
         my $extres = $artifact->createResource(
             $path, $SMake::Model::Const::EXTERNAL_RESOURCE, $insttask);
-        $insttask->appendTarget($extres);
         $task->appendSource($extres);
       }
     }

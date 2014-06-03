@@ -15,30 +15,27 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic interface of deciders. Deciders are objects which detect changes
-# of a file. There can be several types: deciders based on time stamps of
-# the files, or deciders based on a checksum of the files.
-package SMake::Model::Decider;
+# Decider based on file's time stamps
+package SMake::Decider::DeciderTime;
 
-use SMake::Utils::Abstract;
+use File::stat;
+use SMake::Decider::Decider;
+
+@ISA = qw(SMake::Decider::Decider);
 
 # Create new decider
 #
 # Usage: new()
 sub new {
   my ($class) = @_;
-  return bless({}, $class);
+  return bless(SMake::Decider::Decider->new(), $class);
 }
 
-# Get decider stamp of a file
-#
-# Usage: getStamp($path)
-#    path .... path of the file
-# Returns: The stamp (a scalar convertible to string). It must not contain the ':'
-#    character!
-# Exceptions: the method dies if the file doesn't exists.
 sub getStamp {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this, $path) = @_;
+  
+  my $st = stat($path) or die "unknown file '$path'";
+  return $st->mtime;
 }
 
 return 1;

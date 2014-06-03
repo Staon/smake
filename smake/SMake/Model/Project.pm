@@ -68,4 +68,13 @@ sub getArtifact {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Search for an external resource in the project
+#
+# Usage: searchResource($srcres)
+#    srcres ...... the external resource
+# Returns: searched resource or undef
+sub searchResource {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

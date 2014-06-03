@@ -15,26 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic command translator interface
-package SMake::Executor::Translator::Translator;
+# Generic interface of deciders. Deciders are objects which detect changes
+# of a file. There can be several types: deciders based on time stamps of
+# the files, or deciders based on a checksum of the files.
+package SMake::Decider::Decider;
 
 use SMake::Utils::Abstract;
 
-# Create new translator record
+# Create new decider
+#
+# Usage: new()
 sub new {
   my ($class) = @_;
   return bless({}, $class);
 }
 
-# Translate command
+# Get decider stamp of a file
 #
-# Usage: translate($context, $command, $wd)
-#    context ...... executor context
-#    command ...... logical command tree
-#    wd ........... absolute physical path of the task's working directory
-# Return:
-#    \@commands ... list instruction objects
-sub translate {
+# Usage: getStamp($path)
+#    path .... path of the file (absolute filesystem path)
+# Returns: The stamp (a scalar convertible to string)
+# Exceptions: the method dies if the file doesn't exists.
+sub getStamp {
   SMake::Utils::Abstract::dieAbstract();
 }
 

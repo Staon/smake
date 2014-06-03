@@ -17,33 +17,52 @@
 
 # Decider box - it keeps all known deciders and allows to compare stored
 #   time stamps
-package SMake::Model::DeciderBox;
+package SMake::Decider::DeciderBox;
+
+use SMake::Decider::DeciderList;
+
+my $Is_QNX = $^O eq 'qnx';
+if($Is_QNX) {
+  require Digest::SHA::PurePerl;
+  import Digest::SHA::PurePerl qw(sha1_hex);
+}
+else {
+  require Digest::SHA;
+  import Digest::SHA qw(sha1_hex);
+}
 
 # Create new decider box
 #
-# Usage: new($default)
-#    default .... default decider prefix
+# Usage: new($decider)
+#    decider ..... used decider object
 sub new {
-  my ($class, $default) = @_;
+  my ($class, $decider) = @_;
   return bless({
-    deciders => {},
-    default => $default,
+    decider => $decider,
   }, $class);
 }
 
-# Register a decider
+# Compute timestamp mark
 #
-# Usage: registerDecider($prefix, $decider)
-#    prefix .... prefix of the marks
-#    decider ... the decider object
-sub registerDecider {
-  my ($this, $prefix, $decider) = @_;
-  $this->{deciders}->{$prefix} = $decider;
+# Usage: getMark($repository, $declist)
+#    repository . smake repository
+#    declist .... decider list of file paths
+# Returns: the timestamp mark. Asserts if the file doesn't exist.
+sub getMark {
+  my ($this, $repository, $declist) = @_;
+  
+  my $basestr = "";
+  my $paths = $declist->getOrderedList();
+  foreach my $path (@$paths) {
+  	my $fspath = $repository->getPhysicalPath($path);
+    $basestr .= $this->{decider}->getStamp($fspath);
+  }
+  return sha1_hex($basestr);
 }
 
 # Check if a file has changed
 #
-# Usage: isChanged($path, $mark)
+# Usage: hasChanged($path, $mark)
 #    repository ... repository which the file belongs to
 #    path ......... absolute path to the file
 #    mark ......... stored decider mark. If the mark is empty or undef, new mark
@@ -53,40 +72,20 @@ sub registerDecider {
 sub hasChanged {
   my ($this, $repository, $path, $mark) = @_;
   
-  # parse the mark
-  my $prefix;
-  my $stored;
-  if(!$mark) {
-    $prefix = $this->{default};
+  # -- get current mark
+  my $phpath = $repository->getPhysicalPath($path);
+  my $curr_mark = "";
+  if(-f $phpath) {
+    $curr_mark = sha1_hex($this->{decider}->getStamp($phpath));
   }
-  elsif($mark =~ /([^:]+):(.*)/) {
-  	$prefix = $1;
-  	if(!$prefix) {
-  	  $prefix = $this->{default};
-  	}
-  	$stored = $2;
+  
+  # -- compare marks
+  if($mark && $curr_mark eq $mark) {
+    return undef;
   }
   else {
-    die "'$mark' is not a valid decider mark!";
+    return $curr_mark;
   }
-
-  # -- find the decider  	
-  my $decider = $this->{deciders}->{$prefix};
-  if(!defined($decider)) {
-    die "unknown decider '$prefix'!";
-  }
-    
-  # -- compare the mark
-  my $file = $repository->getPhysicalPath($path);
-  my $current = "";
-  if(-f $file) {
-    $current = $decider->getStamp($file);
-  }
-  if(!$stored || ($stored ne $current)) {
-    return $prefix . ':' . $current;
-  }
-
-  return undef;
 }
 
 return 1;

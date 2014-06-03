@@ -18,6 +18,7 @@
 # Stage executor
 package SMake::Executor::Stage;
 
+use SMake::Data::TaskAddress;
 use SMake::Executor::Executor;
 use SMake::Executor::Task;
 use SMake::Utils::TopOrder;
@@ -86,7 +87,8 @@ sub appendTaskExecutor {
   
   my $tasks = $this->{toporder}->getLeaves();
   foreach my $task (@$tasks) {
-    my $executor = SMake::Executor::Task->new($context, $this->{address}, $task);
+    my $executor = SMake::Executor::Task->new(
+        $context, SMake::Data::TaskAddress->new($this->{address}, $task));
     push @{$this->{tasklist}}, $executor;
     $context->getReporter()->reportf(
         2,
@@ -124,6 +126,7 @@ sub execute {
       }
     }
     $this->{tasklist} = $newlist;
+    $this->appendTaskExecutor($context);
   }
   
   if(@{$this->{tasklist}}) {

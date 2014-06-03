@@ -19,21 +19,25 @@ use SMake::Constructor::Generic;
 use SMake::Constructor::MainResource;
 use SMake::Data::Address;
 use SMake::Data::Path;
+use SMake::Decider::DeciderBox;
+use SMake::Decider::DeciderTime;
 use SMake::Executor::Builder::Compile;
 use SMake::Executor::Builder::Empty;
 use SMake::Executor::Builder::Group;
 use SMake::Executor::Const;
 use SMake::Executor::Context;
 use SMake::Executor::Executor;
+use SMake::Executor::Instruction::CheckMarks;
+use SMake::Executor::Instruction::StoreMarks;
 use SMake::Executor::Runner::Sequential;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
+use SMake::Executor::Translator::Instruction;
 use SMake::Executor::Translator::Select;
+use SMake::Executor::Translator::Sequence;
 use SMake::Executor::Translator::Table;
 use SMake::Mangler::Mangler;
 use SMake::Model::Const;
-use SMake::Model::DeciderBox;
-use SMake::Model::DeciderTime;
 use SMake::Parser::Context;
 use SMake::Parser::Parser;
 use SMake::Parser::Version;
@@ -58,8 +62,8 @@ my $reporter = SMake::Reporter::Reporter->new();
 $reporter->addTarget(SMake::Reporter::TargetConsole->new(1, 5, ".*"));
 
 # -- file change decider
-my $decider = SMake::Model::DeciderBox->new("timestamp");
-$decider->registerDecider("timestamp", SMake::Model::DeciderTime->new());
+my $decider = SMake::Decider::DeciderBox->new(
+    SMake::Decider::DeciderTime->new());
 
 # -- file storage
 my $reppath = $ENV{'SMAKE_REPOSITORY'};
@@ -80,19 +84,24 @@ my $cmdbuilder = SMake::Executor::Builder::Group->new(
     [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Builder::Compile->new()],
 );
 my $cmdtranslator = SMake::Executor::Translator::Table->new(
-    [$SMake::Model::Const::CXX_TASK, SMake::Executor::Translator::Compositor->new(
-        "cc",
-        SMake::Executor::Translator::FileList->new(
-            $SMake::Executor::Const::PRODUCT_GROUP, "-c ", "", "-o ", "", "", 0),
-        SMake::Executor::Translator::FileList->new(
-            $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
+    [$SMake::Model::Const::CXX_TASK, SMake::Executor::Translator::Sequence->new(
+        SMake::Executor::Translator::Instruction->new(
+            SMake::Executor::Instruction::CheckMarks),   
+        SMake::Executor::Translator::Compositor->new(
+            "cc",
+            SMake::Executor::Translator::FileList->new(
+                $SMake::Executor::Const::PRODUCT_GROUP, "-c ", "", "-o ", "", "", 0),
+            SMake::Executor::Translator::FileList->new(
+                $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1)),
+        SMake::Executor::Translator::Instruction->new(
+            SMake::Executor::Instruction::StoreMarks),
     )],
     [$SMake::Model::Const::LIB_TASK, SMake::Executor::Translator::Compositor->new(
         "wlib -b",
         SMake::Executor::Translator::FileList->new(
             $SMake::Executor::Const::PRODUCT_GROUP, "", "", "", "", "", 0),
         SMake::Executor::Translator::FileList->new(
-            $SMake::Executor::Const::SOURCE_GROUP, "", "", "+", "", " ", 1),
+            $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
     )],
     [$SMake::Model::Const::BIN_TASK, SMake::Executor::Translator::Compositor->new(
         "cc",
@@ -168,13 +177,15 @@ $parser -> parse($context, $path);
 $repository->commitTransaction();
 
 # -- execute the project
+$repository->openTransaction();
 my $executor = SMake::Executor::Executor->new();
-my $execcontext = SMake::Executor::Context->new($reporter, $repository, $runner);
+my $execcontext = SMake::Executor::Context->new($reporter, $decider, $repository);
 $executor->executeRoots(
     $execcontext,
     [
       SMake::Data::Address->new("Haha", "hello", "binlink"),
     ]);
+$repository->commitTransaction();
 
 $repository -> destroyRepository();
 
