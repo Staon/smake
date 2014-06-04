@@ -53,6 +53,17 @@ sub getRelativePath {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get artifact which the resource belongs to
+sub getArtifact {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get a project which the resource belong to.
+sub getProject {
+  my ($this) = @_;
+  return $this->getArtifact()->getProject();
+}
+
 # Get task which is a creator of the resource
 #
 # Returns: the task or undef, if the resource is an external resource

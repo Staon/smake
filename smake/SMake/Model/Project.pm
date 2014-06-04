@@ -70,8 +70,9 @@ sub getArtifact {
 
 # Search for an external resource in the project
 #
-# Usage: searchResource($srcres)
-#    srcres ...... the external resource
+# Usage: searchResource($restype, $path)
+#    restype ..... regular expression of searched resource types
+#    path ........ relative path of the searched resource
 # Returns: searched resource or undef
 sub searchResource {
   SMake::Utils::Abstract::dieAbstract();

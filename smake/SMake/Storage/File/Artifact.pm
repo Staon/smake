@@ -123,7 +123,7 @@ sub attachDescription {
 sub createResourceRaw {
   my ($this, $name, $type, $task) = @_;
   my $resource = SMake::Storage::File::Resource->new(
-      $this->{repository}, $this->{storage}, $this->{path}, $name, $type, $task);
+      $this->{repository}, $this->{storage}, $this, $this->{path}, $name, $type, $task);
   $this->{resources}->{$resource->getKey()} = $resource;
   return $resource;
 }
@@ -187,6 +187,18 @@ sub createDependency {
 sub getDependencyRecords {
   my ($this) = @_;
   return [@{$this->{dependencies}}];
+}
+
+sub searchResource {
+  my ($this, $restype, $path) = @_;
+
+  foreach my $resource (values %{$this->{resources}}) {
+    if($resource->getType() =~ /$restype/
+       && $resource->getRelativePath()->asString() eq $path->asString()) {
+      return $resource;
+    }
+  }
+  return undef;
 }
 
 return 1;

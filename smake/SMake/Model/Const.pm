@@ -49,7 +49,8 @@ $EXTERNAL_RESOURCE = "external";
 $EXTERNAL_TASK = "install";
 
 # -- public resources
-$PUBLIC_RESOURCE = "public";
-$PUBLIC_TASK = "publish";
+$PUBLISH_STAGE = "publish";
+$PUBLISH_RESOURCE = "public";
+$PUBLISH_TASK = "publish";
 
 return 1;

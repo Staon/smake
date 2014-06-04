@@ -23,13 +23,15 @@ package SMake::ToolChain::ToolChain;
 #
 # Usage: new($parent, $mangler, $builder, $translator)
 #    parent ....... parent tool chain (can be undef)
-#    mangler ...... name mangler
-#    builder ...... command builder
-#    translator ... a translator abstract commands to shell commands
-#    runner ....... a shell runner
-#    scanner ...... source scanner
+#    mangler ...... resource name mangler
+#    builder ...... builder od abstract commands
+#    translator ... a translator of abstract commands to instruction objects
+#                   (for example shell commands)
+#    runner ....... a shell runner (a shell command executor)
+#    scanner ...... source scanner (generator of external resources)
+#    filter ....... filter of external resources
 sub new {
-  my ($class, $parent, $mangler, $builder, $translator, $runner, $scanner) = @_;
+  my ($class, $parent, $mangler, $builder, $translator, $runner, $scanner, $filter) = @_;
   return bless({
   	parent => $parent,
     constructors => {},
@@ -38,6 +40,7 @@ sub new {
     translator => $translator,
     runner => $runner,
     scanner => $scanner,
+    filter => $filter,
   }, $class);
 }
 
@@ -103,6 +106,12 @@ sub getRunner {
 sub getScanner {
   my ($this) = @_;
   return $this->{scanner};
+}
+
+# Get the resource filter
+sub getResourceFilter {
+  my ($this) = @_;
+  return $this->{filter};
 }
 
 return 1;

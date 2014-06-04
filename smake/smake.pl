@@ -49,9 +49,12 @@ use SMake::Resolver::Chain;
 use SMake::Resolver::Compile;
 use SMake::Resolver::Dependency;
 use SMake::Resolver::Link;
+use SMake::Resolver::Publish;
 use SMake::Scanner::Chain;
 use SMake::Scanner::HdrScanner;
 use SMake::Storage::File::Storage;
+use SMake::ToolChain::ResourceFilter::Chain;
+use SMake::ToolChain::ResourceFilter::SysLocation;
 use SMake::ToolChain::ToolChain;
 use SMake::Utils::Dirutils;
 
@@ -124,8 +127,11 @@ my $runner = SMake::Executor::Runner::Sequential->new();
 my $scanner = SMake::Scanner::Chain->new(
     SMake::Scanner::HdrScanner->new('.*', '.*', '[.](c|cpp|h)$'),
 );
+my $resfilter = SMake::ToolChain::ResourceFilter::Chain->new(
+    SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include"),
+);
 my $toolchain = SMake::ToolChain::ToolChain->new(
-    undef, $mangler, $cmdbuilder, $cmdtranslator, $runner, $scanner);
+    undef, $mangler, $cmdbuilder, $cmdtranslator, $runner, $scanner, $resfilter);
 # ---- library artifact
 my $resolver = SMake::Resolver::Chain->new(
     SMake::Resolver::Compile->new(
@@ -136,6 +142,8 @@ my $resolver = SMake::Resolver::Chain->new(
         '.*', '[.]cpp$', 'Dir() . Name() . ".o"',
         $SMake::Model::Const::COMPILE_STAGE,
         $SMake::Model::Const::CXX_TASK),
+    SMake::Resolver::Publish->new(
+        '.*', '[.]h$'),
     SMake::Resolver::Link->new('.*', '[.]o$', "static_lib"));
 my $constructor = SMake::Constructor::Generic->new(
   $resolver, [

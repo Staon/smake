@@ -25,6 +25,7 @@ use SMake::Model::Object;
 
 use SMake::Model::Const;
 use SMake::Utils::Abstract;
+use SMake::Utils::Searching;
 use SMake::Utils::Utils;
 
 # Create new timestamp object
@@ -54,6 +55,12 @@ sub getResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+sub resolveExternalResource {
+  my ($this, $context, $resource) = @_;
+  
+  # -- try to search in the 
+}
+
 # Compute current stamp of the resource
 #
 # Usage: computeCurrentStamp($context, $subsystem)
@@ -72,6 +79,11 @@ sub computeCurrentMark {
   }
   elsif($resource->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
     # -- do transitive closure and compute combined stamp
+    my $closure = SMake::Utils::Searching::externalTransitiveClosure(
+        $context, $subsystem, $resource);
+    foreach my $c (@$closure) {
+      $declist->appendPaths($c->getPath());
+    }
   }
   else {
     SMake::Utils::Utils::dieReport(

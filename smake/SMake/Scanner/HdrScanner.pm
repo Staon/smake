@@ -60,7 +60,7 @@ sub scanSource {
           "source %s cannot be opened", $filename);
     }
     while(my $line = <SRCFILE>) {
-      if($line =~ /^\s*#\s*include\s*[<]([^>]+)[>]/) {
+      if($line =~ /^\s*#\s*include\s*[<"]([^">]+)[">]/) {
         my $path = $1;
         $path =~ s/\\/\//;  # -- windows paths
         $path = SMake::Data::Path->new($path);

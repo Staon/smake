@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic file resolver
+# Compilation of some resource
 package SMake::Resolver::Compile;
 
 use SMake::Resolver::Resource;
