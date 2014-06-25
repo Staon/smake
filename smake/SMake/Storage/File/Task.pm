@@ -91,9 +91,13 @@ sub getWDPath {
   return $this->{wdir};
 }
 
-sub appendTarget {
-  my ($this, $resource) = @_;
-  $this->{targets}->{$resource->getKey()} = $resource;
+sub setTargets {
+  my ($this, $list) = @_;
+
+  $this->{targets} = {};  
+  foreach my $res (@$list) {
+    $this->{targets}->{$res->getKey()} = $res;
+  }
 }
 
 sub getTargets {

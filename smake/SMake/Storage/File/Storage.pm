@@ -47,7 +47,6 @@ sub new {
   my ($class, $path) = @_;
   my $this = bless(SMake::Storage::Storage->new(), $class);
   $this->{path} = $path;
-  $this->{descriptions} = {};
   $this->{projects} = SMake::Storage::File::Cache->new(10);
   
   return $this;
@@ -58,30 +57,8 @@ sub new {
 # Usage: loadStorage($repository)
 sub loadStorage {
   my ($this, $repository_) = @_;
-  
-  # -- load table of descriptions
-  my $filename = File::Spec->catfile($this->{path}, "descriptions");
-  if(-f $filename) {
-    my $data;
-    {
-      local $/ = undef;
-      local *DESCFILE;
-      open(DESCFILE, "<$filename");
-      $data = <DESCFILE>;
-      close(DESCFILE);
-    }
-  
-    { 
-      local $storage = $this;
-      local $repository = $repository_;
-      local $descriptions;
-      my $info = eval $data;
-      if(!defined($info) && (defined($@) && $@ ne "")) {
-        die "it's not possible to read storage data from file '$filename'!";
-      }
-      $this->{descriptions} = $descriptions;
-    }
-  }
+
+  # -- curently nothing to do
 }
 
 sub destroyStorage {
@@ -179,15 +156,6 @@ sub deleteProject {
   unlink($filename);
 }
 
-# Get description object according to its key
-#
-# Usage: getDescriptionKey($key)
-sub getDescriptionKey {
-  my ($this, $key) = @_;
-  die "not opened transaction" if(!defined($this->{transaction}));
-  return $this->{transaction}->getDescriptionKey($key);
-}
-
 sub openTransaction {
   my ($this, $repository) = @_;
   $this->{transaction} = SMake::Storage::File::Transaction->new($this);
@@ -198,40 +166,8 @@ sub commitTransaction {
   if(defined($this->{transaction})) {
     # -- commit changes
     $this->{transaction}->commit($repository);
-    
-    # -- store the table of descriptions
-    {
-      my $filename = File::Spec->catfile($this->{path}, "descriptions");
-      local *DESCFILE;
-      open(DESCFILE, ">$filename");
-      my $dumper = Data::Dumper->new([$this->{descriptions}], [qw(descriptions)]);
-      $dumper->Indent(1);
-      $dumper->Purity(1);
-      $dumper->Seen({'repository' => $repository, 'storage' => $this});
-      print DESCFILE $dumper->Dump();
-      close(DESCFILE);
-    }
-    
     $this->{transaction} = undef;
   }
-}
-
-sub createDescription {
-  my ($this, $repository, $parent, $path, $mark) = @_;
-  die "not opened transaction" if(!defined($this->{transaction}));
-  return $this->{transaction}->createDescription($repository, $parent, $path, $mark);
-}
-
-sub getDescription {
-  my ($this, $repository, $path) = @_;
-  die "not opened transaction" if(!defined($this->{transaction}));
-  return $this->{transaction}->getDescription($repository, $path);
-}
-
-sub removeDescription {
-  my ($this, $repository, $path) = @_;
-  die "not opened transaction" if(!defined($this->{transaction}));
-  $this->{transaction}->removeDescription($repository, $path);
 }
 
 sub createProject {

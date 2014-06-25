@@ -44,7 +44,7 @@ sub constructArtifact {
   
   # -- prepare queue of resources to be resolved
   my $queue = SMake::Constructor::Queue->new();
-  my $resources = $artifact->getResources();
+  my $resources = $artifact->getResources($context);
   foreach my $resource (@$resources) {
     $queue->pushResource($resource);
   }

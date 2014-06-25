@@ -30,9 +30,28 @@ sub new {
   return bless(SMake::Model::Object->new(), $class);
 }
 
+# Update attributes of the resource
+#
+# Usage: update($type, $task)
+#    type ..... type of the resource
+#    task ..... task which creates the resource
+sub update {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get name of the resource
+#
+# The name is a Path object, which contains a relative path of the resource
+# based on the artifact location. Or the name can be a relative path of an
+# external resource. The path must be unique in the project.
 sub getName {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get string key of the resource
+sub getKey {
+  my ($this) = @_;
+  return $this->getName()->hashKey();
 }
 
 # Get type of the resource
@@ -45,11 +64,6 @@ sub getType {
 
 # Get logical path of the resource
 sub getPath {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Get logical relative path based on the artifact
-sub getRelativePath {
   SMake::Utils::Abstract::dieAbstract();
 }
 

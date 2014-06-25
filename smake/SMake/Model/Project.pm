@@ -31,28 +31,27 @@ sub new {
   return bless(SMake::Model::Object->new(), $class);
 }
 
+# Update data of the project
+#
+# Usage: update($path)
+sub update {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get name of the project
 sub getName {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get path of the project. The path has a meaning in the context of owning repository
+# Get path of the project. The path has a meaning in the context of the repository
 sub getPath {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Add new description object or overwrite an old object
-#
-# Usage: addDescription($description)
-#    description ... description object
-sub attachDescription {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Create new artifact
 #
-# Usage: createArtifact($name, $type, \%args)
-#    path ..... canonical location (physical directory) of the artifact
+# Usage: createArtifact($path, $name, $type, \%args)
+#    path ..... logical (storage meaning) path of the artifact
 #    name ..... name of the artifact
 #    type ..... type of the artifact (string, for example "lib", "bin", etc.)
 #    args ..... optional artifact arguments
@@ -65,6 +64,14 @@ sub createArtifact {
 # Usage: getArtifact($name)
 # Returns: the artifact or undef
 sub getArtifact {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of names of artifacts
+#
+# Usage: getArtifactNames()
+# Returns: \@list
+sub getArtifactNames {
   SMake::Utils::Abstract::dieAbstract();
 }
 

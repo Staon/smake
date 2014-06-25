@@ -36,6 +36,16 @@ sub new {
   return bless(SMake::Model::Object->new(), $class);
 }
 
+# Update attributes of the object
+#
+# Usage: update($path, $type, \%args)
+#    path ..... logical path of the artifact
+#    type ..... type of the artifact
+#    args ..... artifact's arguments
+sub update {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get name of the artifact
 sub getName {
   SMake::Utils::Abstract::dieAbstract();
@@ -62,58 +72,29 @@ sub getProject {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Attach a description file with the artifact
-#
-# Usage: attachDescription($description)
-sub attachDescription {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
 # Create new resource
 #
-# Usage: createResource($prefix, $name, $type, $task)
+# Usage: createResource($name, $type, $task)
 #    name ...... name of the resource (relative path based on the artifact)
 #    type ...... type of the resource
 #    task ...... a task which generates this resource
 sub createResource {
-  my ($this, $name, $type, $task) = @_;
-  
-  my $resource = $this->createResourceRaw($name, $type, $task);
-  $task->appendTarget($resource);
-  return $resource;
-}
-
-# Create new resource
-#
-# Usage: createResource($prefix, $name, $type)
-#    name ...... name of the resource
-#    type ...... type of the resource
-#    task ...... a task which generates this resource
-sub createResourceRaw {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Create new stage or use already created
+# Get resource
 #
-# Usage: createStage($name)
-#    name ...... name of the stage
-sub createStage {
+# Usage: getResource($path)
+# Returns: undef or the resource
+sub getResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get stage
+# Get list of strings which represent artifact's resources
 #
-# Usage: getStage($name)
-# Returns: the stage or undef
-sub getStage {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Get list of resources of the artifact
-#
-# Usage: getResources()
+# Usage: getResourceNames()
 # Returns: \@list
-sub getResources {
+sub getResourceNames {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -143,6 +124,30 @@ sub getDefaultMainResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Create new stage
+#
+# Usage: createStage($name)
+#    name ...... name of the stage
+sub createStage {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get stage
+#
+# Usage: getStage($name)
+# Returns: the stage or undef
+sub getStage {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of stage names
+#
+# Usage: getStageNames()
+# Returns: \@list
+sub getStageNames {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Create new dependency
 #
 # Usage: createDependency($deptype, $depprj, $departifact)
@@ -159,59 +164,6 @@ sub createDependency {
 # Returns: \@list
 sub getDependencyRecords {
   SMake::Utils::Abstract::dieAbstract();
-}
-
-# A helper method - create a task in a stage
-#
-# Usage: createTaskInStage($stage, $task, $wd, \%args)
-#    stage ..... name of the stage
-#    task ...... type of the task
-#    wd ........ task's working directory (a path object with repository meaning)
-#    args ...... optional task arguments
-sub createTaskInStage {
-  my ($this, $stage, $task, $wd, $args) = @_;
-  
-  # -- stage object
-  my $stageobj = $this->createStage($stage);
-  # -- task object
-  return $stageobj->createTask($task, $wd, $args);
-}
-
-# A helper method - append source resources
-#
-# Usage: appendSourceResources($prefix, \@srclist)
-#    prefix .... relative path of the sources based on this artifact
-#    srclist ... list of sources (names of resources)
-#    reporter .. a reporter
-#    subsys .... reporter subsystem
-# Returns: undef if everything is OK, name of wrong resource otherwise
-sub appendSourceResources {
-  my ($this, $prefix, $srclist) = @_;
-  return undef if($#$srclist < 0);  # -- optimization
-
-  # -- get the source stage (create new or use an already existing)
-  my $stage = $this->createStage($SMake::Model::Const::SOURCE_STAGE);
-  
-  # -- process the source list
-  foreach my $src (@$srclist) {
-    my $name = SMake::Data::Path->new($src);
-    if(!$name->isBasepath()) {
-      return $src;
-    }
-
-    # -- create task
-    my $task = $this->createTaskInStage(
-        $SMake::Model::Const::SOURCE_STAGE,
-        $SMake::Model::Const::SOURCE_TASK,
-        $this->getPath(),
-        undef);
-    
-    # -- create resource
-    my $resource = $this->createResource(
-        $prefix->joinPaths($name), $SMake::Model::Const::SOURCE_RESOURCE, $task);
-  }
-  
-  return undef;
 }
 
 return 1;

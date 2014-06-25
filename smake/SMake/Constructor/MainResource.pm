@@ -47,17 +47,17 @@ sub createMainResource {
   
   # -- create a task which creates the main resource
   my $task = $artifact->createTaskInStage(
-      $this->{stage}, $this->{task}, $artifact->getPath(), $this->{args});
+      $context, $this->{stage}, $this->{task}, $artifact->getPath(), $this->{args});
   
   # -- create the resource
   my $prefix = $context->getResourcePrefix();
   my $path = $prefix->joinPaths($artifact->getName());
   my $name = $context->getMangler()->mangleName($context, $this->{mangler}, $path);
   my $resource = $artifact->createResource(
-      $name, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
+      $context, $name, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
   
   # -- append the main resource
-  $artifact->appendMainResource($this->{maintype}, $resource);
+  $artifact->appendMainResource($context, $this->{maintype}, $resource);
 }
 
 return 1;

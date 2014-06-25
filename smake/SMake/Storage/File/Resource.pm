@@ -62,14 +62,9 @@ sub getRepository {
   return $this->{repository};
 }
 
-sub getKey {
-  my ($this) = @_;
-  return $this->getType() . "." . $this->getName();
-}
-
 sub getName {
   my ($this) = @_;
-  return $this->{name}->asString();
+  return $this->{name};
 }
 
 sub getType {
@@ -80,11 +75,6 @@ sub getType {
 sub getPath {
   my ($this) = @_;
   return $this->{path};
-}
-
-sub getRelativePath {
-  my ($this) = @_;
-  return $this->{name};
 }
 
 sub getArtifact {

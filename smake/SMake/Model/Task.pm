@@ -32,6 +32,11 @@ sub new {
   return bless(SMake::Model::Object->new(), $class);
 }
 
+# Get name of the task
+sub getName {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get type of the task
 sub getType {
   SMake::Utils::Abstract::dieAbstract();
@@ -57,14 +62,14 @@ sub getWDPath {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Append target resource
+# Set (overwrite) the list of target resources
 #
-# Usage: appendTarget($resource)
-sub appendTarget {
+# Usage: setTargets(\@list)
+sub appendTargets {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get list of target resources
+# Get list target resources
 #
 # Usage: getTargets()
 # Returns: \@list

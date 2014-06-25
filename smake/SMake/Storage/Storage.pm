@@ -51,36 +51,6 @@ sub commitTransaction {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Create new description object
-#
-# Usage: createDescription($repository, $path, $mark)
-#    repository ... owning repository
-#    parent ....... parent description object (can be undef for root objects)
-#    path ......... logical path of the description file
-#    mark ......... decider's mark of the description file
-sub createDescription {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Get description object
-#
-# Usage: getDescription($repository, $path)
-#    repository ... owning repository
-#    path ......... logical path of the description file
-# Returns: the object or undef
-sub getDescription {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Remove a description object and its successors
-#
-# Usage: removeDescription($repository, $description)
-#    repository ... owning repository
-#    path ......... logical path of the description file
-sub removeDescription {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
 # Create new project object
 #
 # Usage: createProject($repository, $name, $path)

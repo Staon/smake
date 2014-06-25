@@ -25,6 +25,7 @@ use SMake::Parser::States::State;
 use SMake::Parser::Parser;
 use SMake::Parser::States::Ignore;
 use SMake::Parser::States::Project;
+use SMake::Update::Project;
 
 # Create the state
 #
@@ -56,30 +57,16 @@ sub project {
   $context->getReporter()->report(
       5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "Project('$name')");
 
-  # -- get project object
-  my $project = $context->getRepository()->getProject($name);
-  if(!defined($project)) {
-  	# -- new project, create the object
-    my $prjdir = $context->getCurrentDir();
-    $project = $context->getRepository()->createProject($name, $prjdir);
+  # -- create the update object
+  my $project = SMake::Update::Project->new(
+      $context, $name, $context->getCurrentDir());
+      
+  # -- push the project into the context
+  $context->pushProject($project);
   
-    # -- attach current description object with the project
-    $project->attachDescription($context->getDescription());
-
-    # -- set context
-    $context -> pushProject($project);
-  
-    # -- switch parser's state
-    $parser->switchState(
-        SMake::Parser::States::Project->new($this));
-  }
-  else {
-    # -- already parsed project, ignore rest of the project description
-  	$context->getReporter()->report(
-  	    3, "info", $SMake::Parser::Parser::SUBSYSTEM, "project '$name' has been already parsed.");
-  	$parser->switchState(
-  	    SMake::Parser::States::Ignore->new($this));
-  }
+  # -- switch parser's state
+  $parser->switchState(
+      SMake::Parser::States::Project->new($this));
 }
 
 return 1;

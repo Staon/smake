@@ -18,9 +18,9 @@
 # Parser of SMakefiles and compositor of project model
 package SMake::Parser::Parser;
 
-use SMake::Parser::Chdir;
 use SMake::Parser::States::Root;
 use SMake::Utils::ArgChecker;
+use SMake::Utils::Chdir;
 use SMake::Utils::Dirutils;
 use SMake::Utils::Evaluate;
 use SMake::Utils::Utils;
@@ -84,7 +84,7 @@ sub directive_SA {
 sub new {
   my ($class) = @_;
   return bless({
-    dirstack => SMake::Parser::Chdir->new(),
+    dirstack => SMake::Utils::Chdir->new(),
     evals => {
       Project => \&directive_S,
       EndProject => \&directive_,
@@ -111,21 +111,17 @@ sub switchState {
 #    state ........ initial parser state
 sub parseFile {
   my ($this, $context_, $path, $state) = @_;
-  
-  # -- get or create the description object
-  my $descr = $context_->getRepository()->getDescription($path);
-  if(!defined($descr)) {
-    my $mark = $context_->hasChanged($path);
-    $descr = $context_->getRepository()->createDescription(
-        $context_->getDescriptionSafe(), $path, $mark);
-  }
-
-  # -- notify the state
-  $state->startFile($this, $context_, $descr);
 
   # -- prepare context
-  $context_->pushDescription($descr);
-  $this->{dirstack}->pushDir($context_);
+  my $currdir = $path->getDirpath();
+  $context_->pushCurrentDir($currdir);
+  $this->{dirstack}->pushDir(
+      $context_->getRepository()->getPhysicalPath($currdir), 
+      $context_->getReporter(),
+      $SUBSYSTEM);
+
+  # -- notify the state
+  $state->startFile($this, $context_);
   
   # -- parse the file
   $context_->getReporter()->reportf(
@@ -142,13 +138,13 @@ sub parseFile {
   }
   $context_->getReporter()->reportf(
       3, "info", $SUBSYSTEM, "description file '%s' is parsed", $path->printableString());
-  
-  # -- clean context
-  $this->{dirstack}->popDir($context);
-  $context_->popDescription();
 
   # -- notify the state
-  $state->finishFile($this, $context_, $descr);
+  $state->finishFile($this, $context_);
+  
+  # -- clean context
+  $context_->popCurrentDir();
+  $this->{dirstack}->popDir($context_->getReporter(), $SUBSYSTEM);
 }
 
 # Parse a root SMakefile
@@ -173,25 +169,6 @@ sub parseRoot {
 #    path ......... logical path to the description file
 sub parse {
   my ($this, $context, $path) = @_;
-
-  # -- check if the description files are changed
-  my $description = $context->getRepository()->getDescription($path);
-  if(defined($description)) {
-    # -- the file exists - check changes in the whole description tree
-    $description = $description->getTopParent();
-    my $dlist = $description->getChildren();
-    foreach my $d (@$dlist) {
-      my $path = $d->getPath();
-      if($context->hasChanged($d->getPath(), $d->getMark())) {
-        $context->getReporter()->reportf(
-            2, "info", $SUBSYSTEM,
-            "description file '%s' has changed, refresh the tree",
-            $path->printableString());
-        $context->getRepository()->removeDescription($description);
-        last;
-      }
-    }
-  } 
 
   # -- the file is not known, parse it
   $this->parseRoot($context, $path);

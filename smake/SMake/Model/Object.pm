@@ -33,17 +33,4 @@ sub getRepository {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get key of the object which can be used in a hash table. The key must
-# be unique only in object's namespace (for example artifact in ONE project).
-sub getKey {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Get physical (absolute) path of object. This method works only for objects
-# which define method getPath (get resource location).
-sub getPhysicalPath {
-  my ($this) = @_;
-  return $this->getRepository()->getPhysicalPath($this->getPath());
-}
-
 return 1;

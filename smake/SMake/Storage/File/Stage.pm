@@ -37,7 +37,6 @@ sub new {
   $this->{artifact} = $artifact;
   $this->{name} = $name;
   $this->{tasks} = {};
-  $this->{taskid} = 0;
   return $this;
 }
 
@@ -61,11 +60,6 @@ sub getRepository {
   return $this->{repository};
 }
 
-sub getKey {
-  my ($this) = @_;
-  return $this->getName();
-}
-
 sub getName {
   my ($this) = @_;
   return $this->{name};
@@ -77,33 +71,28 @@ sub getArtifact {
 }
 
 sub createTask {
-  my ($this, $type, $wd, $arguments) = @_;
+  my ($this, $name, $type, $wd, $arguments) = @_;
   
   my $task = SMake::Storage::File::Task->new(
       $this->{repository},
       $this->{storage},
       $this,
-      $this->{taskid}++,
+      $name,
       $type,
       $wd,
       $arguments);
-  $this->{tasks}->{$task->getKey()} = $task;
+  $this->{tasks}->{$name} = $task;
   return $task;
 }
 
 sub getTask {
-  my ($this, $taskid) = @_;
-  return $this->{tasks}->{$taskid};
+  my ($this, $name) = @_;
+  return $this->{tasks}->{$name};
 }
 
 sub getTasks {
   my ($this) = @_;
-  
-  my $list = [];
-  foreach my $task (values %{$this->{tasks}}) {
-    push @$list, $task->getKey();
-  }
-  return $list;
+  return [keys(%{$this->{tasks}})];
 }
 
 sub getDependencies {

@@ -48,7 +48,6 @@ sub new {
   $this->{name} = $name;
   $this->{type} = $type;
   $this->{args} = $args;
-  $this->{descriptions} = {};
   $this->{resources} = {};
   $this->{stages} = {};
   $this->{main_resources} = {};
@@ -77,17 +76,11 @@ sub destroy {
   foreach my $dep (@{$this->{dependencies}}) {
     $dep->destroy();
   }
-  $this->{dependencies} = undef;
 }
 
 sub getRepository {
   my ($this) = @_;
   return $this->{repository};
-}
-
-sub getKey {
-  my ($this) = @_;
-  return $this->getName();
 }
 
 sub getName {
@@ -115,12 +108,7 @@ sub getProject {
   return $this->{project};
 }
 
-sub attachDescription {
-  my ($this, $description) = @_;
-  $this->{descriptions}->{$description->getKey()} = 1;
-}
-
-sub createResourceRaw {
+sub createResource {
   my ($this, $name, $type, $task) = @_;
   my $resource = SMake::Storage::File::Resource->new(
       $this->{repository}, $this->{storage}, $this, $this->{path}, $name, $type, $task);
@@ -128,25 +116,14 @@ sub createResourceRaw {
   return $resource;
 }
 
-sub createStage {
-  my ($this, $name) = @_;
-  my $stage = $this->{stages}->{$name};
-  if(!defined($stage)) {
-    $stage = SMake::Storage::File::Stage->new(
-        $this->{repository}, $this->{storage}, $this, $name);
-    $this->{stages}->{$stage->getKey()} = $stage;
-  }
-  return $stage;
+sub getResource {
+  my ($this, $path) = @_;
+  return $this->{$path->hashKey()};
 }
 
-sub getStage {
-  my ($this, $name) = @_;
-  return $this->{stages}->{$name};
-}
-
-sub getResources {
+sub getResourceNames {
   my ($this) = @_;
-  return [values(%{$this->{resources}})];
+  return [keys(%{$this->{resources}})];  
 }
 
 sub appendMainResource {
@@ -172,6 +149,20 @@ sub getMainResource {
 sub getDefaultMainResource {
   my ($this) = @_;
   return $this->{main};
+}
+
+sub createStage {
+  my ($this, $name) = @_;
+  
+  $stage = SMake::Storage::File::Stage->new(
+      $this->{repository}, $this->{storage}, $this, $name);
+  $this->{stages}->{$name} = $stage;
+  return $stage;
+}
+
+sub getStage {
+  my ($this, $name) = @_;
+  return $this->{stages}->{$name};
 }
 
 sub createDependency {

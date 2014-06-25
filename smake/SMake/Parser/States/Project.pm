@@ -38,8 +38,7 @@ sub new {
 }
 
 sub startFile {
-  my ($this, $parser, $context, $description) = @_;
-  $context->getProject()->attachDescription($description);
+  # -- nothing to do
 }
 
 sub finishFile {
@@ -53,8 +52,7 @@ sub artifact {
 
   # -- create new artifact
   my $artifact = $context->getProject()->createArtifact(
-      $context->getCurrentDir(), $name, $type, $args);
-  $artifact->attachDescription($context->getDescription());
+      $context->getRepository(), $context->getCurrentDir(), $name, $type, $args);
   
   # -- change current context
   $context->pushArtifact($artifact);

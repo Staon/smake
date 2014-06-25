@@ -55,22 +55,14 @@ sub destroy {
   }
 }
 
-# Create key from attributes (static method)
-#
-# Usage: createKey($name)
-sub createKey {
-  my ($name) = @_;
-  return $name;
+sub update {
+  my ($this, $path) = @_;
+  $this->{path} = $path;
 }
 
 sub getRepository {
   my ($this) = @_;
   return $this->{repository};
-}
-
-sub getKey {
-  my ($this) = @_;
-  return createKey($this->{name});
 }
 
 sub getName {
@@ -83,23 +75,15 @@ sub getPath {
   return $this->{path};
 }
 
-sub attachDescription {
-  my ($this, $description) = @_;
-  $this->{descriptions}->{$description->getKey()} = 1;
-  $description->addProject($this);
-}
-
 sub createArtifact {
   my ($this, $path, $name, $type, $args) = @_;
   
   my $artifact = SMake::Storage::File::Artifact->new(
       $this->getRepository(), $this->{storage}, $this, $path, $name, $type, $args);
-  $this->{artifacts}->{$artifact->getKey()} = $artifact;
+  $this->{artifacts}->{$name} = $artifact;
   return $artifact;
 }
 
-# Usage: getArtifact($name)
-# Returns: the artifact or undef
 sub getArtifact {
   my ($this, $name) = @_;
   return $this->{artifacts}->{$name};

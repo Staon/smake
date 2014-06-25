@@ -51,7 +51,8 @@ sub getProject {
 
 # Create new task
 #
-# Usage: createTask($type, $wd, \%arguments)
+# Usage: createTask($name, $type, $wd, \%arguments)
+#    name ....... name of the task
 #    type ....... type of the task
 #    wd ......... task's working directory (a path object in repository meaning)
 #    arguments .. task's generic arguments
@@ -62,7 +63,7 @@ sub createTask {
 
 # Get a task
 #
-# Usage: getTask($taskid)
+# Usage: getTask($name)
 # Returns: the task or undef
 sub getTask {
   SMake::Utils::Abstract::dieAbstract();
@@ -71,8 +72,8 @@ sub getTask {
 # Get list of tasks which belongs the stage
 #
 # Usage: getTasks()
-# Returns: \@task_list list of task IDs
-sub getTasks {
+# Returns: \@task_list list of task names
+sub getTaskNames {
   SMake::Utils::Abstract::dieAbstract();
 }
 

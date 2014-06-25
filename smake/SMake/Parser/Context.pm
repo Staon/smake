@@ -34,7 +34,7 @@ sub new {
   	reporter => $reporter,
   	decider => $decider,
   	repository => $repository,
-  	description => SMake::Utils::Stack->new("description"),
+  	currdir => SMake::Utils::Stack->new("currdir"),
   	project => SMake::Utils::Stack->new("project"),
   	artifact => SMake::Utils::Stack->new("artifact"),
   	resprefix => SMake::Utils::Stack->new("resource prefix"),
@@ -93,40 +93,21 @@ sub getMangler {
   return $this->{repository}->getToolChain()->getMangler();
 }
 
-# Push current description
-#
-# Usage: setDescription($description)
-sub pushDescription {
-  my ($this, $description) = @_;
-  $this->{description}->pushObject($description);
+# Push current directory
+sub pushCurrentDir {
+  my ($this, $dir) = @_;
+  $this->{currdir}->pushObject($dir);
 }
 
-sub popDescription {
+sub popCurrentDir {
   my ($this) = @_;
-  $this->{description}->popObject();
-}
-
-# Get current description
-sub getDescription {
-  my ($this) = @_;
-  return $this->{description}->topObject();
-}
-
-# Get current description. If the stack is empty, undef is returned.
-sub getDescriptionSafe {
-  my ($this) = @_;
-  if(!$this->{description}->isEmpty()) {
-    return $this->{description}->topObject();
-  }
-  else {
-    return undef;
-  }
+  $this->{currdir}->popObject();
 }
 
 # Get path of directory of currently processed description file
 sub getCurrentDir {
   my ($this) = @_;
-  return $this->getDescription()->getDirectory();
+  return $this->{currdir}->topObject();
 }
 
 # Push current project

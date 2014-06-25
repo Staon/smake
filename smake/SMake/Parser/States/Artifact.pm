@@ -38,12 +38,10 @@ sub new {
 
 sub startFile {
   my ($this, $parser, $context, $description) = @_;
-  $context->getProject()->attachDescription($description);
-  $context->getArtifact()->attachDescription($description);
   
   # -- compute path relative to the artifact
   my $currprefix = $context->getResourcePrefix();
-  my $prefix = $currprefix->joinPaths($description->getDirectory()->getBasepath());
+  my $prefix = $currprefix->joinPaths($context->getCurrentDir());
   $context->pushResourcePrefix($prefix);
 }
 
@@ -61,7 +59,8 @@ sub src {
 
   # -- create new source resources
   my $artifact = $context->getArtifact();
-  my $wrong = $artifact->appendSourceResources($context->getResourcePrefix(), $srclist); 
+  my $wrong = $artifact->appendSourceResources(
+      $context->getRepository(), $context->getResourcePrefix(), $srclist); 
   if(defined($wrong)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
