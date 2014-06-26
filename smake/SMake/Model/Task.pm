@@ -65,7 +65,8 @@ sub getWDPath {
 # Set (overwrite) the list of target resources
 #
 # Usage: setTargets(\@list)
-sub appendTargets {
+#    list .... list of resources
+sub setTargets {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -77,10 +78,19 @@ sub getTargets {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Append a source resource
+# Get list of names of source resources
 #
-# Usage: appendSource($resource)
-sub appendSource {
+# Usage: getSourceNames()
+# Returns: \@list
+sub getSourceNames {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Delete list of source resources
+#
+# Usage: deleteSources(\@list)
+#    list .... list of resource names (strings)
+sub deleteSources {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -89,6 +99,22 @@ sub appendSource {
 # Usage: getSources()
 # Returns: \@list
 sub getSources {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Create new source timestamp
+#
+# Usage: createSourceTimestamp($resource)
+# Returns: the timestamp
+sub createSourceTimestamp {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get source timestamp object
+#
+# Usage: getSourceTimestamp($name)
+#    name .... name (relative path) of the timestamp's resource
+sub getSourceTimestamp {
   SMake::Utils::Abstract::dieAbstract();
 }
 

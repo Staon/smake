@@ -57,7 +57,7 @@ sub doJob {
   # -- append resolved resource to list of source resources of the task
   #    which creates the main resource
   my $task = $main_resource->getTask();
-  $task->appendSource($resource);
+  $task->appendSource($context, $resource);
 }
 
 return 1;

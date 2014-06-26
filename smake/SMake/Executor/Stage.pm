@@ -55,7 +55,7 @@ sub new {
       $context->getReporter(),
       $SMake::Executor::Executor::SUBSYSTEM,
       $context->getRepository());
-  my $tasks = $stage->getTasks();
+  my $tasks = $stage->getTaskNames();
   my ($info, $cyclelist) = $this->{toporder}->compute($tasks);
   if(!$info) {
     $context->getReporter()->reportf(

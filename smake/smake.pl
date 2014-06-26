@@ -58,6 +58,9 @@ use SMake::ToolChain::ResourceFilter::SysLocation;
 use SMake::ToolChain::ToolChain;
 use SMake::Utils::Dirutils;
 
+use Carp;
+
+local $SIG{__DIE__} = sub { Carp::confess(@_); };
 local $SIG{__WARN__} = sub { die @_ };
 
 # -- reporter

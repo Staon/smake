@@ -22,6 +22,7 @@ use SMake::Model::Artifact;
 
 @ISA = qw(SMake::Model::Artifact);
 
+use SMake::Model::Dependency;
 use SMake::Storage::File::Dependency;
 use SMake::Storage::File::Resource;
 use SMake::Storage::File::Stage;
@@ -52,7 +53,7 @@ sub new {
   $this->{stages} = {};
   $this->{main_resources} = {};
   $this->{main} = undef;
-  $this->{dependencies} = [];
+  $this->{dependencies} = {};
   return $this;
 }
 
@@ -73,9 +74,22 @@ sub destroy {
     $stage->destroy();
   }
   $this->{stages} = undef;
-  foreach my $dep (@{$this->{dependencies}}) {
+  foreach my $dep (values %{$this->{dependencies}}) {
     $dep->destroy();
   }
+  $this->{dependencies} = undef;
+}
+
+# Usage: update($path, $type, \%args)
+#    path ..... logical path of the artifact
+#    type ..... type of the artifact
+#    args ..... artifact's arguments
+sub update {
+  my ($this, $path, $type, $args) = @_;
+
+  $this->{path} = $path;
+  $this->{type} = $type;
+  $this->{args} = $args;  
 }
 
 sub getRepository {
@@ -110,15 +124,22 @@ sub getProject {
 
 sub createResource {
   my ($this, $name, $type, $task) = @_;
+
   my $resource = SMake::Storage::File::Resource->new(
-      $this->{repository}, $this->{storage}, $this, $this->{path}, $name, $type, $task);
+      $this->{repository},
+      $this->{storage},
+      $this,
+      $this->{path},
+      $name,
+      $type,
+      $task);
   $this->{resources}->{$resource->getKey()} = $resource;
   return $resource;
 }
 
 sub getResource {
   my ($this, $path) = @_;
-  return $this->{$path->hashKey()};
+  return $this->{resources}->{$path->hashKey()};
 }
 
 sub getResourceNames {
@@ -126,19 +147,20 @@ sub getResourceNames {
   return [keys(%{$this->{resources}})];  
 }
 
-sub appendMainResource {
-  my ($this, $type, $resource) = @_;
+sub deleteResources {
+  my ($this, $list) = @_;
   
-  # -- check existence of the resource
-  my $r = $this->{resources}->{$resource->getKey()};
-  if(!defined($r) || ($r != $resource)) {
-    die "the main resource must be part of the artifact";
+  foreach my $resource (@$list) {
+    $this->{resources}->{$resource->hashKey()}->destroy();
   }
+  delete $this->{resources}->{map { $_->hashKey() } @$list};
+}
+
+sub setMainResources {
+  my ($this, $default, $map) = @_;
   
-  $this->{main_resources}->{$type} = $resource;
-  if(!defined($this->{main})) {
-    $this->{main} = $resource;
-  }
+  $this->{main} = $default;
+  $this->{main_resources} = $map;
 }
 
 sub getMainResource {
@@ -165,19 +187,58 @@ sub getStage {
   return $this->{stages}->{$name};
 }
 
+sub getStageNames {
+  my ($this) = @_;
+  return keys %{$this->{stages}};
+}
+
+sub deleteStages {
+  my ($this, $list) = @_;
+  
+  foreach my $stage (@$list) {
+    $this->{stages}->{$stage}->destroy();
+  }
+  delete $this->{stages}->{@$list};
+}
+
 sub createDependency {
-  my ($this, $deptype, $depprj, $departifact) = @_;
+  my ($this, $deptype, $depprj, $departifact, $maintype) = @_;
   
   my $dependency = SMake::Storage::File::Dependency->new(
-      $this->{repository}, $this->{storage}, $this, $deptype, $depprj, $departifact);
-  push @{$this->{dependencies}}, $dependency;
-  
+      $this->{repository},
+      $this->{storage},
+      $this, $deptype,
+      $depprj,
+      $departifact,
+      $maintype);
+  $this->{dependencies}->{$dependency->getKey()} = $dependency;
   return $dependency;
+}
+
+sub getDependency {
+  my ($this, $deptype, $depprj, $departifact, $maintype) = @_;
+  
+  return $this->{dependencies}->{
+      SMake::Model::Dependency::createKey($deptype, $depprj, $departifact, $maintype)};
+}
+
+sub getDepKeys {
+  my ($this) = @_;
+  return [keys %{$this->{dependencies}}];
+}
+
+sub deleteDependencies {
+  my ($this, $list) = @_;
+  
+  foreach my $dep (@$list) {
+    $this->{dependencies}->{$dep}->destroy();
+  }
+  delete $this->{dependencies}->{@$list};
 }
 
 sub getDependencyRecords {
   my ($this) = @_;
-  return [@{$this->{dependencies}}];
+  return [values %{$this->{dependencies}}];
 }
 
 sub searchResource {
@@ -185,7 +246,7 @@ sub searchResource {
 
   foreach my $resource (values %{$this->{resources}}) {
     if($resource->getType() =~ /$restype/
-       && $resource->getRelativePath()->asString() eq $path->asString()) {
+       && $resource->getName()->asString() eq $path->asString()) {
       return $resource;
     }
   }

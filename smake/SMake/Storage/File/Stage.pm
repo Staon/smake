@@ -90,9 +90,18 @@ sub getTask {
   return $this->{tasks}->{$name};
 }
 
-sub getTasks {
+sub getTaskNames {
   my ($this) = @_;
   return [keys(%{$this->{tasks}})];
+}
+
+sub deleteTasks {
+  my ($this, $list) = @_;
+  
+  foreach my $task (@$list) {
+    $this->{tasks}->{$task}->destroy();
+  }
+  delete $this->{tasks}->{@$list};
 }
 
 sub getDependencies {

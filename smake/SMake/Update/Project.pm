@@ -48,12 +48,26 @@ sub new {
   return $this;
 }
 
-sub destroy {
-  my ($this) = @_;
-  
+# Update data of the project and destroy current object
+#
+# Usage: update($context)
+sub update {
+  my ($this, $context) = @_;
+
+  # -- update artifacts and construct list of deleted
+  my $to_delete = [];
   foreach my $artifact (keys %{$this->{artifacts}}) {
-    $artifact->destroy() if($artifact);
+  	my $object = $this->{artifacts}->{$artifact};
+    if($object) {
+      $object->update($context);
+    }
+    else {
+      push @$to_delete, $artifact;
+    }
   }
+  $this->{project}->deleteArtifacts($to_delete);
+  
+  # -- destroy the object
   $this->{artifacts} = undef;
   $this->{project} = undef;
 }
@@ -62,6 +76,12 @@ sub destroy {
 sub getObject {
   my ($this) = @_;
   return $this->{project};
+}
+
+# Get name of the project
+sub getName {
+  my ($this) = @_;
+  return $this->{project}->getName();
 }
 
 # Create new artifact

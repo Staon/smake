@@ -36,6 +36,17 @@ sub new {
   return bless(SMake::Model::Object->new(), $class);
 }
 
+# Get name of the stamp's resource (relative path)
+sub getName {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get name of the stamp's resource in string form
+sub getKey {
+  my ($this) = @_;
+  return $this->getName()->hashKey();
+}
+
 # Get timestamp mark
 #
 # Usage: getMark();

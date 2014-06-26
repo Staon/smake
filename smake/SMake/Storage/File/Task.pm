@@ -27,14 +27,14 @@ use SMake::Storage::File::Timestamp;
 
 # Create new task object
 #
-# Usage: new($repository, $storage, $stage, $taskid, $type, $wd, \%args)
+# Usage: new($repository, $storage, $stage, $name, $type, $wd, \%args)
 sub new {
-  my ($class, $repository, $storage, $stage, $taskid, $type, $wd, $args) = @_;
+  my ($class, $repository, $storage, $stage, $name, $type, $wd, $args) = @_;
   my $this = bless(SMake::Model::Task->new(), $class);
   $this->{repository} = $repository;
   $this->{storage} = $storage;
   $this->{stage} = $stage;
-  $this->{taskid} = $taskid;
+  $this->{name} = $name;
   $this->{type} = $type;
   $this->{wdir} = SMake::Data::Path->new($wd);
   $this->{args} = defined($args)?$args:{};
@@ -66,9 +66,9 @@ sub getRepository {
   return $this->{repository};
 }
 
-sub getKey {
+sub getName {
   my ($this) = @_;
-  return $this->{taskid};
+  return $this->{name};
 }
 
 sub getType {
@@ -93,11 +93,7 @@ sub getWDPath {
 
 sub setTargets {
   my ($this, $list) = @_;
-
-  $this->{targets} = {};  
-  foreach my $res (@$list) {
-    $this->{targets}->{$res->getKey()} = $res;
-  }
+  $this->{targets} = {map {$_->getKey() => $_} @$list};
 }
 
 sub getTargets {
@@ -105,15 +101,44 @@ sub getTargets {
   return [values(%{$this->{targets}})];
 }
 
-sub appendSource {
-  my ($this, $resource) = @_;
-  $this->{sources}->{$resource->getKey()} = SMake::Storage::File::Timestamp->new(
-      $this->{repository}, $this->{storage}, $this, $resource);
+# Get list of names of source resources
+#
+# Usage: getSourceNames()
+# Returns: \@list
+sub getSourceNames {
+  my ($this) = @_;
+  return [map {$_->getName()} values(%{$this->{sources}})];
+}
+
+# Delete list of source resources
+#
+# Usage: deleteSources(\@list)
+#    list .... list of resource names (relative paths)
+sub deleteSources {
+  my ($this, $list) = @_;
+  
+  foreach my $src (@$list) {
+    $this->{sources}->{$src->hashKey()}->destroy();
+  }
+  delete $this->{sources}->{map {$_->hashKey()} @$list};
 }
 
 sub getSources {
   my ($this) = @_;
   return [map { $_->getResource() } values(%{$this->{sources}})];
+}
+
+sub createSourceTimestamp {
+  my ($this, $resource) = @_;
+  my $ts = SMake::Storage::File::Timestamp->new(
+      $this->{repository}, $this->{storage}, $this, $resource);
+  $this->{sources}->{$resource->getKey()} = $ts;
+  return $ts;
+}
+
+sub getSourceTimestamp {
+  my ($this, $name) = @_;
+  return $this->{sources}->{$name->hashKey()};
 }
 
 sub getSourceTimestamps {
@@ -139,8 +164,8 @@ sub getDependentTasks {
   	my $srctask = $source->getResource()->getTask();
   	# -- not external resource and dependencies inside the stage
   	if(defined($srctask)
-  	   && ($this->{stage}->getKey() eq $srctask->getStage()->getKey())) {
-      push @$list, $srctask->getKey(); 
+  	   && ($this->{stage}->getName() eq $srctask->getStage()->getName())) {
+      push @$list, $srctask->getName(); 
     }
   }
   return $list;

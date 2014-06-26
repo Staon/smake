@@ -41,7 +41,7 @@ sub filterResource {
   my ($this, $context, $resource) = @_;
   
   my $path = File::Spec->catfile(
-      $this->{location}, $resource->getRelativePath()->systemRelative());
+      $this->{location}, $resource->getName()->systemRelative());
   if(-f $path) {
     return 1;
   }

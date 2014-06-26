@@ -57,6 +57,15 @@ sub destroy {
   $this->{task} = undef;
 }
 
+#    type ..... type of the resource
+#    task ..... task which creates the resource
+sub update {
+  my ($this, $type, $task) = @_;
+  
+  $this->{type} = $type;
+  $this->{task} = $task;
+}
+
 sub getRepository {
   my ($this) = @_;
   return $this->{repository};

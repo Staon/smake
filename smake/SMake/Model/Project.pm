@@ -75,6 +75,14 @@ sub getArtifactNames {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Delete specified artifacts
+#
+# Usage: deleteArtifacts(\@list)
+#    list ..... list of names of artifacts to be deleted
+sub deleteArtifacts {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Search for an external resource in the project
 #
 # Usage: searchResource($restype, $path)

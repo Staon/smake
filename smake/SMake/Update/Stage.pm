@@ -32,7 +32,7 @@ sub new {
   
   my $stage = $artifact->getObject()->getStage($name);
   if(defined($stage)) {
-  	$this->{tasks} = {map {$_ => 0} %{$stage->getObject()->getTaskNames()}};
+  	$this->{tasks} = {map {$_ => 0} @{$stage->getTaskNames()}};
   }
   else {
     $stage = $artifact->getObject()->createStage($name);
@@ -44,12 +44,25 @@ sub new {
   return $this;
 }
 
-sub destroy {
-  my ($this) = @_;
+# Update data of the stage object
+#
+# Usage: update($context)
+sub update {
+  my ($this, $context) = @_;
   
-  foreach my $task (@{$this->{tasks}}) {
-    $task->destroy();
+  # -- update tasks
+  my $to_delete = [];
+  foreach my $task (keys %{$this->{tasks}}) {
+    my $object = $this->{tasks}->{$task};
+    if($object) {
+      $object->update($context);
+    }
+    else {
+      push @$to_delete, $task;
+    }
   }
+  $this->{stage}->deleteTasks($to_delete);
+  
   $this->{tasks} = undef;
   $this->{artifact} = undef;
   $this->{stage} = undef;
@@ -59,6 +72,24 @@ sub destroy {
 sub getObject {
   my ($this) = @_;
   return $this->{stage};
+}
+
+# Get name of the stage
+sub getName {
+  my ($this) = @_;
+  return $this->{stage}->getName();
+}
+
+# Get artifact which the stage belongs to
+sub getArtifact {
+  my ($this) = @_;
+  return $this->{artifact};
+}
+
+# Get project which the state belongs to
+sub getProject {
+  my ($this) = @_;
+  return $this->getArtifact()->getProject();
 }
 
 # Create new task object

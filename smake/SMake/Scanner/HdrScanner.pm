@@ -47,10 +47,10 @@ sub scanSource {
   
   # -- check task and resource masks
   if(($resource->getType() =~ /$this->{restype}/)
-      && ($resource->getRelativePath()->asString() =~ /$this->{resname}/)
+      && ($resource->getName()->asString() =~ /$this->{resname}/)
       && ($task->getType() =~ /$this->{tasktype}/)) {
       	
-    # -- scan the file  
+    # -- scan the file
     my $filename = $context->getRepository()->getPhysicalPath($resource->getPath());
     local *SRCFILE;
     if(!open(SRCFILE, "<" . $filename)) {
@@ -65,15 +65,20 @@ sub scanSource {
         $path =~ s/\\/\//;  # -- windows paths
         $path = SMake::Data::Path->new($path);
       
-        # -- create installation task
-        my $insttask = $artifact->createTaskInStage(
-            $task->getStage()->getName(),
-            $SMake::Model::Const::EXTERNAL_TASK,
-            $artifact->getPath());
-        # -- create the external resource
-        my $extres = $artifact->createResource(
-            $path, $SMake::Model::Const::EXTERNAL_RESOURCE, $insttask);
-        $task->appendSource($extres);
+        my $extres = $artifact->getResource($path);
+        if(!defined($extres)) {
+          # -- create installation task
+          my $insttask = $artifact->createTaskInStage(
+              $context,
+              $task->getStage()->getName(),
+              $path->asString(),
+              $SMake::Model::Const::EXTERNAL_TASK,
+              $artifact->getPath());
+          # -- create the external resource
+          $extres = $artifact->createResource(
+              $context, $path, $SMake::Model::Const::EXTERNAL_RESOURCE, $insttask);
+        }
+        $task->appendSource($context, $extres);
       }
     }
     close SRCFILE;

@@ -41,7 +41,7 @@ sub resolveExternal {
   my $resolved = $project->searchResource(
       "^" . $SMake::Model::Const::SOURCE_RESOURCE . "|"
           . $SMake::Model::Const::PRODUCT_RESOURCE . "\$",
-      $resource->getRelativePath());
+      $resource->getName());
   return (1, $resolved) if(defined($resolved));
   
   # -- TODO: search in the global table of public resources
@@ -64,7 +64,7 @@ sub resolveExternal {
 # Returns: \@list of external resources
 sub externalTransitiveClosure {
   my ($context, $subsystem, $resource) = @_;
-  
+
   my $list = [];
   my @queue = ($resource);
   
@@ -73,7 +73,7 @@ sub externalTransitiveClosure {
   
   while($#queue >= 0) {
     my $current = shift(@queue);
-    if(!defined($extmap{$current->getPath()->asString()})) {
+    if(!defined($extmap{$current->getName()->asString()})) {
       # -- not processed yet
       my ($found, $resolved) = resolveExternal($context, $subsystem, $current);
       if(!$found) {
@@ -81,7 +81,7 @@ sub externalTransitiveClosure {
             $context->getReporter(),
             $subsystem,
             "external resource '%s' cannot be resolved!",
-            $current->getPath()->asString());
+            $current->getName()->asString());
       }
       if(defined($resolved)) {
         # -- search its external resources

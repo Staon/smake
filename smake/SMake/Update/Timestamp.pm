@@ -15,40 +15,39 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Implementation of the timestamp class for the file storage
-package SMake::Storage::File::Timestamp;
-
-use SMake::Model::Timestamp;
-
-@ISA = qw(SMake::Model::Timestamp);
+# Updateable timestamp object
+package SMake::Update::Timestamp;
 
 # Create new timestamp object
 #
-# Usage: new($repository, $storage, $task, $resource, $mark?)
+# Usage: new($context, $task, $resource)
+#    context ..... parser context
+#    task ........ parent task object
+#    resource .... a resource which the timestamp is for
 sub new {
-  my ($class, $repository, $storage, $task, $resource, $mark) = @_;
-  my $this = bless(SMake::Model::Timestamp->new(), $class);
-  $this->{repository} = $repository;
-  $this->{storage} = $storage;
+  my ($class, $context, $task, $resource) = @_;
+  my $this = bless({}, $class);
+  
+  my $ts = $task->getObject()->getSourceTimestamp($resource->getName());
+  if(!defined($ts)) {
+    $ts = $task->getObject()->createSourceTimestamp($resource->getObject());
+  }
   $this->{task} = $task;
   $this->{resource} = $resource;
-  $this->{mark} = $mark;
+  $this->{timestamp} = $ts;
+  
   return $this;
 }
 
-sub destroy {
-  my ($this) = @_;
+# Update the timestamp object
+#
+# Usage: update($context)
+sub update {
+  my ($this, $context) = @_;
   
-  $this->{repository} = undef;
-  $this->{storage} = undef;
   $this->{task} = undef;
   $this->{resource} = undef;
-  $this->{mark} = undef;
-}
-
-sub getRepository {
-  my ($this) = @_;
-  return $this->{repository};
+  $this->{timestamp} = undef;
 }
 
 sub getName {
@@ -56,14 +55,14 @@ sub getName {
   return $this->{resource}->getName();
 }
 
-sub getMark {
+sub getKey {
   my ($this) = @_;
-  return $this->{mark};
+  return $this->{resource}->getKey();
 }
 
-sub updateMark {
-  my ($this, $mark) = @_;
-  return $this->{mark} = $mark;
+sub getMark {
+  my ($this) = @_;
+  return $this->{timestamp}->getMark();
 }
 
 sub getResource {

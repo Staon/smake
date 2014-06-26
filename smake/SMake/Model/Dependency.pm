@@ -34,6 +34,28 @@ sub new {
   return $this;
 }
 
+# Create a string which can be used as a hash key (static)
+#
+# Usage: createKey($type, $project, $artifact, $main)
+#    type ...... type of the dependency
+#    project ... name of the project
+#    artifact .. name of the artifact
+#    main ...... type of the main resource
+sub createKey {
+  my ($type, $project, $artifact, $main) = @_;
+  return "$type/$project/$artifact" . (($main)?"/$main":"");
+}
+
+# Get a string which can be used as a hash key
+sub getKey {
+  my ($this) = @_;
+  return createKey(
+      $this->getDependencyType(),
+      $this->getDependencyProject(),
+      $this->getDependencyArtifact(),
+      $this->getDependencyMainResource()); 
+}
+
 # Get type of the dependency
 sub getDependencyType {
   SMake::Utils::Abstract::dieAbstract();

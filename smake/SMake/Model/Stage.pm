@@ -69,11 +69,19 @@ sub getTask {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get list of tasks which belongs the stage
+# Get list of names of tasks which belongs the stage
 #
-# Usage: getTasks()
+# Usage: getTaskNames()
 # Returns: \@task_list list of task names
 sub getTaskNames {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Delete list of tasks
+#
+# Usage: deleteTasks(\@list)
+#    list .... list of task names
+sub deleteTasks {
   SMake::Utils::Abstract::dieAbstract();
 }
 

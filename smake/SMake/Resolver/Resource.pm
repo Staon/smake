@@ -41,7 +41,7 @@ sub resolveResource {
   my ($this, $context, $queue, $resource) = @_;
   
   if(($resource->getType() =~ /$this->{typemask}/)
-     && ($resource->getRelativePath()->asString() =~ /$this->{resmask}/)) {
+     && ($resource->getName()->asString() =~ /$this->{resmask}/)) {
     $this->doJob($context, $queue, $resource);
     return 1;
   }

@@ -41,7 +41,7 @@ sub startFile {
   
   # -- compute path relative to the artifact
   my $currprefix = $context->getResourcePrefix();
-  my $prefix = $currprefix->joinPaths($context->getCurrentDir());
+  my $prefix = $currprefix->joinPaths($context->getCurrentDir()->getBasepath());
   $context->pushResourcePrefix($prefix);
 }
 
@@ -75,7 +75,8 @@ sub deps {
   
   my $artifact = $context->getArtifact();
   foreach my $dep (@$deplist) {
-    $artifact->createDependency($deptype, $artifact->getProject()->getName(), $dep);
+    $artifact->createDependency(
+        $context, $deptype, $artifact->getProject()->getName(), $dep);
   }
 }
 

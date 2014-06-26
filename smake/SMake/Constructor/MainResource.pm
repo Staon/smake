@@ -44,15 +44,22 @@ sub new {
 # Usage: createMainResource($context, $artifact)
 sub createMainResource {
   my ($this, $context, $artifact) = @_;
-  
-  # -- create a task which creates the main resource
-  my $task = $artifact->createTaskInStage(
-      $context, $this->{stage}, $this->{task}, $artifact->getPath(), $this->{args});
-  
-  # -- create the resource
+
+  # -- create name of the main resource
   my $prefix = $context->getResourcePrefix();
   my $path = $prefix->joinPaths($artifact->getName());
   my $name = $context->getMangler()->mangleName($context, $this->{mangler}, $path);
+  
+  # -- create a task which creates the main resource
+  my $task = $artifact->createTaskInStage(
+      $context,
+      $this->{stage},
+      $name->asString(),
+      $this->{task},
+      $artifact->getPath(),
+      $this->{args});
+  
+  # -- create the resource
   my $resource = $artifact->createResource(
       $context, $name, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
   

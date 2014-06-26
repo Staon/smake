@@ -20,6 +20,7 @@ package SMake::Update::Artifact;
 
 use SMake::Data::Path;
 use SMake::Model::Const;
+use SMake::Update::Dependency;
 use SMake::Update::Resource;
 use SMake::Update::Stage;
 
@@ -39,33 +40,76 @@ sub new {
   my $artifact = $project->getObject()->getArtifact($name);
   if(defined($artifact)) {
     $artifact->update($path, $type, $args);
-    $this->{descriptions} = {map {$_ => 0} @{$artifact->getDescriptionKeys()}};
     $this->{stages} = {map {$_ => 0} @{$artifact->getStageNames()}};
     $this->{resources} = {map {$_ => 0} @{$artifact->getResourceNames()}};
+    $this->{dependencies} = {map {$_ => 0} @{$artifact->getDepKeys()}};
   }
   else {
     $artifact = $project->getObject()->createArtifact($path, $name, $type, $args);
-    $this->{descriptions} = {};
     $this->{stages} = {};
     $this->{resources} = {};
+    $this->{dependencies} = {};
   }
+  $this->{main_resources} = {};
+  $this->{main} = undef;
   $this->{project} = $project;
   $this->{artifact} = $artifact;
   
   return $this;
 }
 
-sub destroy {
-  my ($this) = @_;
-  
+sub update {
+  my ($this, $context) = @_;
+
+  # -- update stages
+  my $stage_delete = [];
   foreach my $stage (keys %{$this->{stages}}) {
-    $stage->destroy() if($stage);
+    my $object = $this->{stages}->{$stage};
+    if($object) {
+      $object->update($context);
+    }
+    else {
+      push @$stage_delete, $stage;
+    }
   }
-  $this->{stages} = undef;
+  $this->{artifact}->deleteStages($stage_delete);
+
+  # -- update main resources
+  $this->{artifact}->setMainResources(
+      $this->{main}->getObject(),
+      {map {$_ => $this->{main_resources}->{$_}->getObject()}
+          keys(%{$this->{main_resources}})});
+  
+  # -- update resources
+  my $res_delete = [];
   foreach my $resource (keys %{$this->{resources}}) {
-    $resource->destroy() if($resource);
+    my $object = $this->{resources}->{$resource};
+    if($object) {
+      $object->update($context);
+    }
+    else {
+      push @$res_delete, $resource;
+    }
   }
+  $this->{artifact}->deleteResources($res_delete);
+  
+  # -- update dependencies
+  my $dep_delete = [];
+  foreach my $dep (keys %{$this->{dependencies}}) {
+    my $object = $this->{dependencies}->{$dep};
+    if($object) {
+      $object->update($context);
+    }
+    else {
+      push @$dep_delete, $dep;
+    }
+  }
+  $this->{artifact}->deleteDependencies($dep_delete);
+  
   $this->{stages} = undef;
+  $this->{resources} = undef;
+  $this->{main_resources} = undef;
+  $this->{dependencies} = undef;
   $this->{project} = undef;
   $this->{artifact} = undef;
 }
@@ -123,13 +167,25 @@ sub createResource {
   return $resource;
 }
 
+# Get resource object
+#
+# Usage: getResource($name)
+#    name .... name of the resource (relative path)
+# Returns: the resource or undef
+sub getResource {
+  my ($this, $name) = @_;
+
+  my $resource = $this->{resources}->{$name->hashKey()};
+  return ($resource)?$resource:undef;
+}
+
 # Get list of resources
 #
 # Usage: getResources($context)
 # Returns: \@list
 sub getResources {
   my ($this, $context) = @_;
-  return [values(%{$this->{resources}})];
+  return [grep {$_} values(%{$this->{resources}})];
 }
 
 # Append main resource
@@ -140,7 +196,35 @@ sub getResources {
 #    resource .... the resource object
 sub appendMainResource {
   my ($this, $context, $type, $resource) = @_;
-  $this->{artifact}->appendMainResource($type, $resource->getObject());
+  
+  # -- check existence of the resource
+  my $r = $this->{resources}->{$resource->getKey()};
+  if(!defined($r) || ($r != $resource)) {
+    die "the main resource must be part of the artifact";
+  }
+  
+  $this->{main_resources}->{$type} = $resource;
+  if(!defined($this->{main})) {
+    $this->{main} = $resource;
+  }
+}
+
+# Get main resource of the artifact
+#
+# Usage: getMainResource($type)
+# Returns: the resource or undef
+sub getMainResource {
+  my ($this, $type) = @_;
+  return $this->{main_resources}->{$type};
+}
+
+# Get default main resource
+#
+# Usage: getDefaultMainResource()
+# Returns: the resource or undef
+sub getDefaultMainResource {
+  my ($this, $type) = @_;
+  return $this->{main};
 }
 
 # Create new stage object or use already existing
@@ -156,6 +240,31 @@ sub createStage {
     $this->{stages}->{$name} = $stage;
   }
   return $stage;
+}
+
+# Create new dependency
+#
+# Usage: createDependency($context, $deptype, $depprj, $departifact, $maintype)
+#    context ....... parser context
+#    deptype ....... dependency type
+#    depprj ........ name of the dependency project
+#    departifact ... name of the dependency artifact
+#    maintype ...... type of the main artifact (can be undef for default)
+sub createDependency {
+  my ($this, $context, $deptype, $depprj, $departifact, $maintype) = @_;
+  
+  my $dep = SMake::Update::Dependency->new(
+      $context, $this, $deptype, $depprj, $departifact, $maintype);
+  $this->{dependencies}->{$dep->getKey()} = $dep;
+  return $dep;
+}
+
+# Get list of dependency objects
+#
+# Usage: getDependencyRecords()
+# Returns: \@list
+sub getDependencyRecords {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 # A helper method - create a task in a stage

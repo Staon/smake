@@ -18,6 +18,8 @@
 # Updateable task object
 package SMake::Update::Task;
 
+use SMake::Update::Timestamp;
+
 # Create new task
 #
 # Usage: new($context, $stage, $name, $type, $wd, \%args)
@@ -33,10 +35,11 @@ sub new {
   
   my $task = $stage->getObject()->getTask($name);
   if(defined($task)) {
-    # -- todo
+    $this->{sources} = {map {$_->hashKey() => 0} @{$task->getSourceNames()}};
   }
   else {
     $task = $stage->getObject()->createTask($name, $type, $wd, $args);
+    $this->{sources} = {};
   }
   $this->{targets} = {};
   $this->{stage} = $stage;
@@ -45,9 +48,30 @@ sub new {
   return $this;
 }
 
-sub destroy {
-  my ($this) = @_;
+# Update the object
+#
+# Usage: update($context)
+sub update {
+  my ($this, $context) = @_;
+
+  # -- update target resources
+  $this->{task}->setTargets([
+      map {$_->getObject()} values %{$this->{targets}}]);
   
+  # -- update source resources
+  my $ts_delete = [];
+  foreach my $ts (values %{$this->{sources}}) {
+    if($ts) {
+      $ts->update($context);
+    }
+    else {
+      push @$ts_delete, $ts->getName();
+    }
+  }
+  $this->{task}->deleteSources($ts_delete);
+  
+  $this->{sources} = undef;
+  $this->{targets} = undef;
   $this->{stage} = undef;
   $this->{task} = undef;
 }
@@ -56,6 +80,53 @@ sub destroy {
 sub getObject {
   my ($this) = @_;
   return $this->{task};
+}
+
+# Get name of the task
+sub getName {
+  my ($this) = @_;
+  return $this->{task}->getName();
+}
+
+# Get type of the task
+sub getType {
+  my ($this) = @_;
+  return $this->{task}->getType();
+}
+
+# Get arguments of the task
+#
+# The arguments are a hash table with a content which meaning depends on the type
+# of the task.
+sub getArguments {
+  my ($this) = @_;
+  return $this->{task}->getArguments();
+}
+
+# Get stage which the task belongs to
+sub getStage {
+  my ($this) = @_;
+  return $this->{stage};
+}
+
+# Get working path of the task
+#
+# The path has meaning in the context of the repository
+sub getWDPath {
+  my ($this) = @_;
+  return $this->{task}->getWDPath();
+}
+
+# Append source resource
+#
+# Usage: appendSource($context, $resource)
+#    context ..... parser context
+#    resource .... the resource object
+sub appendSource {
+  my ($this, $context, $resource) = @_;
+  
+  my $ts = SMake::Update::Timestamp->new($context, $this, $resource);
+  $this->{sources}->{$resource->getKey()} = $ts;
 }
 
 # Append a target resource

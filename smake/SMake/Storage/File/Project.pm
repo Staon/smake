@@ -89,6 +89,20 @@ sub getArtifact {
   return $this->{artifacts}->{$name};
 }
 
+sub getArtifactNames {
+  my ($this) = @_;
+  return [keys %{$this->{artifacts}}];
+}
+
+sub deleteArtifacts {
+  my ($this, $list) = @_;
+  
+  foreach my $artifact (@$list) {
+    $this->{artifacts}->destroy();
+  }
+  delete $this->{artifacts}->{@$list};
+}
+
 sub searchResource {
   my ($this, $restype, $path) = @_;
 

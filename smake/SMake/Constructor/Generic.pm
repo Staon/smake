@@ -74,16 +74,16 @@ sub constructArtifact {
   }
   
   # -- resolve dependency records
-  my $dependencies = $artifact->getDependencyRecords();
-  foreach my $dependency (@$dependencies) {
-    if(!$context->resolveDependency($dependency)) {
-      SMake::Utils::Utils::dieReport(
-          $context->getReporter(),
-          $SMake::Constructor::Constructor::SUBSYSTEM,
-          "there is no dependency resolver registered for dependency '%s'",
-          $dependency->getDependencyType());
-    }
-  }
+#  my $dependencies = $artifact->getDependencyRecords();
+#  foreach my $dependency (@$dependencies) {
+#    if(!$context->resolveDependency($dependency)) {
+#      SMake::Utils::Utils::dieReport(
+#          $context->getReporter(),
+#          $SMake::Constructor::Constructor::SUBSYSTEM,
+#          "there is no dependency resolver registered for dependency '%s'",
+#          $dependency->getDependencyType());
+#    }
+#  }
   
   # -- clear pushed resolvers and scanners
   $context->clearScanners();

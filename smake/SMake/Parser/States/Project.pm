@@ -68,8 +68,10 @@ sub endProject {
   $context->getReporter()->report(
       5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "EndProject()");
   
-  # -- change the context
+  # -- update data of the ending project and remove it from the stack
+  my $project = $context->getProject();
   $context->popProject();
+  $project->update($context);
   
   # -- switch parser's state
   $parser->switchState($this->{root});

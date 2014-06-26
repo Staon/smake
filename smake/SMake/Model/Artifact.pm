@@ -98,13 +98,20 @@ sub getResourceNames {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Add a main resource
+# Delete specified resources
 #
-# Usage: addMainResource($type, $resource)
-#    type ...... type of the main resource
-#    resource .. the resource. The resource must be a resource of the
-#                artifact!
-sub appendMainResource {
+# Usage: deleteResources(\@list)
+#    list .... list of resource names (relative paths)
+sub deleteResources {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Set map of main resources
+#
+# Usage: setMainResources($default, \%map)
+#    default .. default main resource
+#    map ...... map of tuples (type => resource)
+sub setMainResources {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -148,13 +155,49 @@ sub getStageNames {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Delete list of stages
+#
+# Usage: deleteStages(\@list)
+#    list ..... list of stage names
+sub deleteStages {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Create new dependency
 #
-# Usage: createDependency($deptype, $depprj, $departifact)
+# Usage: createDependency($deptype, $depprj, $departifact, $maintype)
 #    deptype ....... dependency type
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact
+#    maintype ...... type of the main resource
 sub createDependency {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get dependency object
+#
+# Usage: getDependency($deptype, $depprj, $departifact, $maintype)
+#    deptype ....... dependency type
+#    depprj ........ name of the dependency project
+#    departifact ... name of the dependency artifact
+#    maintype ...... type of the main resource
+sub getDependency {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of keys of dependency objects
+#
+# Usage: getDepKeys()
+# Returns: \@list
+sub getDepKeys {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Delete list of dependencies
+#
+# Usage: deleteDependencies(\@list)
+#    list ...... list of key strings
+sub deleteDependencies {
   SMake::Utils::Abstract::dieAbstract();
 }
 

@@ -46,15 +46,20 @@ sub doJob {
 
   # -- create name of the new resource
   my $tgpath = $context->getMangler()->mangleName(
-      $context, $this->{mangler}, $resource->getRelativePath());
+      $context, $this->{mangler}, $resource->getName());
 
   # -- create the task and the resource
   my $artifact = $context->getArtifact();
   my $task = $artifact->createTaskInStage(
-      $this->{stage}, $this->{tasktype}, $artifact->getPath(), undef);
-  $task->appendSource($resource);
+      $context,
+      $this->{stage},
+      $tgpath->asString(),
+      $this->{tasktype},
+      $artifact->getPath(),
+      undef);
+  $task->appendSource($context, $resource);
   my $tgres = $artifact->createResource(
-      $tgpath, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
+      $context, $tgpath, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
   $queue->pushResource($tgres);
   
   # -- execute source scanner
