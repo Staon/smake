@@ -51,11 +51,6 @@ sub getRepository {
   return $this->{repository};
 }
 
-sub getName {
-  my ($this) = @_;
-  return $this->{resource}->getName();
-}
-
 sub getMark {
   my ($this) = @_;
   return $this->{mark};

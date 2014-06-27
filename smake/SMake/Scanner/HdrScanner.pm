@@ -65,19 +65,16 @@ sub scanSource {
         $path =~ s/\\/\//;  # -- windows paths
         $path = SMake::Data::Path->new($path);
       
-        my $extres = $artifact->getResource($path);
-        if(!defined($extres)) {
-          # -- create installation task
-          my $insttask = $artifact->createTaskInStage(
-              $context,
-              $task->getStage()->getName(),
-              $path->asString(),
-              $SMake::Model::Const::EXTERNAL_TASK,
-              $artifact->getPath());
-          # -- create the external resource
-          $extres = $artifact->createResource(
-              $context, $path, $SMake::Model::Const::EXTERNAL_RESOURCE, $insttask);
-        }
+        # -- create installation task
+        my $insttask = $artifact->createTaskInStage(
+            $context,
+            $task->getStage()->getName(),
+            $path->asString(),
+            $SMake::Model::Const::EXTERNAL_TASK,
+            $artifact->getPath());
+        # -- create the external resource
+        my $extres = $artifact->createResource(
+            $context, $path, $SMake::Model::Const::EXTERNAL_RESOURCE, $insttask);
         $task->appendSource($context, $extres);
       }
     }

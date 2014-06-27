@@ -24,7 +24,9 @@ use SMake::Model::Object;
 @ISA = qw(SMake::Model::Object);
 
 use SMake::Model::Const;
+use SMake::Model::Resource;
 use SMake::Utils::Abstract;
+use SMake::Utils::Print;
 use SMake::Utils::Searching;
 use SMake::Utils::Utils;
 
@@ -36,15 +38,42 @@ sub new {
   return bless(SMake::Model::Object->new(), $class);
 }
 
-# Get name of the stamp's resource (relative path)
-sub getName {
-  SMake::Utils::Abstract::dieAbstract();
+# (static) Create string key
+#
+# Usage: createKey($type, $name)
+sub createKeyTuple {
+  return SMake::Model::Resource::createKeyTuple(@_);
 }
 
-# Get name of the stamp's resource in string form
+# (static) Create string key
+#
+# Usage: createKey($type, $name)
+sub createKey {
+  return SMake::Model::Resource::createKey(@_);
+}
+
+# Get string key
+sub getKeyTuple {
+  my ($this) = @_;
+  return $this->getResource()->getKeyTuple();
+}
+
+# Get string key
 sub getKey {
   my ($this) = @_;
-  return $this->getName()->hashKey();
+  return $this->getResource()->getKey();
+}
+
+# Get resource type
+sub getType {
+  my ($this) = @_;
+  return $this->getResource()->getType();
+}
+
+# Get name of the stamp's resource (relative path)
+sub getName {
+  my ($this) = @_;
+  return $this->getResource()->getName();
 }
 
 # Get timestamp mark
@@ -106,6 +135,31 @@ sub computeCurrentMark {
     
   # -- get file timestamp
   return $context->getDecider()->getMark($context->getRepository(), $declist);
+}
+
+# Print content of the object
+#
+# Usage: prettyPrint($indent)
+sub prettyPrint {
+  my ($this, $indent) = @_;
+  
+  print ::HANDLE "Timestamp(" . $this->getName()->asString() . ") {\n";
+
+  # -- resource
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "resource: ";
+  $this->getResource()->prettyPrint($indent + 1);
+  print ::HANDLE "\n";
+
+  # -- resource
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "mark: ";
+  my $mark = $this->getMark();
+  print ::HANDLE (defined($mark)?$mark:"undef");
+  print ::HANDLE "\n";
+  
+  SMake::Utils::Print::printIndent($indent);
+  print ::HANDLE "}";
 }
 
 return 1;

@@ -102,12 +102,17 @@ my $cmdtranslator = SMake::Executor::Translator::Table->new(
         SMake::Executor::Translator::Instruction->new(
             SMake::Executor::Instruction::StoreMarks),
     )],
-    [$SMake::Model::Const::LIB_TASK, SMake::Executor::Translator::Compositor->new(
-        "wlib -b",
-        SMake::Executor::Translator::FileList->new(
-            $SMake::Executor::Const::PRODUCT_GROUP, "", "", "", "", "", 0),
-        SMake::Executor::Translator::FileList->new(
-            $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
+    [$SMake::Model::Const::LIB_TASK, SMake::Executor::Translator::Sequence->new(
+        SMake::Executor::Translator::Instruction->new(
+            SMake::Executor::Instruction::CheckMarks),   
+        SMake::Executor::Translator::Compositor->new(
+            "wlib -b",
+            SMake::Executor::Translator::FileList->new(
+                $SMake::Executor::Const::PRODUCT_GROUP, "", "", "", "", "", 0),
+            SMake::Executor::Translator::FileList->new(
+                 $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1)),
+        SMake::Executor::Translator::Instruction->new(
+            SMake::Executor::Instruction::StoreMarks),
     )],
     [$SMake::Model::Const::BIN_TASK, SMake::Executor::Translator::Compositor->new(
         "cc",

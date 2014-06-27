@@ -22,6 +22,7 @@ use SMake::Model::Object;
 @ISA = qw(SMake::Model::Object);
 
 use SMake::Utils::Abstract;
+use SMake::Utils::Print;
 
 # Create new project object
 #
@@ -36,6 +37,31 @@ sub new {
 # Usage: update($path)
 sub update {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Create key tuple
+#
+# Usage: createKeyTuple($name)
+sub createKeyTuple {
+  return [$_[0]];
+}
+
+# Create a string key of the project (static)
+#
+# Usage: createKey($name)
+#    name ..... name of the project
+sub createKey {
+  return $_[0];
+}
+
+sub getKeyTuple {
+  my ($this) = @_;
+  return createKeyTuple($this->getName());
+}
+
+sub getKey {
+  my ($this) = @_;
+  return createKey($this->getName());
 }
 
 # Get name of the project
@@ -69,17 +95,25 @@ sub getArtifact {
 
 # Get list of names of artifacts
 #
-# Usage: getArtifactNames()
-# Returns: \@list
-sub getArtifactNames {
+# Usage: getArtifactKeys()
+# Returns: \@list of tuples [$name (name of the project)]
+sub getArtifactKeys {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Delete specified artifacts
 #
 # Usage: deleteArtifacts(\@list)
-#    list ..... list of names of artifacts to be deleted
+#    list ..... list of tuples [$name]
 sub deleteArtifacts {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of artifact objects
+#
+# Usage: getArtifacts()
+# Returns: \@list
+sub getArtifacts {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -91,6 +125,29 @@ sub deleteArtifacts {
 # Returns: searched resource or undef
 sub searchResource {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Print content of the project
+#
+# Usage: prettyPrint($indent)
+sub prettyPrint {
+  my ($this, $indent) = @_;
+  
+  print ::HANDLE "Project(" . $this->getName() . ") {\n";
+  
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "path: " . $this->getPath()->asString() . "\n";
+
+  # -- artifacts
+  my $list = $this->getArtifacts();
+  foreach my $art (@$list) {
+    SMake::Utils::Print::printIndent($indent + 1);
+    $art->prettyPrint($indent + 1);
+    print ::HANDLE "\n";
+  }
+  
+  SMake::Utils::Print::printIndent($indent);
+  print ::HANDLE "}";
 }
 
 return 1;

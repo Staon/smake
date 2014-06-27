@@ -19,7 +19,9 @@
 # according to currently parsed SMakefile
 package SMake::Update::Project;
 
+use SMake::Model::Artifact;
 use SMake::Update::Artifact;
+use SMake::Update::Table;
 
 # Create new project object
 #
@@ -37,11 +39,14 @@ sub new {
     $project->update($path);
     
     # -- get list of artifacts
-    $this->{artifacts} = {map {$_ => 0} @{$project->getArtifactNames()}};
+    $this->{artifacts} = SMake::Update::Table->new(
+        \&SMake::Model::Artifact::createKey,
+        $project->getArtifactKeys());
   }
   else {
     $project = $context->getRepository()->createProject($name, $path);
-    $this->{artifacts} = {};
+    $this->{artifacts} = SMake::Update::Table->new(
+        &SMake::Model::Artifact::createKey, []);
   }
   $this->{project} = $project;
   
@@ -55,16 +60,7 @@ sub update {
   my ($this, $context) = @_;
 
   # -- update artifacts and construct list of deleted
-  my $to_delete = [];
-  foreach my $artifact (keys %{$this->{artifacts}}) {
-  	my $object = $this->{artifacts}->{$artifact};
-    if($object) {
-      $object->update($context);
-    }
-    else {
-      push @$to_delete, $artifact;
-    }
-  }
+  my ($to_delete, undef) = $this->{artifacts}->update($context);
   $this->{project}->deleteArtifacts($to_delete);
   
   # -- destroy the object
@@ -76,6 +72,12 @@ sub update {
 sub getObject {
   my ($this) = @_;
   return $this->{project};
+}
+
+# Get a string key
+sub getKey {
+  my ($this) = @_;
+  return $this->{project}->getKey();
 }
 
 # Get name of the project
@@ -98,7 +100,7 @@ sub createArtifact {
 
   my $artifact = SMake::Update::Artifact->new(
       $context, $this, $path, $name, $type, $args);
-  $this->{artifacts}->{$name} = $artifact;
+  $this->{artifacts}->addItem($artifact);
   
   return $artifact;
 }

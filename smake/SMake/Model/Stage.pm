@@ -24,6 +24,7 @@ use SMake::Model::Object;
 
 use SMake::Data::Address;
 use SMake::Utils::Abstract;
+use SMake::Utils::Print;
 
 # Create new stage object
 #
@@ -31,6 +32,30 @@ use SMake::Utils::Abstract;
 sub new {
   my ($class) = @_;
   return bless(SMake::Model::Object->new(), $class);
+}
+
+# (static) Create key tuple
+#
+# Usage: createKey($name)
+sub createKeyTuple {
+  return [$_[0]];
+}
+
+# (static) Create string key
+#
+# Usage: createKey($name)
+sub createKey {
+  return $_[0];
+}
+
+sub getKeyTuple {
+  my ($this) = @_;
+  return createKeyTuple($this->getName());
+}
+
+sub getKey {
+  my ($this) = @_;
+  return createKey($this->getName());
 }
 
 # Get name of the stage
@@ -69,29 +94,35 @@ sub getTask {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get list of names of tasks which belongs the stage
+# Get list of tasks
 #
 # Usage: getTaskNames()
-# Returns: \@task_list list of task names
-sub getTaskNames {
+# Returns: \@task_list list of key tuples
+sub getTaskKeys {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Delete list of tasks
 #
 # Usage: deleteTasks(\@list)
-#    list .... list of task names
+#    list .... list of key tuples
 sub deleteTasks {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get list of dependencies of the stage
+# Get list of task names
 #
-# Usage: getDependencies($reporter, $subsystem)
-#    reporter ...... a reporter object
-#    subsystem ..... id of the logging subsystem
-# Returns: \@list .. list of dependencies as a list of stage addresses
-sub getDependencies {
+# Usage: getTaskNames();
+# Returns: \@list
+sub getTaskNames {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of task objects
+#
+# Usage: getTasks();
+# Returns: \@list
+sub getTasks {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -102,6 +133,30 @@ sub getAddress {
       $this->getProject()->getName(),
       $this->getArtifact()->getName(),
       $this->getName());
+}
+
+# Print content of the object
+#
+# Usage: prettyPrint($indent)
+sub prettyPrint {
+  my ($this, $indent) = @_;
+  
+  print ::HANDLE "Stage(" . $this->getName() . ") {\n";
+  
+  # -- tasks
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "tasks: {\n";
+  my $tasks = $this->getTasks();
+  foreach my $task (@$tasks) {
+    SMake::Utils::Print::printIndent($indent + 2);
+    $task->prettyPrint($indent + 2);
+    print ::HANDLE "\n";
+  }
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "}\n";
+  
+  SMake::Utils::Print::printIndent($indent);
+  print ::HANDLE "}";
 }
 
 return 1;

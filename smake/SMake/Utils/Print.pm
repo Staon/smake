@@ -15,32 +15,35 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic model object
-package SMake::Model::Object;
+package SMake::Utils::Print;
 
-use SMake::Utils::Abstract;
-
-# Create new object
+# Print indentation
 #
-# Usage: new()
-sub new {
-  my ($class) = @_;
-  return bless({}, $class);
+# Usage: printIndent($handle, $indent)
+#    handle ...... output stream handle
+#    indent ...... indent level
+sub printIndent {
+  my ($indent) = @_;
+  
+  while($indent > 0) {
+    print ::HANDLE "  ";
+    --$indent;
+  }
 }
 
-# Get repository which the object belongs to
-sub getRepository {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Get key as a tuple of values
-sub getKeyTuple {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Get a string which can be used as a hash key
-sub getKey {
-  SMake::Utils::Abstract::dieAbstract();
+sub printArguments {
+  my ($arguments) = @_;
+  
+  my $first = 1;
+  foreach my $arg (keys %$arguments) {
+  	if($first) {
+  	  $first = 0;
+  	}
+  	else {
+  	  print ::HANDLE ", ";
+  	}
+    print ::HANDLE $arg . " => " . $arguments->{$arg}
+  }
 }
 
 return 1;

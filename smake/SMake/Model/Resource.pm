@@ -39,6 +39,36 @@ sub update {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# (static) create key tuple
+#
+# Usage: createKeyTuple($type, $name)
+#    type ..... task type
+#    name ..... name of the resource (relative path)
+sub createKeyTuple {
+  my ($type, $name) = @_;
+  return [$type, $name];
+}
+
+# (static) create string key
+#
+# Usage: createKey($type, $name)
+#    type ..... task type
+#    name ..... name of the resource (relative path)
+sub createKey {
+  my ($type, $name) = @_;
+  return $type . "@" . $name->hashKey();
+}
+
+sub getKeyTuple {
+  my ($this) = @_;
+  return createKeyTuple($this->getType(), $this->getName());
+}
+
+sub getKey {
+  my ($this) = @_;
+  return createKey($this->getType(), $this->getName());
+}
+
 # Get name of the resource
 #
 # The name is a Path object, which contains a relative path of the resource
@@ -46,12 +76,6 @@ sub update {
 # external resource. The path must be unique in the project.
 sub getName {
   SMake::Utils::Abstract::dieAbstract();
-}
-
-# Get string key of the resource
-sub getKey {
-  my ($this) = @_;
-  return $this->getName()->hashKey();
 }
 
 # Get type of the resource
@@ -90,6 +114,16 @@ sub getTask {
 # Returns: the stage or undef, if the resource is an external resource
 sub getStage {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Print content of the object
+#
+# Usage: prettyPrint($indent)
+sub prettyPrint {
+  my ($this, $indent) = @_;
+  
+  print ::HANDLE "Resource(" . $this->getType()
+      . ", " . $this->getName()->asString() . ", " . $this->getPath()->asString() . ")";
 }
 
 return 1;

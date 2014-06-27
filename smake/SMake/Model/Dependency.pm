@@ -23,6 +23,7 @@ use SMake::Model::Object;
 @ISA = qw(SMake::Model::Object);
 
 use SMake::Utils::Abstract;
+use SMake::Utils::Print;
 
 # Create new dependency object
 #
@@ -32,6 +33,18 @@ sub new {
   my $this = bless(SMake::Model::Object->new(), $class);
   
   return $this;
+}
+
+# Create key tuple
+#
+# Usage: createKey($type, $project, $artifact, $main)
+#    type ...... type of the dependency
+#    project ... name of the project
+#    artifact .. name of the artifact
+#    main ...... type of the main resource
+sub createKeyTuple {
+  my ($type, $project, $artifact, $main) = @_;
+  return [$type, $project, $artifact, $main];
 }
 
 # Create a string which can be used as a hash key (static)
@@ -44,6 +57,16 @@ sub new {
 sub createKey {
   my ($type, $project, $artifact, $main) = @_;
   return "$type/$project/$artifact" . (($main)?"/$main":"");
+}
+
+# Get a string which can be used as a hash key
+sub getKeyTuple {
+  my ($this) = @_;
+  return createKeyTuple(
+      $this->getDependencyType(),
+      $this->getDependencyProject(),
+      $this->getDependencyArtifact(),
+      $this->getDependencyMainResource()); 
 }
 
 # Get a string which can be used as a hash key
@@ -123,6 +146,31 @@ sub getObjects {
   }
 
   return ($project, $artifact, $resource);
+}
+
+# Print content of the object
+#
+# Usage: prettyPrint($indent)
+sub prettyPrint {
+  my ($this, $indent) = @_;
+  
+  print ::HANDLE "Dependency {\n";
+
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "type: " . $this->getDependencyType() . "\n";
+
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "project: " . $this->getDependencyProject() . "\n";
+
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "artifact: " . $this->getDependencyArtifact() . "\n";
+
+  SMake::Utils::Print::printIndent($indent + 1);
+  my $maintype = $this->getDependencyMainResource();
+  print ::HANDLE "maintype: " . (defined($maintype)?$maintype:"default") . "\n";
+  
+  SMake::Utils::Print::printIndent($indent);
+  print ::HANDLE "}";
 }
 
 return 1;

@@ -23,6 +23,7 @@ use SMake::Model::Stage;
 @ISA = qw(SMake::Model::Stage);
 
 use SMake::Executor::Executor;
+use SMake::Model::Task;
 use SMake::Storage::File::Task;
 use SMake::Utils::Utils;
 
@@ -90,18 +91,29 @@ sub getTask {
   return $this->{tasks}->{$name};
 }
 
-sub getTaskNames {
+sub getTaskKeys {
   my ($this) = @_;
-  return [keys(%{$this->{tasks}})];
+  return [map {$_->getKeyTuple()} values %{$this->{tasks}}];
 }
 
 sub deleteTasks {
   my ($this, $list) = @_;
   
   foreach my $task (@$list) {
-    $this->{tasks}->{$task}->destroy();
+    my $key = SMake::Model::Task::createKey(@$task);
+    $this->{tasks}->{$key}->destroy();
+    delete $this->{tasks}->{$key};
   }
-  delete $this->{tasks}->{@$list};
+}
+
+sub getTaskNames {
+  my ($this) = @_;
+  return [map {$_->getName()} (values %{$this->{tasks}})];
+}
+
+sub getTasks {
+  my ($this) = @_;
+  return [values %{$this->{tasks}}];  
 }
 
 sub getDependencies {

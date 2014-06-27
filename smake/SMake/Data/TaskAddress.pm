@@ -32,7 +32,7 @@ sub new {
 # Get a string which can be used as a key
 sub getKey {
   my ($this) = @_;
-  return $this->{stageaddress}->getKey() . "." . $this->{taskid};
+  return $this->{stageaddress}->getKey() . "/" . $this->{taskid};
 }
 
 # Get stage address
@@ -92,7 +92,7 @@ sub getObjects {
     SMake::Utils::Utils::dieReport(
         $context->getReporter(),
         $subsystem,
-        "there is something wrong, the task %s.%s is not known!",
+        "there is something wrong, the task %s/%s is not known!",
         $this->{stageaddress}->printableString(),
         $this->{taskid});
   }

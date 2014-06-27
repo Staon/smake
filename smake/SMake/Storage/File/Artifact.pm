@@ -23,6 +23,7 @@ use SMake::Model::Artifact;
 @ISA = qw(SMake::Model::Artifact);
 
 use SMake::Model::Dependency;
+use SMake::Model::Stage;
 use SMake::Storage::File::Dependency;
 use SMake::Storage::File::Resource;
 use SMake::Storage::File::Stage;
@@ -138,22 +139,28 @@ sub createResource {
 }
 
 sub getResource {
-  my ($this, $path) = @_;
-  return $this->{resources}->{$path->hashKey()};
+  my ($this, $type, $name) = @_;
+  return $this->{resources}->{SMake::Model::Resource::createKey($type, $name)};
 }
 
-sub getResourceNames {
+sub getResourceKeys {
   my ($this) = @_;
-  return [keys(%{$this->{resources}})];  
+  return [map { [$_->getType(), $_->getName()] } values(%{$this->{resources}})];
 }
 
 sub deleteResources {
   my ($this, $list) = @_;
   
-  foreach my $resource (@$list) {
-    $this->{resources}->{$resource->hashKey()}->destroy();
+  foreach my $tuple (@$list) {
+    my $key = SMake::Model::Resource::createKey(@$tuple);
+    $this->{resources}->{$key}->destroy();
+    delete $this->{resources}->{$key};
   }
-  delete $this->{resources}->{map { $_->hashKey() } @$list};
+}
+
+sub getResources {
+  my ($this) = @_;
+  return [values %{$this->{resources}}];
 }
 
 sub setMainResources {
@@ -178,27 +185,33 @@ sub createStage {
   
   $stage = SMake::Storage::File::Stage->new(
       $this->{repository}, $this->{storage}, $this, $name);
-  $this->{stages}->{$name} = $stage;
+  $this->{stages}->{$stage->getKey()} = $stage;
   return $stage;
 }
 
 sub getStage {
   my ($this, $name) = @_;
-  return $this->{stages}->{$name};
+  return $this->{stages}->{SMake::Model::Stage::createKey($name)};
 }
 
-sub getStageNames {
+sub getStageKeys {
   my ($this) = @_;
-  return keys %{$this->{stages}};
+  return [map {$_->getKeyTuple()} (values %{$this->{stages}})];
 }
 
 sub deleteStages {
   my ($this, $list) = @_;
   
   foreach my $stage (@$list) {
-    $this->{stages}->{$stage}->destroy();
+    my $key = SMake::Model::Stage::createKey(@$stage);
+    $this->{stages}->{$key}->destroy();
+    delete $this->{stages}->{$key};
   }
-  delete $this->{stages}->{@$list};
+}
+
+sub getStages {
+  my ($this) = @_;
+  return [values %{$this->{stages}}];
 }
 
 sub createDependency {
@@ -222,18 +235,19 @@ sub getDependency {
       SMake::Model::Dependency::createKey($deptype, $depprj, $departifact, $maintype)};
 }
 
-sub getDepKeys {
+sub getDependencyKeys {
   my ($this) = @_;
-  return [keys %{$this->{dependencies}}];
+  return [map {$_->getKeyTuple()} values %{$this->{dependencies}}];
 }
 
 sub deleteDependencies {
   my ($this, $list) = @_;
   
   foreach my $dep (@$list) {
-    $this->{dependencies}->{$dep}->destroy();
+    my $key = SMake::Model::Dependency::createKey(@$dep);
+    $this->{dependencies}->{$key}->destroy();
+    delete $this->{dependencies}->{$key};
   }
-  delete $this->{dependencies}->{@$list};
 }
 
 sub getDependencyRecords {

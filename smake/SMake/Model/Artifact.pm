@@ -23,10 +23,8 @@ use SMake::Model::Object;
 
 @ISA = qw(SMake::Model::Object);
 
-use SMake::Data::Path;
-use SMake::Model::Const;
 use SMake::Utils::Abstract;
-use SMake::Utils::Utils;
+use SMake::Utils::Print;
 
 # Create new artifact
 #
@@ -44,6 +42,30 @@ sub new {
 #    args ..... artifact's arguments
 sub update {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Create key tuple (static)
+#
+# Usage: createKeyTuple($name)
+sub createKeyTuple {
+  return [$_[0]];
+}
+
+# Create a string key of the artifact (static)
+#
+# Usage: createKey($name)
+sub createKey {
+  return $_[0];
+}
+
+sub getKeyTuple {
+  my ($this) = @_;
+  return createKeyTuple($this->getName());
+}
+
+sub getKey {
+  my ($this) = @_;
+  return createKey($this->getName());
 }
 
 # Get name of the artifact
@@ -84,7 +106,7 @@ sub createResource {
 
 # Get resource
 #
-# Usage: getResource($path)
+# Usage: getResource($type, $path)
 # Returns: undef or the resource
 sub getResource {
   SMake::Utils::Abstract::dieAbstract();
@@ -92,17 +114,25 @@ sub getResource {
 
 # Get list of strings which represent artifact's resources
 #
-# Usage: getResourceNames()
-# Returns: \@list
-sub getResourceNames {
+# Usage: getResourceKeys()
+# Returns: \@list of tuples [$type, $name]
+sub getResourceKeys {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Delete specified resources
 #
 # Usage: deleteResources(\@list)
-#    list .... list of resource names (relative paths)
+#    list .... list of tuples ($type, $name)
 sub deleteResources {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of resource objects
+#
+# Usage: getResources()
+# Returns: \@list
+sub getResources {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -149,17 +179,22 @@ sub getStage {
 
 # Get list of stage names
 #
-# Usage: getStageNames()
-# Returns: \@list
-sub getStageNames {
+# Usage: getStageKeys()
+# Returns: \@list of key tuples
+sub getStageKeys {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Delete list of stages
 #
 # Usage: deleteStages(\@list)
-#    list ..... list of stage names
+#    list ..... list of key tuples
 sub deleteStages {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of stage objects
+sub getStages {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -188,15 +223,15 @@ sub getDependency {
 # Get list of keys of dependency objects
 #
 # Usage: getDepKeys()
-# Returns: \@list
-sub getDepKeys {
+# Returns: \@list list of key tuples
+sub getDependencyKeys {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Delete list of dependencies
 #
 # Usage: deleteDependencies(\@list)
-#    list ...... list of key strings
+#    list ...... list of key tuples
 sub deleteDependencies {
   SMake::Utils::Abstract::dieAbstract();
 }
@@ -207,6 +242,65 @@ sub deleteDependencies {
 # Returns: \@list
 sub getDependencyRecords {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Print content of the object
+#
+# Usage: prettyPrint($indent)
+sub prettyPrint {
+  my ($this, $indent) = @_;
+  
+  print ::HANDLE "Artifact(" . $this->getName() . ") {\n";
+  
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "type: " . $this->getType() . "\n";
+
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "path: " . $this->getPath()->asString() . "\n";
+  
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "arguments: ";
+  SMake::Utils::Print::printArguments($this->getArguments());
+  print ::HANDLE "\n";
+  
+  # -- resources
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "resources: {\n";
+  my $resources = $this->getResources();
+  foreach my $res (@$resources) {
+    SMake::Utils::Print::printIndent($indent + 2);
+    $res->prettyPrint($indent + 1);
+    print ::HANDLE "\n";
+  }
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "}\n";
+  
+  # -- stages
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "stages: {\n";
+  my $stages = $this->getStages();
+  foreach my $stage (@$stages) {
+    SMake::Utils::Print::printIndent($indent + 2);
+    $stage->prettyPrint($indent + 2);
+    print ::HANDLE "\n";
+  }
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "}\n";
+  
+  # -- dependencies
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "dependencies: {\n";
+  my $deps = $this->getDependencyRecords();
+  foreach my $dep (@$deps) {
+    SMake::Utils::Print::printIndent($indent + 2);
+    $dep->prettyPrint($indent + 2);
+    print ::HANDLE "\n";
+  }
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "}\n";
+
+  SMake::Utils::Print::printIndent($indent);
+  print ::HANDLE "}";
 }
 
 return 1;

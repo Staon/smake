@@ -23,6 +23,7 @@ use SMake::Model::Object;
 @ISA = qw(SMake::Model::Object);
 
 use SMake::Utils::Abstract;
+use SMake::Utils::Print;
 
 # Create new task object
 #
@@ -30,6 +31,30 @@ use SMake::Utils::Abstract;
 sub new {
   my ($class) = @_;
   return bless(SMake::Model::Object->new(), $class);
+}
+
+# Create key tuple (static)
+#
+# Usage: createKeyTuple($name)
+sub createKeyTuple {
+  return [$_[0]];
+}
+
+# Create string key
+#
+# Usage: createKeyTuple($name)
+sub createKey {
+  return $_[0];
+}
+
+sub getKeyTuple {
+  my ($this) = @_;
+  return createKeyTuple($this->getName());
+}
+
+sub getKey {
+  my ($this) = @_;
+  return createKey($this->getName());
 }
 
 # Get name of the task
@@ -65,12 +90,12 @@ sub getWDPath {
 # Set (overwrite) the list of target resources
 #
 # Usage: setTargets(\@list)
-#    list .... list of resources
+#    list .... list of resource objects
 sub setTargets {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get list target resources
+# Get list of target resources
 #
 # Usage: getTargets()
 # Returns: \@list
@@ -80,16 +105,16 @@ sub getTargets {
 
 # Get list of names of source resources
 #
-# Usage: getSourceNames()
-# Returns: \@list
-sub getSourceNames {
+# Usage: getSourceKeys()
+# Returns: \@list of tuples [$type (resource type), $name (resource name)]
+sub getSourceKeys {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Delete list of source resources
 #
 # Usage: deleteSources(\@list)
-#    list .... list of resource names (strings)
+#    list .... list of tuples [$type, $name]
 sub deleteSources {
   SMake::Utils::Abstract::dieAbstract();
 }
@@ -112,7 +137,8 @@ sub createSourceTimestamp {
 
 # Get source timestamp object
 #
-# Usage: getSourceTimestamp($name)
+# Usage: getSourceTimestamp($type, $name)
+#    type .... resource type
 #    name .... name (relative path) of the timestamp's resource
 sub getSourceTimestamp {
   SMake::Utils::Abstract::dieAbstract();
@@ -126,10 +152,11 @@ sub getSourceTimestamps {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Append an external dependency
+# Set map of dependency objects
 #
-# Usage: appendDependency($dep)
-sub appendDependency {
+# Usage: setDependencyMap(\%map)
+#    map ..... map of (key => dep_object)
+sub setDependencyMap {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -153,6 +180,78 @@ sub printableKey {
 # Returns: \@list of task ids
 sub getDependentTasks {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Set force running mode
+#
+# Usage: setForceRun($flag)
+sub setForceRun {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Does the task forced to be run?
+#
+# Usage: isForceRun()
+# Returns: true if the task must be always run even though no resources have changed.
+sub isForceRun {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Print content of the object
+#
+# Usage: prettyPrint($indent)
+sub prettyPrint {
+  my ($this, $indent) = @_;
+  
+  print ::HANDLE "Task(" . $this->getName() . ") {\n";
+  
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "type: " . $this->getType() . "\n";
+
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "wd: " . $this->getWDPath()->asString() . "\n";
+
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "force_run: " . $this->isForceRun() . "\n";
+  
+  # -- target resources
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "targets: {\n";
+  my $targets = $this->getTargets();
+  foreach my $target (@$targets) {
+    SMake::Utils::Print::printIndent($indent + 2);
+    $target->prettyPrint($indent + 2);
+    print ::HANDLE "\n";
+  }
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "}\n";
+  
+  # -- source timestamps
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "sources: {\n";
+  my $sources = $this->getSourceTimestamps();
+  foreach my $source (@$sources) {
+    SMake::Utils::Print::printIndent($indent + 2);
+    $source->prettyPrint($indent + 2);
+    print ::HANDLE "\n";
+  }
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "}\n";
+  
+  # -- dependencies
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "dependencies: {\n";
+  my $deps = $this->getDependencies();
+  foreach my $dep (@$deps) {
+    SMake::Utils::Print::printIndent($indent + 2);
+    $dep->prettyPrint($indent + 2);
+    print ::HANDLE "\n";
+  }
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "}\n";
+  
+  SMake::Utils::Print::printIndent($indent);
+  print ::HANDLE "}";
 }
 
 return 1;

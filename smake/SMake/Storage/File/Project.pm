@@ -80,27 +80,32 @@ sub createArtifact {
   
   my $artifact = SMake::Storage::File::Artifact->new(
       $this->getRepository(), $this->{storage}, $this, $path, $name, $type, $args);
-  $this->{artifacts}->{$name} = $artifact;
+  $this->{artifacts}->{$artifact->getKey()} = $artifact;
   return $artifact;
 }
 
 sub getArtifact {
   my ($this, $name) = @_;
-  return $this->{artifacts}->{$name};
+  return $this->{artifacts}->{SMake::Model::Artifact::createKey($name)};
 }
 
-sub getArtifactNames {
+sub getArtifactKeys {
   my ($this) = @_;
-  return [keys %{$this->{artifacts}}];
+  return [map {[$_->getName()]} values %{$this->{artifacts}}];
 }
 
 sub deleteArtifacts {
   my ($this, $list) = @_;
   
   foreach my $artifact (@$list) {
-    $this->{artifacts}->destroy();
+    $this->{artifacts}->{SMake::Model::Artifact::createKey(@$artifact)}->destroy();
   }
-  delete $this->{artifacts}->{@$list};
+  delete $this->{artifacts}->{map {SMake::Model::Artifact::createKey(@$_)} @$list};
+}
+
+sub getArtifacts {
+  my ($this) = @_;
+  return [values %{$this->{artifacts}}];
 }
 
 sub searchResource {

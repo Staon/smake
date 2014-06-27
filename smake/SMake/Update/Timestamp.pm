@@ -27,8 +27,9 @@ package SMake::Update::Timestamp;
 sub new {
   my ($class, $context, $task, $resource) = @_;
   my $this = bless({}, $class);
-  
-  my $ts = $task->getObject()->getSourceTimestamp($resource->getName());
+
+  my $ts = $task->getObject()->getSourceTimestamp(
+      $resource->getType(), $resource->getName());
   if(!defined($ts)) {
     $ts = $task->getObject()->createSourceTimestamp($resource->getObject());
   }
@@ -50,21 +51,37 @@ sub update {
   $this->{timestamp} = undef;
 }
 
-sub getName {
+# Get string key
+sub getKeyTuple {
   my ($this) = @_;
-  return $this->{resource}->getName();
+  return $this->{resource}->getKeyTuple();
 }
 
+# Get string key
 sub getKey {
   my ($this) = @_;
   return $this->{resource}->getKey();
 }
 
+# Get resource type
+sub getType {
+  my ($this) = @_;
+  return $this->{resource}->getType();
+}
+
+# Get resource name
+sub getName {
+  my ($this) = @_;
+  return $this->{resource}->getName();
+}
+
+# Get timestamp mark of the resource
 sub getMark {
   my ($this) = @_;
   return $this->{timestamp}->getMark();
 }
 
+# Get the resource
 sub getResource {
   my ($this) = @_;
   return $this->{resource};

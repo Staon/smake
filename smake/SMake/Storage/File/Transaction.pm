@@ -18,6 +18,7 @@
 # State of project storage transaction
 package SMake::Storage::File::Transaction;
 
+use SMake::Model::Project;
 use SMake::Storage::File::Project;
 use SMake::Storage::File::TransTable;
 
@@ -46,11 +47,11 @@ sub createProject {
   
   my $prj = SMake::Storage::File::Project->new(
       $repository, $this->{storage}, $name, $path);
-  my $item = $this->{projects}->get($name, $repository);
+  my $item = $this->{projects}->get($prj->getKey(), $repository);
   if(defined($item)) {
     die "project '" . $name . "' already exists!";
   }
-  $this->{projects}->insert($name, $prj);
+  $this->{projects}->insert($prj->getKey(), $prj);
   
   return $prj;
 }
@@ -60,7 +61,8 @@ sub createProject {
 # Usage: getProject($repository, $name)
 sub getProject {
   my ($this, $repository, $name) = @_;
-  return $this->{projects}->get($name, $repository);
+  return $this->{projects}->get(
+      SMake::Model::Project::createKey($name), $repository);
 }
 
 # Commit the transaction

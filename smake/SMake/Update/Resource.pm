@@ -30,7 +30,7 @@ sub new {
   my ($class, $context, $artifact, $name, $type, $task) = @_;
   my $this = bless({}, $class);
   
-  my $resource = $artifact->getObject()->getResource($name);
+  my $resource = $artifact->getObject()->getResource($type, $name);
   if(defined($resource)) {
     $resource->update($type, $task->getObject());
   }
@@ -62,16 +62,22 @@ sub getObject {
   return $this->{resource};
 }
 
+# Get string key
+sub getKeyTuple {
+  my ($this) = @_;
+  return $this->{resource}->getKeyTuple();
+}
+
+# Get string key
+sub getKey {
+  my ($this) = @_;
+  return $this->{resource}->getKey();
+}
+
 # Get resource name (a path object)
 sub getName {
   my ($this) = @_;
   return $this->{resource}->getName();
-}
-
-# Get a string which is usable as a hash key
-sub getKey {
-  my ($this) = @_;
-  return $this->{resource}->getKey();
 }
 
 # Get type of the resource

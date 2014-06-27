@@ -18,6 +18,8 @@
 # Updateable stage object
 package SMake::Update::Stage;
 
+use SMake::Model::Task;
+use SMake::Update::Table;
 use SMake::Update::Task;
 
 # Create new stage object
@@ -32,11 +34,14 @@ sub new {
   
   my $stage = $artifact->getObject()->getStage($name);
   if(defined($stage)) {
-  	$this->{tasks} = {map {$_ => 0} @{$stage->getTaskNames()}};
+    $this->{tasks} = SMake::Update::Table->new(
+        \&SMake::Model::Task::createKey,
+        $stage->getTaskKeys());
   }
   else {
     $stage = $artifact->getObject()->createStage($name);
-    $this->{tasks} = {};
+    $this->{tasks} = SMake::Update::Table->new(
+        \&SMake::Model::Task::createKey, []);
   }
   $this->{artifact} = $artifact;
   $this->{stage} = $stage;
@@ -51,16 +56,7 @@ sub update {
   my ($this, $context) = @_;
   
   # -- update tasks
-  my $to_delete = [];
-  foreach my $task (keys %{$this->{tasks}}) {
-    my $object = $this->{tasks}->{$task};
-    if($object) {
-      $object->update($context);
-    }
-    else {
-      push @$to_delete, $task;
-    }
-  }
+  my ($to_delete, undef) = $this->{tasks}->update($context);
   $this->{stage}->deleteTasks($to_delete);
   
   $this->{tasks} = undef;
@@ -72,6 +68,18 @@ sub update {
 sub getObject {
   my ($this) = @_;
   return $this->{stage};
+}
+
+# Get string key
+sub getKeyTuple {
+  my ($this) = @_;
+  return $this->{stage}->getKeyTuple();
+}
+
+# Get string key
+sub getKey {
+  my ($this) = @_;
+  return $this->{stage}->getKey();
 }
 
 # Get name of the stage
@@ -105,7 +113,7 @@ sub createTask {
 
   my $taskobj = SMake::Update::Task->new(
       $context, $this, $name, $task, $wd, $args);
-  $this->{tasks}->{$name} = $taskobj;
+  $this->{tasks}->addItem($taskobj);
   
   return $taskobj;
 }

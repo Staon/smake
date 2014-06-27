@@ -18,6 +18,9 @@
 # Updateable task object
 package SMake::Update::Task;
 
+use SMake::Model::Resource;
+use SMake::Model::Timestamp;
+use SMake::Update::Table;
 use SMake::Update::Timestamp;
 
 # Create new task
@@ -35,13 +38,17 @@ sub new {
   
   my $task = $stage->getObject()->getTask($name);
   if(defined($task)) {
-    $this->{sources} = {map {$_->hashKey() => 0} @{$task->getSourceNames()}};
+    $this->{sources} = SMake::Update::Table->new(
+        \&SMake::Model::Timestamp::createKey,
+        $task->getSourceKeys());
   }
   else {
     $task = $stage->getObject()->createTask($name, $type, $wd, $args);
-    $this->{sources} = {};
+    $this->{sources} = SMake::Update::Table->new(
+        \&SMake::Model::Timestamp::createKey, []);
   }
   $this->{targets} = {};
+  $this->{dependencies} = {};
   $this->{stage} = $stage;
   $this->{task} = $task;
   
@@ -58,20 +65,18 @@ sub update {
   $this->{task}->setTargets([
       map {$_->getObject()} values %{$this->{targets}}]);
   
-  # -- update source resources
-  my $ts_delete = [];
-  foreach my $ts (values %{$this->{sources}}) {
-    if($ts) {
-      $ts->update($context);
-    }
-    else {
-      push @$ts_delete, $ts->getName();
-    }
-  }
+  # -- update source resources:
+  my ($ts_delete, $ts_changed) = $this->{sources}->update($context);
+  $this->{task}->setForceRun($ts_changed);
   $this->{task}->deleteSources($ts_delete);
+  
+  # -- update dependency map
+  $this->{task}->setDependencyMap(
+    {map {$_ => $this->{dependencies}->{$_}->getObject()} keys(%{$this->{dependencies}})});
   
   $this->{sources} = undef;
   $this->{targets} = undef;
+  $this->{dependencies} = undef;
   $this->{stage} = undef;
   $this->{task} = undef;
 }
@@ -80,6 +85,18 @@ sub update {
 sub getObject {
   my ($this) = @_;
   return $this->{task};
+}
+
+# Get key tuple
+sub getKeyTuple {
+  my ($this) = @_;
+  return $this->{task}->getKeyTuple();
+}
+
+# Get string key
+sub getKey {
+  my ($this) = @_;
+  return $this->{task}->getKey();
 }
 
 # Get name of the task
@@ -124,9 +141,9 @@ sub getWDPath {
 #    resource .... the resource object
 sub appendSource {
   my ($this, $context, $resource) = @_;
-  
+
   my $ts = SMake::Update::Timestamp->new($context, $this, $resource);
-  $this->{sources}->{$resource->getKey()} = $ts;
+  $this->{sources}->addItem($ts);
 }
 
 # Append a target resource
@@ -137,6 +154,15 @@ sub appendSource {
 sub appendTarget {
   my ($this, $context, $resource) = @_;
   $this->{targets}->{$resource->getKey()} = $resource;
+}
+
+# Append an external dependency
+#
+# Usage: appendDependency($dep)
+#    dep ..... the dependency object
+sub appendDependency {
+  my ($this, $dep) = @_;
+  $this->{dependencies}->{$dep->getKey()} = $dep;
 }
 
 return 1;

@@ -87,15 +87,15 @@ sub appendTaskExecutor {
   
   my $tasks = $this->{toporder}->getLeaves();
   foreach my $task (@$tasks) {
-    my $executor = SMake::Executor::Task->new(
-        $context, SMake::Data::TaskAddress->new($this->{address}, $task));
+  	my $taskaddr = SMake::Data::TaskAddress->new($this->{address}, $task);
+    my $executor = SMake::Executor::Task->new($context, $taskaddr);
     push @{$this->{tasklist}}, $executor;
     $context->getReporter()->reportf(
         2,
         "info",
         $SMake::Executor::Executor::SUBSYSTEM,
-        "enter task %s.%s",
-        $this->{address}->printableString(),
+        "enter task %s",
+        $taskaddr->printableString(),
         $task);
   }
 }
@@ -116,13 +116,14 @@ sub execute {
       }
       else {
         $this->{toporder}->finishObject($task->getTaskID());
+        my $taskaddr = SMake::Data::TaskAddress->new(
+            $this->{address}, $task->getTaskID());
         $context->getReporter()->reportf(
             3,
             "info",
             $SMake::Executor::Executor::SUBSYSTEM,
-            "leave task %s.%s",
-            $this->{address}->printableString(),
-            $task->getTaskID());
+            "leave task %s",
+            $taskaddr->printableString());
       }
     }
     $this->{tasklist} = $newlist;

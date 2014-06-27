@@ -20,9 +20,13 @@ package SMake::Update::Artifact;
 
 use SMake::Data::Path;
 use SMake::Model::Const;
+use SMake::Model::Dependency;
+use SMake::Model::Resource;
+use SMake::Model::Stage;
 use SMake::Update::Dependency;
 use SMake::Update::Resource;
 use SMake::Update::Stage;
+use SMake::Update::Table;
 
 # Create new object
 #
@@ -40,15 +44,26 @@ sub new {
   my $artifact = $project->getObject()->getArtifact($name);
   if(defined($artifact)) {
     $artifact->update($path, $type, $args);
-    $this->{stages} = {map {$_ => 0} @{$artifact->getStageNames()}};
-    $this->{resources} = {map {$_ => 0} @{$artifact->getResourceNames()}};
-    $this->{dependencies} = {map {$_ => 0} @{$artifact->getDepKeys()}};
+    
+    $this->{resources} = SMake::Update::Table->new(
+        \&SMake::Model::Resource::createKey,
+        $artifact->getResourceKeys());
+    $this->{stages} = SMake::Update::Table->new(
+        \&SMake::Model::Stage::createKey,
+        $artifact->getStageKeys());
+    $this->{dependencies} = SMake::Update::Table->new(
+        \&SMake::Model::Dependency::createKey,
+        $artifact->getDependencyKeys());
   }
   else {
     $artifact = $project->getObject()->createArtifact($path, $name, $type, $args);
-    $this->{stages} = {};
-    $this->{resources} = {};
-    $this->{dependencies} = {};
+
+    $this->{resources} = SMake::Update::Table->new(
+        \&SMake::Model::Resource::createKey, []);
+    $this->{stages} = SMake::Update::Table->new(
+        \&SMake::Model::Stage::createKey, []);
+    $this->{dependencies} = SMake::Update::Table->new(
+        \&SMake::Model::Dependency::createKey, []);
   }
   $this->{main_resources} = {};
   $this->{main} = undef;
@@ -61,49 +76,22 @@ sub new {
 sub update {
   my ($this, $context) = @_;
 
-  # -- update stages
-  my $stage_delete = [];
-  foreach my $stage (keys %{$this->{stages}}) {
-    my $object = $this->{stages}->{$stage};
-    if($object) {
-      $object->update($context);
-    }
-    else {
-      push @$stage_delete, $stage;
-    }
-  }
+  # -- update stages (must be before update of the resources)
+  my ($stage_delete, undef) = $this->{stages}->update($context);
   $this->{artifact}->deleteStages($stage_delete);
 
-  # -- update main resources
+  # -- update main resources (must be before update of the resources)
   $this->{artifact}->setMainResources(
       $this->{main}->getObject(),
       {map {$_ => $this->{main_resources}->{$_}->getObject()}
           keys(%{$this->{main_resources}})});
   
   # -- update resources
-  my $res_delete = [];
-  foreach my $resource (keys %{$this->{resources}}) {
-    my $object = $this->{resources}->{$resource};
-    if($object) {
-      $object->update($context);
-    }
-    else {
-      push @$res_delete, $resource;
-    }
-  }
+  my ($res_delete, undef) = $this->{resources}->update($context);
   $this->{artifact}->deleteResources($res_delete);
   
   # -- update dependencies
-  my $dep_delete = [];
-  foreach my $dep (keys %{$this->{dependencies}}) {
-    my $object = $this->{dependencies}->{$dep};
-    if($object) {
-      $object->update($context);
-    }
-    else {
-      push @$dep_delete, $dep;
-    }
-  }
+  my ($dep_delete, undef) = $this->{dependencies}->update($context);
   $this->{artifact}->deleteDependencies($dep_delete);
   
   $this->{stages} = undef;
@@ -118,6 +106,18 @@ sub update {
 sub getObject {
   my ($this) = @_;
   return $this->{artifact};
+}
+
+# Get key tuple
+sub getKeyTuple {
+  my ($this) = @_;
+  return $this->{artifact}->getKeyTuple();
+}
+
+# Get string key
+sub getKey {
+  my ($this) = @_;
+  return $this->{artifact}->getKey();
 }
 
 # Get name of the artifact
@@ -159,23 +159,27 @@ sub getProject {
 #    task ...... a task which generates this resource
 sub createResource {
   my ($this, $context, $name, $type, $task) = @_;
-  
+
+  print "create new resource: " . $name->asString() . "\n";
+
   my $resource = SMake::Update::Resource->new(
       $context, $this, $name, $type, $task);
-  $this->{resources}->{$name->hashKey()} = $resource;
+  $this->{resources}->addItem($resource);
   $task->appendTarget($context, $resource);
   return $resource;
 }
 
 # Get resource object
 #
-# Usage: getResource($name)
+# Usage: getResource($type, $name)
+#    type .... type of the resource
 #    name .... name of the resource (relative path)
 # Returns: the resource or undef
 sub getResource {
-  my ($this, $name) = @_;
+  my ($this, $type, $name) = @_;
 
-  my $resource = $this->{resources}->{$name->hashKey()};
+  my $resource = $this->{resources}->getItemByKey(
+      SMake::Model::Resource::createKey($type, $name));
   return ($resource)?$resource:undef;
 }
 
@@ -185,7 +189,7 @@ sub getResource {
 # Returns: \@list
 sub getResources {
   my ($this, $context) = @_;
-  return [grep {$_} values(%{$this->{resources}})];
+  return $this->{resources}->getItems();
 }
 
 # Append main resource
@@ -198,7 +202,7 @@ sub appendMainResource {
   my ($this, $context, $type, $resource) = @_;
   
   # -- check existence of the resource
-  my $r = $this->{resources}->{$resource->getKey()};
+  my $r = $this->{resources}->getItemByKey($resource->getKey());
   if(!defined($r) || ($r != $resource)) {
     die "the main resource must be part of the artifact";
   }
@@ -234,10 +238,10 @@ sub getDefaultMainResource {
 sub createStage {
   my ($this, $context, $name) = @_;
 
-  my $stage = $this->{stages}->{$name};
+  my $stage = $this->{stages}->getItemByKey(SMake::Model::Stage::createKey($name));
   if(!$stage) {
     $stage = SMake::Update::Stage->new($context, $this, $name);
-    $this->{stages}->{$name} = $stage;
+    $this->{stages}->addItem($stage);
   }
   return $stage;
 }
@@ -255,7 +259,7 @@ sub createDependency {
   
   my $dep = SMake::Update::Dependency->new(
       $context, $this, $deptype, $depprj, $departifact, $maintype);
-  $this->{dependencies}->{$dep->getKey()} = $dep;
+  $this->{dependencies}->addItem($dep);
   return $dep;
 }
 
@@ -264,7 +268,8 @@ sub createDependency {
 # Usage: getDependencyRecords()
 # Returns: \@list
 sub getDependencyRecords {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this) = @_;
+  return $this->{dependencies}->getItems();
 }
 
 # A helper method - create a task in a stage
@@ -311,8 +316,8 @@ sub appendSourceResources {
     my $respath = $prefix->joinPaths($name);
     my $task = $this->createTaskInStage(
         $context,
-        $respath->asString(),
         $SMake::Model::Const::SOURCE_STAGE,
+        $respath->asString(),
         $SMake::Model::Const::SOURCE_TASK,
         $this->getPath(),
         undef);

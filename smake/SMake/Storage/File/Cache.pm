@@ -60,7 +60,7 @@ sub insertProject {
   # -- insert new project
   $this->{data}->[$index] = $project;
   $this->{refs}->[$index] = 1;
-  $this->{projects}->{$project->getName()} = $index;
+  $this->{projects}->{$project->getKey()} = $index;
 }
 
 # Remove a project

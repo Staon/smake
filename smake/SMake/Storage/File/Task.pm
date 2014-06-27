@@ -23,6 +23,7 @@ use SMake::Model::Task;
 @ISA = qw(SMake::Model::Task);
 
 use SMake::Data::Path;
+use SMake::Model::Timestamp;
 use SMake::Storage::File::Timestamp;
 
 # Create new task object
@@ -40,7 +41,8 @@ sub new {
   $this->{args} = defined($args)?$args:{};
   $this->{targets} = {};
   $this->{sources} = {};
-  $this->{dependencies} = [];
+  $this->{dependencies} = {};
+  $this->{force_run} = 0;
    
   return $this;
 }
@@ -101,26 +103,19 @@ sub getTargets {
   return [values(%{$this->{targets}})];
 }
 
-# Get list of names of source resources
-#
-# Usage: getSourceNames()
-# Returns: \@list
-sub getSourceNames {
+sub getSourceKeys {
   my ($this) = @_;
-  return [map {$_->getName()} values(%{$this->{sources}})];
+  return [map {[$_->getType(), $_->getName()]} values(%{$this->{sources}})];
 }
 
-# Delete list of source resources
-#
-# Usage: deleteSources(\@list)
-#    list .... list of resource names (relative paths)
 sub deleteSources {
   my ($this, $list) = @_;
   
   foreach my $src (@$list) {
-    $this->{sources}->{$src->hashKey()}->destroy();
+  	my $key = SMake::Model::Timestamp::createKey(@$src);
+    $this->{sources}->{$key}->destroy();
+    delete $this->{sources}->{$key};
   }
-  delete $this->{sources}->{map {$_->hashKey()} @$list};
 }
 
 sub getSources {
@@ -137,8 +132,8 @@ sub createSourceTimestamp {
 }
 
 sub getSourceTimestamp {
-  my ($this, $name) = @_;
-  return $this->{sources}->{$name->hashKey()};
+  my ($this, $type, $name) = @_;
+  return $this->{sources}->{SMake::Model::Timestamp::createKey($type, $name)};
 }
 
 sub getSourceTimestamps {
@@ -146,14 +141,14 @@ sub getSourceTimestamps {
   return [values(%{$this->{sources}})];
 }
 
-sub appendDependency {
-  my ($this, $dependency) = @_;
-  push @{$this->{dependencies}}, $dependency;
+sub setDependencyMap {
+  my ($this, $map) = @_;
+  $this->{dependencies} = $map;
 }
 
 sub getDependencies {
   my ($this) = @_;
-  return [@{$this->{dependencies}}];
+  return [values %{$this->{dependencies}}];
 }
 
 sub getDependentTasks {
@@ -169,6 +164,16 @@ sub getDependentTasks {
     }
   }
   return $list;
+}
+
+sub setForceRun {
+  my ($this, $flag) = @_;
+  $this->{force_run} = $flag;
+}
+
+sub isForceRun {
+  my ($this) = @_;
+  return $this->{force_run};
 }
 
 return 1;

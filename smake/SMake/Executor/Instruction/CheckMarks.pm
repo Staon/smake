@@ -42,6 +42,10 @@ sub execute {
       $SMake::Executor::Executor::SUBSYSTEM,
       $context->getRepository());
   
+  # -- force execution of the task
+  return $SMake::Executor::Instruction::Instruction::NEXT if($task->isForceRun());
+
+  # -- check timestamps of resources
   my $sources = $task->getSourceTimestamps();
   foreach my $source (@$sources) {
   	# -- no stored mark => compile

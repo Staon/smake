@@ -70,8 +70,16 @@ sub endProject {
   
   # -- update data of the ending project and remove it from the stack
   my $project = $context->getProject();
+  my $prj = $project->getObject();
   $context->popProject();
   $project->update($context);
+  
+  {
+    local *::HANDLE;
+    open(::HANDLE, ">&STDOUT");
+    $prj->prettyPrint(0);
+    close(HANDLE);
+  }
   
   # -- switch parser's state
   $parser->switchState($this->{root});
