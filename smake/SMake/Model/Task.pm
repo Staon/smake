@@ -87,11 +87,18 @@ sub getWDPath {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Set (overwrite) the list of target resources
+# Get list of key tuples of target timestamps
 #
-# Usage: setTargets(\@list)
-#    list .... list of resource objects
-sub setTargets {
+# Usage: getTargetKeys()
+# Returns: \@list
+sub getTargetKeys {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Delete target sources
+#
+# Usage: deleteTargets(\@list)
+sub deleteTargets {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -100,6 +107,31 @@ sub setTargets {
 # Usage: getTargets()
 # Returns: \@list
 sub getTargets {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Create new target timestamp
+#
+# Usage: createSourceTimestamp($resource)
+# Returns: the timestamp
+sub createTargetTimestamp {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get target timestamp object
+#
+# Usage: getSourceTimestamp($type, $name)
+#    type .... resource type
+#    name .... name (relative path) of the timestamp's resource
+sub getTargetTimestamp {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of target timestamps
+#
+# Usage: getSourceTimestamp()
+# Returns: \@list
+sub getTargetTimestamps {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -214,10 +246,10 @@ sub prettyPrint {
   SMake::Utils::Print::printIndent($indent + 1);
   print ::HANDLE "force_run: " . $this->isForceRun() . "\n";
   
-  # -- target resources
+  # -- target timestamps
   SMake::Utils::Print::printIndent($indent + 1);
   print ::HANDLE "targets: {\n";
-  my $targets = $this->getTargets();
+  my $targets = $this->getTargetTimestamps();
   foreach my $target (@$targets) {
     SMake::Utils::Print::printIndent($indent + 2);
     $target->prettyPrint($indent + 2);

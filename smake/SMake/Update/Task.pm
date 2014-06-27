@@ -38,16 +38,20 @@ sub new {
   
   my $task = $stage->getObject()->getTask($name);
   if(defined($task)) {
+    $this->{targets} = SMake::Update::Table->new(
+        \&SMake::Model::Timestamp::createKey,
+        $task->getTargetKeys());
     $this->{sources} = SMake::Update::Table->new(
         \&SMake::Model::Timestamp::createKey,
         $task->getSourceKeys());
   }
   else {
     $task = $stage->getObject()->createTask($name, $type, $wd, $args);
+    $this->{targets} = SMake::Update::Table->new(
+        \&SMake::Model::Timestamp::createKey, []);
     $this->{sources} = SMake::Update::Table->new(
         \&SMake::Model::Timestamp::createKey, []);
   }
-  $this->{targets} = {};
   $this->{dependencies} = {};
   $this->{stage} = $stage;
   $this->{task} = $task;
@@ -62,13 +66,14 @@ sub update {
   my ($this, $context) = @_;
 
   # -- update target resources
-  $this->{task}->setTargets([
-      map {$_->getObject()} values %{$this->{targets}}]);
+  my ($tg_delete, $tg_changed) = $this->{targets}->update($context);
+  $this->{task}->deleteTargets($tg_delete);
   
   # -- update source resources:
   my ($ts_delete, $ts_changed) = $this->{sources}->update($context);
-  $this->{task}->setForceRun($ts_changed);
   $this->{task}->deleteSources($ts_delete);
+
+  $this->{task}->setForceRun($ts_changed || $tg_changed);
   
   # -- update dependency map
   $this->{task}->setDependencyMap(
@@ -142,7 +147,7 @@ sub getWDPath {
 sub appendSource {
   my ($this, $context, $resource) = @_;
 
-  my $ts = SMake::Update::Timestamp->new($context, $this, $resource);
+  my $ts = SMake::Update::Timestamp->newSource($context, $this, $resource);
   $this->{sources}->addItem($ts);
 }
 
@@ -153,7 +158,9 @@ sub appendSource {
 #    resource .... the resource object
 sub appendTarget {
   my ($this, $context, $resource) = @_;
-  $this->{targets}->{$resource->getKey()} = $resource;
+  
+  my $tg = SMake::Update::Timestamp->newTarget($context, $this, $resource);
+  $this->{targets}->addItem($tg);
 }
 
 # Append an external dependency

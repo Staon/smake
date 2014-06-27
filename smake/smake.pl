@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
+use Carp;
 use SMake::Constructor::Generic;
 use SMake::Constructor::MainResource;
 use SMake::Data::Address;
@@ -58,9 +59,7 @@ use SMake::ToolChain::ResourceFilter::SysLocation;
 use SMake::ToolChain::ToolChain;
 use SMake::Utils::Dirutils;
 
-use Carp;
-
-local $SIG{__DIE__} = sub { Carp::confess(@_); };
+#local $SIG{__DIE__} = sub { Carp::confess(@_); };
 local $SIG{__WARN__} = sub { die @_ };
 
 # -- reporter
@@ -114,14 +113,19 @@ my $cmdtranslator = SMake::Executor::Translator::Table->new(
         SMake::Executor::Translator::Instruction->new(
             SMake::Executor::Instruction::StoreMarks),
     )],
-    [$SMake::Model::Const::BIN_TASK, SMake::Executor::Translator::Compositor->new(
-        "cc",
-        SMake::Executor::Translator::FileList->new(
-            $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
-        SMake::Executor::Translator::FileList->new(
-            $SMake::Executor::Const::LIB_GROUP, "-liost ", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
-        SMake::Executor::Translator::FileList->new(
-            $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
+    [$SMake::Model::Const::BIN_TASK, SMake::Executor::Translator::Sequence->new(
+        SMake::Executor::Translator::Instruction->new(
+            SMake::Executor::Instruction::CheckMarks),   
+        SMake::Executor::Translator::Compositor->new(
+            "cc",
+            SMake::Executor::Translator::FileList->new(
+                $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
+            SMake::Executor::Translator::FileList->new(
+                $SMake::Executor::Const::LIB_GROUP, "-liost ", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
+            SMake::Executor::Translator::FileList->new(
+                $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1)),
+        SMake::Executor::Translator::Instruction->new(
+            SMake::Executor::Instruction::StoreMarks),
     )],
     [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Translator::Compositor->new(
         "echo",

@@ -45,17 +45,18 @@ sub execute {
   # -- force execution of the task
   return $SMake::Executor::Instruction::Instruction::NEXT if($task->isForceRun());
 
-  # -- check timestamps of resources
-  my $sources = $task->getSourceTimestamps();
-  foreach my $source (@$sources) {
+  # -- check timestamps of the resources
+  my $stamps = $task->getSourceTimestamps();
+  push @$stamps, @{$task->getTargetTimestamps()};
+  foreach my $stamp (@$stamps) {
   	# -- no stored mark => compile
-    my $stored_mark = $source->getMark();
+    my $stored_mark = $stamp->getMark();
     return $SMake::Executor::Instruction::Instruction::NEXT if(!$stored_mark);
     
     # -- get file timestamp
-    my $curr_mark = $source->computeCurrentMark(
+    my $curr_mark = $stamp->computeCurrentMark(
         $context, $SMake::Executor::Executor::SUBSYSTEM);
-    if($curr_mark ne $stored_mark) {
+    if(!defined($curr_mark) || $curr_mark ne $stored_mark) {
       return $SMake::Executor::Instruction::Instruction::NEXT;
     }
   }

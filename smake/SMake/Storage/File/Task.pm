@@ -93,19 +93,48 @@ sub getWDPath {
   return $this->{wdir};
 }
 
-sub setTargets {
+sub getTargetKeys {
+  my ($this) = @_;
+  return [map {$_->getKeyTuple()} values(%{$this->{targets}})];
+}
+
+sub deleteTargets {
   my ($this, $list) = @_;
-  $this->{targets} = {map {$_->getKey() => $_} @$list};
+  
+  foreach my $tg (@$list) {
+    my $key = SMake::Model::Timestamp::createKey(@$tg);
+    $this->{targets}->{$key}->destroy();
+    delete $this->{targets}->{$key};
+  }
 }
 
 sub getTargets {
   my ($this) = @_;
-  return [values(%{$this->{targets}})];
+  return [map { $_->getResource() } values(%{$this->{targets}})];
+}
+
+sub createTargetTimestamp {
+  my ($this, $resource) = @_;
+  
+  my $ts = SMake::Storage::File::Timestamp->new(
+      $this->{repository}, $this->{storage}, $this, $resource);
+  $this->{targets}->{$ts->getKey()} = $ts;
+  return $ts;
+}
+
+sub getTargetTimestamp {
+  my ($this, $type, $name) = @_;
+  return $this->{targets}->{SMake::Model::Timestamp::createKey($type, $name)};
+}
+
+sub getTargetTimestamps {
+  my ($this) = @_;
+  return [values %{$this->{targets}}];
 }
 
 sub getSourceKeys {
   my ($this) = @_;
-  return [map {[$_->getType(), $_->getName()]} values(%{$this->{sources}})];
+  return [map {$_->getKeyTuple()} values(%{$this->{sources}})];
 }
 
 sub deleteSources {
@@ -127,7 +156,7 @@ sub createSourceTimestamp {
   my ($this, $resource) = @_;
   my $ts = SMake::Storage::File::Timestamp->new(
       $this->{repository}, $this->{storage}, $this, $resource);
-  $this->{sources}->{$resource->getKey()} = $ts;
+  $this->{sources}->{$ts->getKey()} = $ts;
   return $ts;
 }
 

@@ -24,7 +24,7 @@ package SMake::Update::Timestamp;
 #    context ..... parser context
 #    task ........ parent task object
 #    resource .... a resource which the timestamp is for
-sub new {
+sub newSource {
   my ($class, $context, $task, $resource) = @_;
   my $this = bless({}, $class);
 
@@ -32,6 +32,28 @@ sub new {
       $resource->getType(), $resource->getName());
   if(!defined($ts)) {
     $ts = $task->getObject()->createSourceTimestamp($resource->getObject());
+  }
+  $this->{task} = $task;
+  $this->{resource} = $resource;
+  $this->{timestamp} = $ts;
+  
+  return $this;
+}
+
+# Create new timestamp object
+#
+# Usage: new($context, $task, $resource)
+#    context ..... parser context
+#    task ........ parent task object
+#    resource .... a resource which the timestamp is for
+sub newTarget {
+  my ($class, $context, $task, $resource) = @_;
+  my $this = bless({}, $class);
+
+  my $ts = $task->getObject()->getTargetTimestamp(
+      $resource->getType(), $resource->getName());
+  if(!defined($ts)) {
+    $ts = $task->getObject()->createTargetTimestamp($resource->getObject());
   }
   $this->{task} = $task;
   $this->{resource} = $resource;

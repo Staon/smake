@@ -47,7 +47,7 @@ sub new {
 # Usage: getMark($repository, $declist)
 #    repository . smake repository
 #    declist .... decider list of file paths
-# Returns: the timestamp mark. Asserts if the file doesn't exist.
+# Returns: the timestamp mark or null if some of the file doesn't exist
 sub getMark {
   my ($this, $repository, $declist) = @_;
   
@@ -55,6 +55,7 @@ sub getMark {
   my $paths = $declist->getOrderedList();
   foreach my $path (@$paths) {
   	my $fspath = $repository->getPhysicalPath($path);
+  	return undef if(! -f $fspath);
     $basestr .= $this->{decider}->getStamp($fspath);
   }
   return sha1_hex($basestr);

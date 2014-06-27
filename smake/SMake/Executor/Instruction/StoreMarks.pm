@@ -41,11 +41,20 @@ sub execute {
       $context->getRepository());
 
   # -- update timestamps
-  my $sources = $task->getSourceTimestamps();
-  foreach my $source (@$sources) {
-    my $curr_mark = $source->computeCurrentMark(
+  my $stamps = $task->getSourceTimestamps();
+  push @$stamps, @{$task->getTargetTimestamps()};
+  foreach my $stamp (@$stamps) {
+    my $curr_mark = $stamp->computeCurrentMark(
         $context, $SMake::Executor::Executor::SUBSYSTEM);
-    $source->updateMark($curr_mark);
+    if(!defined($curr_mark)) {
+      SMake::Utils::Utils::dieReport(
+          $context->getReporter(),
+          $SMake::Executor::Executor::SUBSYSTEM,
+          "product timestamp cannot be computed for resource '%s@%s'!",
+          $stamp->getType(),
+          $stamp->getName()->asString());
+    }
+    $stamp->updateMark($curr_mark);
   }
   
   return $SMake::Executor::Instruction::Instruction::NEXT;

@@ -160,8 +160,6 @@ sub getProject {
 sub createResource {
   my ($this, $context, $name, $type, $task) = @_;
 
-  print "create new resource: " . $name->asString() . "\n";
-
   my $resource = SMake::Update::Resource->new(
       $context, $this, $name, $type, $task);
   $this->{resources}->addItem($resource);
