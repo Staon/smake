@@ -16,12 +16,8 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 use Carp;
-use SMake::Constructor::Generic;
-use SMake::Constructor::MainResource;
 use SMake::Data::Address;
 use SMake::Data::Path;
-use SMake::Decider::DeciderBox;
-use SMake::Decider::DeciderTime;
 use SMake::Executor::Builder::Compile;
 use SMake::Executor::Builder::Empty;
 use SMake::Executor::Builder::Group;
@@ -37,7 +33,6 @@ use SMake::Executor::Translator::Instruction;
 use SMake::Executor::Translator::Select;
 use SMake::Executor::Translator::Sequence;
 use SMake::Executor::Translator::Table;
-use SMake::Mangler::Mangler;
 use SMake::Model::Const;
 use SMake::Parser::Context;
 use SMake::Parser::Parser;
@@ -46,16 +41,21 @@ use SMake::Parser::VersionRequest;
 use SMake::Reporter::Reporter;
 use SMake::Reporter::TargetConsole;
 use SMake::Repository::Repository;
-use SMake::Resolver::Chain;
-use SMake::Resolver::Compile;
-use SMake::Resolver::Dependency;
-use SMake::Resolver::Link;
-use SMake::Resolver::Publish;
-use SMake::Scanner::Chain;
-use SMake::Scanner::HdrScanner;
 use SMake::Storage::File::Storage;
+use SMake::ToolChain::Constructor::Generic;
+use SMake::ToolChain::Constructor::MainResource;
+use SMake::ToolChain::Decider::DeciderBox;
+use SMake::ToolChain::Decider::DeciderTime;
+use SMake::ToolChain::Mangler::Mangler;
+use SMake::ToolChain::Resolver::Chain;
+use SMake::ToolChain::Resolver::Compile;
+use SMake::ToolChain::Resolver::Dependency;
+use SMake::ToolChain::Resolver::Link;
+use SMake::ToolChain::Resolver::Publish;
 use SMake::ToolChain::ResourceFilter::Chain;
 use SMake::ToolChain::ResourceFilter::SysLocation;
+use SMake::ToolChain::Scanner::Chain;
+use SMake::ToolChain::Scanner::HdrScanner;
 use SMake::ToolChain::ToolChain;
 use SMake::Utils::Dirutils;
 
@@ -67,8 +67,8 @@ my $reporter = SMake::Reporter::Reporter->new();
 $reporter->addTarget(SMake::Reporter::TargetConsole->new(1, 5, ".*"));
 
 # -- file change decider
-my $decider = SMake::Decider::DeciderBox->new(
-    SMake::Decider::DeciderTime->new());
+my $decider = SMake::ToolChain::Decider::DeciderBox->new(
+    SMake::ToolChain::Decider::DeciderTime->new());
 
 # -- file storage
 my $reppath = $ENV{'SMAKE_REPOSITORY'};
@@ -78,7 +78,7 @@ my $storage = SMake::Storage::File::Storage->new($reppath);
 my $repository = SMake::Repository::Repository->new(undef, $storage);
 
 # -- toolchain
-my $mangler = SMake::Mangler::Mangler->new();
+my $mangler = SMake::ToolChain::Mangler::Mangler->new();
 my $cmdbuilder = SMake::Executor::Builder::Group->new(
     [$SMake::Model::Const::SOURCE_TASK, SMake::Executor::Builder::Empty->new()],
     [$SMake::Model::Const::C_TASK, SMake::Executor::Builder::Compile->new()],
@@ -121,7 +121,7 @@ my $cmdtranslator = SMake::Executor::Translator::Table->new(
             SMake::Executor::Translator::FileList->new(
                 $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
             SMake::Executor::Translator::FileList->new(
-                $SMake::Executor::Const::LIB_GROUP, "-liost ", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
+                $SMake::Executor::Const::LIB_GROUP, "", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
             SMake::Executor::Translator::FileList->new(
                 $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1)),
         SMake::Executor::Translator::Instruction->new(
@@ -136,30 +136,31 @@ my $cmdtranslator = SMake::Executor::Translator::Table->new(
     )],
 );
 my $runner = SMake::Executor::Runner::Sequential->new();
-my $scanner = SMake::Scanner::Chain->new(
-    SMake::Scanner::HdrScanner->new('.*', '.*', '[.](c|cpp|h)$'),
+my $scanner = SMake::ToolChain::Scanner::Chain->new(
+    SMake::ToolChain::Scanner::HdrScanner->new('.*', '.*', '[.](c|cpp|h)$'),
 );
 my $resfilter = SMake::ToolChain::ResourceFilter::Chain->new(
     SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include"),
+    SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include/c++/4.6.3"),
 );
 my $toolchain = SMake::ToolChain::ToolChain->new(
     undef, $mangler, $cmdbuilder, $cmdtranslator, $runner, $scanner, $resfilter);
 # ---- library artifact
-my $resolver = SMake::Resolver::Chain->new(
-    SMake::Resolver::Compile->new(
+my $resolver = SMake::ToolChain::Resolver::Chain->new(
+    SMake::ToolChain::Resolver::Compile->new(
         '.*', '[.]c$', 'Dir() . Name() . ".o"',
         $SMake::Model::Const::COMPILE_STAGE,
         $SMake::Model::Const::C_TASK),
-    SMake::Resolver::Compile->new(
+    SMake::ToolChain::Resolver::Compile->new(
         '.*', '[.]cpp$', 'Dir() . Name() . ".o"',
         $SMake::Model::Const::COMPILE_STAGE,
         $SMake::Model::Const::CXX_TASK),
-    SMake::Resolver::Publish->new(
+    SMake::ToolChain::Resolver::Publish->new(
         '.*', '[.]h$'),
-    SMake::Resolver::Link->new('.*', '[.]o$', "static_lib"));
-my $constructor = SMake::Constructor::Generic->new(
+    SMake::ToolChain::Resolver::Link->new('.*', '[.]o$', "static_lib"));
+my $constructor = SMake::ToolChain::Constructor::Generic->new(
   $resolver, [
-    SMake::Constructor::MainResource->new(
+    SMake::ToolChain::Constructor::MainResource->new(
         $SMake::Model::Const::LIB_MAIN_TYPE,
         'Dir() . Name() . ".lib"',
         $SMake::Model::Const::LIB_STAGE,
@@ -167,16 +168,16 @@ my $constructor = SMake::Constructor::Generic->new(
   ]);
 $toolchain->registerConstructor("lib", $constructor);
 # ---- binary artifact
-$resolver = SMake::Resolver::Chain->new(
-    SMake::Resolver::Compile->new(
+$resolver = SMake::ToolChain::Resolver::Chain->new(
+    SMake::ToolChain::Resolver::Compile->new(
         '.*', '[.]cpp$', 'Dir() . Name() . ".o"',
         $SMake::Model::Const::COMPILE_STAGE,
         $SMake::Model::Const::CXX_TASK),
-    SMake::Resolver::Link->new('.*', '[.]o$', "binary"),
-    SMake::Resolver::Dependency->new('^link$', "binary"));
-$constructor = SMake::Constructor::Generic->new(
+    SMake::ToolChain::Resolver::Link->new('.*', '[.]o$', "binary"),
+    SMake::ToolChain::Resolver::Dependency->new('^link$', "binary"));
+$constructor = SMake::ToolChain::Constructor::Generic->new(
   $resolver, [
-    SMake::Constructor::MainResource->new(
+    SMake::ToolChain::Constructor::MainResource->new(
         $SMake::Model::Const::BIN_MAIN_TYPE,
         'Dir() . Name()',
         $SMake::Model::Const::BIN_STAGE,

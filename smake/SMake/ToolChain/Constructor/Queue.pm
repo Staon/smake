@@ -15,29 +15,33 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Chain of responsibility of source scanners. First scanner, which accepts
-# the resource, stops whole processing.
-package SMake::Scanner::Chain;
+# Queue of resources prepared for resolving
+package SMake::ToolChain::Constructor::Queue;
 
-use SMake::Scanner::Container;
-
-@ISA = qw(SMake::Scanner::Container);
-
-# Create new chain scanner
+# Create new queue
 #
-# Usage: new($scanner*)
-#    scanner .. a scanner of the resources
+# Usage: new()
 sub new {
-  my $class = shift;
-  my $this = bless(SMake::Scanner::Container->new(@_), $class);
-  return $this;
+  my ($class) = @_;
+  return bless([], $class);
 }
 
-sub processScanner {
-  my ($this, $context, $queue, $artifact, $resource, $task, $scanner) = @_;
-  
-  my $ret = $scanner->scanSource($context, $queue, $artifact, $resource, $task);
-  return ($ret, $ret);
+# Push a resource into the queue
+#
+# Usage: pushResource($resource)
+sub pushResource {
+  my ($this, $resource) = @_;
+  push @$this, $resource;
+}
+
+# Get and remove resource from the top of the queue
+#
+# Usage: getResource()
+# Returns: the resource or undef
+sub getResource {
+  my ($this) = @_;
+  my $resource = shift @$this;
+  return $resource;
 }
 
 return 1;

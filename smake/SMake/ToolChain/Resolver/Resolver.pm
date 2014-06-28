@@ -15,14 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic interface of deciders. Deciders are objects which detect changes
-# of a file. There can be several types: deciders based on time stamps of
-# the files, or deciders based on a checksum of the files.
-package SMake::Decider::Decider;
+# Generic resolver interface
+package SMake::ToolChain::Resolver::Resolver;
 
 use SMake::Utils::Abstract;
 
-# Create new decider
+# Create new resolver class
 #
 # Usage: new()
 sub new {
@@ -30,13 +28,24 @@ sub new {
   return bless({}, $class);
 }
 
-# Get decider stamp of a file
+# Resolve a resource
 #
-# Usage: getStamp($path)
-#    path .... path of the file (absolute filesystem path)
-# Returns: The stamp (a scalar convertible to string)
-# Exceptions: the method dies if the file doesn't exists.
-sub getStamp {
+# Usage: resolveResource($context, $queue, $resource)
+#    context ..... parser context, project and artifact are valid
+#    queue ....... resource queue
+#    resource .... resolved resource
+# Returns: true if the resource is handled
+sub resolveResource {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Resolve a dependency record
+#
+# Usage: resolveDependency($context, $dependency)
+#    context ..... parser context, project and artifact are valid
+#    dependency .. the dependency object
+# Returns: true if the dependency is handled
+sub resolveDependency {
   SMake::Utils::Abstract::dieAbstract();
 }
 

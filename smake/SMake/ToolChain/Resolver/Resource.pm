@@ -16,11 +16,11 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Generic resource resolver
-package SMake::Resolver::Resource;
+package SMake::ToolChain::Resolver::Resource;
 
-use SMake::Resolver::Resolver;
+use SMake::ToolChain::Resolver::Resolver;
 
-@ISA = qw(SMake::Resolver::Resolver);
+@ISA = qw(SMake::ToolChain::Resolver::Resolver);
 
 use SMake::Utils::Abstract;
 
@@ -31,7 +31,7 @@ use SMake::Utils::Abstract;
 #    res ..... a regular expression to match path of the resource (relative path)
 sub new {
   my ($class, $type, $res) = @_;
-  my $this = bless(SMake::Resolver::Resolver->new(), $class);
+  my $this = bless(SMake::ToolChain::Resolver::Resolver->new(), $class);
   $this->{typemask} = $type;
   $this->{resmask} = $res;
   return $this;

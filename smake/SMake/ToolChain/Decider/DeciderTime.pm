@@ -16,19 +16,19 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Decider based on file's time stamps
-package SMake::Decider::DeciderTime;
+package SMake::ToolChain::Decider::DeciderTime;
 
 use File::stat;
-use SMake::Decider::Decider;
+use SMake::ToolChain::Decider::Decider;
 
-@ISA = qw(SMake::Decider::Decider);
+@ISA = qw(SMake::ToolChain::Decider::Decider);
 
 # Create new decider
 #
 # Usage: new()
 sub new {
   my ($class) = @_;
-  return bless(SMake::Decider::Decider->new(), $class);
+  return bless(SMake::ToolChain::Decider::Decider->new(), $class);
 }
 
 sub getStamp {

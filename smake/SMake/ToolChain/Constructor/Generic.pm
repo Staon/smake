@@ -16,13 +16,13 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Generic artifact constructor
-package SMake::Constructor::Generic;
+package SMake::ToolChain::Constructor::Generic;
 
-use SMake::Constructor::Constructor;
+use SMake::ToolChain::Constructor::Constructor;
 
-@ISA = qw(SMake::Constructor::Constructor);
+@ISA = qw(SMake::ToolChain::Constructor::Constructor);
 
-use SMake::Constructor::Queue;
+use SMake::ToolChain::Constructor::Queue;
 use SMake::Utils::Utils;
 
 # Create new generic constructor
@@ -32,7 +32,7 @@ use SMake::Utils::Utils;
 #    resources ... list of records of main resources
 sub new {
   my ($class, $resolver, $resources) = @_;
-  my $this = bless(SMake::Constructor::Constructor->new(), $class);
+  my $this = bless(SMake::ToolChain::Constructor::Constructor->new(), $class);
   $this->{resolver} = $resolver;
   $this->{resources} = (defined($resources))?$resources:[];
   
@@ -43,7 +43,7 @@ sub constructArtifact {
   my ($this, $context, $artifact) = @_;
   
   # -- prepare queue of resources to be resolved
-  my $queue = SMake::Constructor::Queue->new();
+  my $queue = SMake::ToolChain::Constructor::Queue->new();
   my $resources = $artifact->getResources($context);
   foreach my $resource (@$resources) {
     $queue->pushResource($resource);

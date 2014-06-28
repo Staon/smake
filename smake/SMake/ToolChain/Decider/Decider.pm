@@ -15,26 +15,29 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Sequence of several scanners. All scanners are invoked.
-package SMake::Scanner::Sequence;
+# Generic interface of deciders. Deciders are objects which detect changes
+# of a file. There can be several types: deciders based on time stamps of
+# the files, or deciders based on a checksum of the files.
+package SMake::ToolChain::Decider::Decider;
 
-use SMake::Scanner::Container;
+use SMake::Utils::Abstract;
 
-@ISA = qw(SMake::Scanner::Container);
-
-# Create new sequence scanner
+# Create new decider
 #
-# Usage: new($scanner*)
-#    scanner ..... a scanner
+# Usage: new()
 sub new {
-  my $class = shift;
-  my $this = bless(SMake::Scanner::Container->new(@_), $class);
-  return $this;
+  my ($class) = @_;
+  return bless({}, $class);
 }
 
-sub processScanner {
-  my ($this, $context, $queue, $artifact, $resource, $task, $scanner) = @_;
-  return ($scanner->scanSource($context, $queue, $artifact, $resource, $task), 0);
+# Get decider stamp of a file
+#
+# Usage: getStamp($path)
+#    path .... path of the file (absolute filesystem path)
+# Returns: The stamp (a scalar convertible to string)
+# Exceptions: the method dies if the file doesn't exists.
+sub getStamp {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 return 1;

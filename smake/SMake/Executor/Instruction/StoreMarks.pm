@@ -22,7 +22,6 @@ use SMake::Executor::Instruction::Instruction;
 
 @ISA = qw(SMake::Executor::Instruction::Instruction);
 
-use SMake::Decider::DeciderList;
 use SMake::Executor::Executor;
 
 # Create new instruction

@@ -16,11 +16,11 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Generic container scanner
-package SMake::Scanner::Container;
+package SMake::ToolChain::Scanner::Container;
 
-use SMake::Scanner::Scanner;
+use SMake::ToolChain::Scanner::Scanner;
 
-@ISA = qw(SMake::Scanner::Scanner);
+@ISA = qw(SMake::ToolChain::Scanner::Scanner);
 
 use SMake::Utils::Abstract;
 
@@ -29,7 +29,7 @@ use SMake::Utils::Abstract;
 # Usage: new($scanner*)
 sub new {
   my $class = shift;
-  my $this = bless(SMake::Scanner::Scanner->new(), $class);
+  my $this = bless(SMake::ToolChain::Scanner::Scanner->new(), $class);
   $this->{scanners} = [];
   $this->appendScanners(@_);
   return $this;

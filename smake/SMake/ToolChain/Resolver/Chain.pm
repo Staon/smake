@@ -15,43 +15,44 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Multi resolver
+# Chain resolver
 #
-# The resolver contains list of resolvers. The resource is passed to all
-# of them.
-package SMake::Resolver::Multi;
+# The chain resolver contains a list of resolvers. If a resource is needed
+# to be resolved, the resolver search for first resolver, which handles
+# the resource.
+package SMake::ToolChain::Resolver::Chain;
 
-use SMake::Resolver::Container;
+use SMake::ToolChain::Resolver::Container;
 
-@ISA = qw(SMake::Resolver::Container);
+@ISA = qw(SMake::ToolChain::Resolver::Container);
 
-# Create new multi resolver
+# Create new chain resolver
 #
 # Usage: new($resolver*)
 sub new {
   my $class = shift;
-  return bless(SMake::Resolver::Resolver->new(@_), $class);
+  return bless(SMake::ToolChain::Resolver::Container->new(@_), $class);
 }
 
 sub resolvePartial {
   my ($this, $context, $resolver, $queue, $resource, $status) = @_;
-
+  
   if($resolver->resolveResource($context, $queue, $resource)) {
-    return (1, 0);
+    return (1, 1);
   }
   else {
-    return ($status, 0);
+    return (0, 0);
   }
 }
 
 sub resolvePartialDep {
   my ($this, $context, $resolver, $dependency, $status) = @_;
-
+  
   if($resolver->resolveDependency($context, $dependency)) {
-    return (1, 0);
+    return (1, 1);
   }
   else {
-    return ($status, 0);
+    return (0, 0);
   }
 }
 

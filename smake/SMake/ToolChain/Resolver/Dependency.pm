@@ -16,13 +16,13 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Dependency resolver
-package SMake::Resolver::Dependency;
+package SMake::ToolChain::Resolver::Dependency;
 
-use SMake::Resolver::Resolver;
+use SMake::ToolChain::Resolver::Resolver;
 
-@ISA = qw(SMake::Resolver::Resolver);
+@ISA = qw(SMake::ToolChain::Resolver::Resolver);
 
-use SMake::Constructor::Constructor;
+use SMake::ToolChain::Constructor::Constructor;
 
 # Create new dependency resolver
 #
@@ -31,7 +31,7 @@ use SMake::Constructor::Constructor;
 #    mainres .. list of type of main resources
 sub new {
   my ($class, $mask, $mainres) = @_;
-  my $this = bless(SMake::Resolver::Resolver->new(), $class);
+  my $this = bless(SMake::ToolChain::Resolver::Resolver->new(), $class);
   $this->{mask} = $mask;
   if(ref($mainres) eq "ARRAY") {
     $this->{mainres} = $mainres;
@@ -58,7 +58,7 @@ sub resolveDependency {
   	  if(!defined($mainres)) {
         SMake::Utils::Utils::dieReport(
             $context->getReporter(),
-            $SMake::Constructor::Constructor::SUBSYSTEM,
+            $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
             "dependency cannot be attached to main resource '%s'",
             $mainr);
   	  }

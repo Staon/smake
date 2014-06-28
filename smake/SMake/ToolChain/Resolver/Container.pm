@@ -16,11 +16,11 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Generic container resolver
-package SMake::Resolver::Container;
+package SMake::ToolChain::Resolver::Container;
 
-use SMake::Resolver::Resolver;
+use SMake::ToolChain::Resolver::Resolver;
 
-@ISA = qw(SMake::Resolver::Resolver);
+@ISA = qw(SMake::ToolChain::Resolver::Resolver);
 
 use SMake::Utils::Abstract;
 
@@ -29,7 +29,7 @@ use SMake::Utils::Abstract;
 # Usage: new($resolver*)
 sub new {
   my $class = shift;
-  my $this = bless(SMake::Resolver::Resolver->new(), $class);
+  my $this = bless(SMake::ToolChain::Resolver::Resolver->new(), $class);
   $this->{list} = [@_];
   return $this;
 }

@@ -16,7 +16,7 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Record of main resource for the generic constructor
-package SMake::Constructor::MainResource;
+package SMake::ToolChain::Constructor::MainResource;
 
 use SMake::Model::Const;
 

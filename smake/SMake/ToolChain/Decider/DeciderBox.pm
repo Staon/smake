@@ -17,9 +17,9 @@
 
 # Decider box - it keeps all known deciders and allows to compare stored
 #   time stamps
-package SMake::Decider::DeciderBox;
+package SMake::ToolChain::Decider::DeciderBox;
 
-use SMake::Decider::DeciderList;
+use SMake::ToolChain::Decider::DeciderList;
 
 my $Is_QNX = $^O eq 'qnx';
 if($Is_QNX) {

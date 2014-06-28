@@ -16,11 +16,11 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Compilation of some resource
-package SMake::Resolver::Compile;
+package SMake::ToolChain::Resolver::Compile;
 
-use SMake::Resolver::Resource;
+use SMake::ToolChain::Resolver::Resource;
 
-@ISA = qw(SMake::Resolver::Resource);
+@ISA = qw(SMake::ToolChain::Resolver::Resource);
 
 use SMake::Model::Const;
 
@@ -34,7 +34,8 @@ use SMake::Model::Const;
 #    tasktype .. type of the compilation task
 sub new {
   my ($class, $type, $file, $mangler, $stage, $tasktype) = @_;
-  my $this = bless(SMake::Resolver::Resource->new($type, $file), $class);
+  my $this = bless(
+      SMake::ToolChain::Resolver::Resource->new($type, $file), $class);
   $this->{mangler} = $mangler;
   $this->{stage} = $stage;
   $this->{tasktype} = $tasktype;

@@ -15,28 +15,26 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic artifact constructor
-package SMake::Constructor::Constructor;
+# Sequence of several scanners. All scanners are invoked.
+package SMake::ToolChain::Scanner::Sequence;
 
-use SMake::Utils::Abstract;
+use SMake::ToolChain::Scanner::Container;
 
-$SUBSYSTEM = "constructor";
+@ISA = qw(SMake::Scanner::Container);
 
-# Create new constructor object
+# Create new sequence scanner
 #
-# Usage: new()
+# Usage: new($scanner*)
+#    scanner ..... a scanner
 sub new {
-  my ($class) = @_;
-  return bless({}, $class);
+  my $class = shift;
+  my $this = bless(SMake::ToolChain::Scanner::Container->new(@_), $class);
+  return $this;
 }
 
-# Construct artifact
-#
-# Usage: constructArtifact($context, $artifact)
-#    context .... parser context
-#    artifact ... the artifact object
-sub constructArtifact {
-  SMake::Utils::Abstract::dieAbstract();
+sub processScanner {
+  my ($this, $context, $queue, $artifact, $resource, $task, $scanner) = @_;
+  return ($scanner->scanSource($context, $queue, $artifact, $resource, $task), 0);
 }
 
 return 1;

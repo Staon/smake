@@ -18,11 +18,11 @@
 # Generic link resolver. The link is meant to be last phase when
 # an artifact main resource is constructed from already created
 # resources.
-package SMake::Resolver::Link;
+package SMake::ToolChain::Resolver::Link;
 
-use SMake::Resolver::Resource;
+use SMake::ToolChain::Resolver::Resource;
 
-@ISA = qw(SMake::Resolver::Resource);
+@ISA = qw(SMake::ToolChain::Resolver::Resource);
 
 use SMake::Utils::Utils;
 
@@ -34,7 +34,8 @@ use SMake::Utils::Utils;
 #    maintype .. type of the main resource
 sub new {
   my ($class, $type, $file, $maintype) = @_;
-  my $this = bless(SMake::Resolver::Resource->new($type, $file), $class);
+  my $this = bless(
+      SMake::ToolChain::Resolver::Resource->new($type, $file), $class);
   $this->{maintype} = $maintype;
   return $this;
 }

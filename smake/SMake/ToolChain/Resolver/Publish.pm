@@ -16,11 +16,11 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Publishing of a resource
-package SMake::Resolver::Publish;
+package SMake::ToolChain::Resolver::Publish;
 
-use SMake::Resolver::Resource;
+use SMake::ToolChain::Resolver::Resource;
 
-@ISA = qw(SMake::Resolver::Resource);
+@ISA = qw(SMake::ToolChain::Resolver::Resource);
 
 use SMake::Model::Const;
 
@@ -31,7 +31,8 @@ use SMake::Model::Const;
 #    file ...... mask of path of the resources
 sub new {
   my ($class, $type, $file) = @_;
-  my $this = bless(SMake::Resolver::Resource->new($type, $file), $class);
+  my $this = bless(
+      SMake::ToolChain::Resolver::Resource->new($type, $file), $class);
   return $this;
 }
 

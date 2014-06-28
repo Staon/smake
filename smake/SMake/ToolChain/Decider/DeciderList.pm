@@ -16,7 +16,7 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # List of paths to be combined into a timestamp mark
-package SMake::Decider::DeciderList;
+package SMake::ToolChain::Decider::DeciderList;
 
 # Create new list
 #

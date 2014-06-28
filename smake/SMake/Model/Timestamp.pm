@@ -25,6 +25,7 @@ use SMake::Model::Object;
 
 use SMake::Model::Const;
 use SMake::Model::Resource;
+use SMake::ToolChain::Decider::DeciderList;
 use SMake::Utils::Abstract;
 use SMake::Utils::Print;
 use SMake::Utils::Searching;
@@ -112,7 +113,7 @@ sub computeCurrentMark {
   
   # -- get set of resources to compute the mark
   my $resource = $this->getResource();
-  my $declist = SMake::Decider::DeciderList->new();
+  my $declist = SMake::ToolChain::Decider::DeciderList->new();
   if($resource->getType() eq $SMake::Model::Const::SOURCE_RESOURCE 
      || $resource->getType() eq $SMake::Model::Const::PRODUCT_RESOURCE) {
     $declist->appendPaths($resource->getPath());

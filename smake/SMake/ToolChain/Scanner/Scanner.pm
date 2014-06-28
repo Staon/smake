@@ -15,12 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic resolver interface
-package SMake::Resolver::Resolver;
+# Generic interface of source scanner. The scanners parse source
+# files and construct external resources which are needed to compile
+# the source (typically C/C++ headers).
+package SMake::ToolChain::Scanner::Scanner;
 
 use SMake::Utils::Abstract;
 
-# Create new resolver class
+# Create new source scanner
 #
 # Usage: new()
 sub new {
@@ -28,24 +30,16 @@ sub new {
   return bless({}, $class);
 }
 
-# Resolve a resource
+# Scan a source file
 #
-# Usage: resolveResource($context, $queue, $resource)
-#    context ..... parser context, project and artifact are valid
-#    queue ....... resource queue
-#    resource .... resolved resource
-# Returns: true if the resource is handled
-sub resolveResource {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Resolve a dependency record
-#
-# Usage: resolveDependency($context, $dependency)
-#    context ..... parser context, project and artifact are valid
-#    dependency .. the dependency object
-# Returns: true if the dependency is handled
-sub resolveDependency {
+# Usage: scanSource($context, $queue, $artifact, $resource, $task)
+#    context ........ parser context
+#    queue .......... queue of resources during construction of an artifact
+#    artifact ....... resource's artifact
+#    resource ....... the scanned resource
+#    task ........... a task which the resource is a source for
+# Returns: true if the scanner processed the resource
+sub scanSource {
   SMake::Utils::Abstract::dieAbstract();
 }
 

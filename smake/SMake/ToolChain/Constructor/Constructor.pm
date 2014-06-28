@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic interface of source scanner. The scanners parse source
-# files and construct external resources which are needed to compile
-# the source (typically C/C++ headers).
-package SMake::Scanner::Scanner;
+# Generic artifact constructor
+package SMake::ToolChain::Constructor::Constructor;
 
 use SMake::Utils::Abstract;
 
-# Create new source scanner
+$SUBSYSTEM = "constructor";
+
+# Create new constructor object
 #
 # Usage: new()
 sub new {
@@ -30,16 +30,12 @@ sub new {
   return bless({}, $class);
 }
 
-# Scan a source file
+# Construct artifact
 #
-# Usage: scanSource($context, $queue, $artifact, $resource, $task)
-#    context ........ parser context
-#    queue .......... queue of resources during construction of an artifact
-#    artifact ....... resource's artifact
-#    resource ....... the scanned resource
-#    task ........... a task which the resource is a source for
-# Returns: true if the scanner processed the resource
-sub scanSource {
+# Usage: constructArtifact($context, $artifact)
+#    context .... parser context
+#    artifact ... the artifact object
+sub constructArtifact {
   SMake::Utils::Abstract::dieAbstract();
 }
 

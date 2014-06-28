@@ -16,13 +16,13 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Header scanner of C/C++ sources
-package SMake::Scanner::HdrScanner;
+package SMake::ToolChain::Scanner::HdrScanner;
 
-use SMake::Scanner::Scanner;
+use SMake::ToolChain::Scanner::Scanner;
 
-@ISA = qw(SMake::Scanner::Scanner);
+@ISA = qw(SMake::ToolChain::Scanner::Scanner);
 
-use SMake::Constructor::Constructor;
+use SMake::ToolChain::Constructor::Constructor;
 use SMake::Data::Path;
 use SMake::Model::Const;
 use SMake::Utils::Utils;
@@ -35,7 +35,7 @@ use SMake::Utils::Utils;
 #    resname ..... a regular expression which describes name of the resource
 sub new {
   my ($class, $tasktype, $restype, $resname) = @_;
-  my $this = bless(SMake::Scanner::Scanner->new(), $class);
+  my $this = bless(SMake::ToolChain::Scanner::Scanner->new(), $class);
   $this->{tasktype} = $tasktype;
   $this->{restype} = $restype;
   $this->{resname} = $resname;
@@ -56,7 +56,7 @@ sub scanSource {
     if(!open(SRCFILE, "<" . $filename)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
-          $SMake::Constructor::Constructor::SUBSYSTEM,
+          $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
           "source %s cannot be opened", $filename);
     }
     while(my $line = <SRCFILE>) {

@@ -18,7 +18,7 @@
 # Name mangler
 #
 # The name mangler creates resource names according to current context
-package SMake::Mangler::Mangler;
+package SMake::ToolChain::Mangler::Mangler;
 
 use SMake::Data::Path;
 use SMake::Utils::Evaluate;
