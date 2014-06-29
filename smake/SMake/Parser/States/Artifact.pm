@@ -87,16 +87,8 @@ sub endArtifact {
   
   # -- construct the artifact
   my $artifact = $context->getArtifact();
-  my $constructor = $context->getRepository()->getToolChain()->getConstructor(
-      $artifact->getType());
-  if(!defined($constructor)) {
-  	SMake::Utils::Utils::dieReport(
-  	    $context->getReporter(),
-        $SMake::Parser::Parser::SUBSYSTEM,
-        "there is no artifact constructor registered for type '%s'",
-        $artifact->getType());
-  }
-  $constructor->constructArtifact($context, $artifact);
+  $context->getRepository()->getToolChain()->getConstructor()
+      ->constructArtifact($context, $artifact);
   
   # -- change current context
   $context->popArtifact();

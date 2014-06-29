@@ -21,8 +21,8 @@ package SMake::ToolChain::ToolChain;
 
 # Create new empty tool chain
 #
-# Usage: new($parent, $mangler, $builder, $translator)
-#    parent ....... parent tool chain (can be undef)
+# Usage: new($constructor, $mangler, $builder, $translator, $runner, $scanner, $filter)
+#    constructor .. artifact constructor
 #    mangler ...... resource name mangler
 #    builder ...... builder od abstract commands
 #    translator ... a translator of abstract commands to instruction objects
@@ -31,10 +31,9 @@ package SMake::ToolChain::ToolChain;
 #    scanner ...... source scanner (generator of external resources)
 #    filter ....... filter of external resources
 sub new {
-  my ($class, $parent, $mangler, $builder, $translator, $runner, $scanner, $filter) = @_;
+  my ($class, $constructor, $mangler, $builder, $translator, $runner, $scanner, $filter) = @_;
   return bless({
-  	parent => $parent,
-    constructors => {},
+    constructor => $constructor,
     mangler => $mangler,
     builder => $builder,
     translator => $translator,
@@ -44,32 +43,13 @@ sub new {
   }, $class);
 }
 
-# Register an artifact creator
-#
-# Usage: registerConstructor($type, $constructor)
-#    type .......... type of the artifact
-#    constructor ... the constructor object
-sub registerConstructor {
-  my ($this, $type, $constructor) = @_;
-  $this->{constructors}->{$type} = $constructor;
-}
-
 # Get an artifact constructor
 #
-# Usage: getConstructor($type)
-# Returns: the constructor or undef
+# Usage: getConstructor()
+# Returns: the constructor
 sub getConstructor {
   my ($this, $type) = @_;
-  
-  my $ctor = $this->{constructors}->{$type};
-  return $ctor if(defined($ctor));
-  
-  # -- chain with the parent
-  if(defined($this->{parent})) {
-    return $this->{parent}->getConstructor($type);
-  }
-  
-  return undef;
+  return $this->{constructor};
 }
 
 # Get name mangler

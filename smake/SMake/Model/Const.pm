@@ -18,6 +18,10 @@
 # Some constants related to the model
 package SMake::Model::Const;
 
+# -- artifacts
+$LIB_ARTIFACT = "lib";
+$BIN_ARTIFACT = "bin";
+
 # -- source files
 $SOURCE_STAGE = "src";
 $SOURCE_RESOURCE = "src";
@@ -35,6 +39,11 @@ $CXX_TASK = "cxx";
 $LIB_MAIN_TYPE = "static_lib";
 $LIB_STAGE = "liblink";
 $LIB_TASK = "lib";
+
+# -- dynamic libraries
+$DLL_MAIN_TYPE = "dynamic_lib";
+$DLL_STAGE = "dlllink";
+$DLL_TASK = "dll";
 
 # -- executable binaries
 $BIN_MAIN_TYPE = "binary";
