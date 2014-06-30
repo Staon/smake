@@ -127,8 +127,7 @@ sub addLibraries {
       $SMake::Executor::Const::LIB_GROUP);
   $command->putChild($libs);
   
-  my $artifact = $task->getStage()->getArtifact();
-  my $deps = $artifact->getDependencyRecords();
+  my $deps = $task->getDependencies();
   foreach my $dep (@$deps) {
     if($dep->getDependencyType() eq $SMake::Model::Const::LINK_DEPENDENCY) {
       my ($depprj, $depart, $depres) = $dep->getObjects(

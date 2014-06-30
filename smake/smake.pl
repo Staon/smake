@@ -54,8 +54,8 @@ my $repository = SMake::Repository::Repository->new(undef, $storage);
 
 # -- toolchain
 my $runner = SMake::Executor::Runner::Sequential->new();
-#my $toolchain = SMake::Platform::Aveco::ToolChain->new($runner);
-my $toolchain = SMake::Platform::GCC::ToolChain->new($runner);
+my $toolchain = SMake::Platform::Aveco::ToolChain->new($runner);
+#my $toolchain = SMake::Platform::GCC::ToolChain->new($runner);
 $repository->setToolChain($toolchain);
 
 # -- parser

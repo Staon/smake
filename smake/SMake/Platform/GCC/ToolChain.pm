@@ -67,6 +67,7 @@ sub new {
             SMake::Platform::Generic::CXXResolver->new($objsuff),
             SMake::Platform::Generic::HeaderResolver->new(),
             SMake::Platform::Generic::BinResolver->new($objsuff),
+            SMake::Platform::Generic::LinkResolver->new(),
         ),
         [SMake::Platform::Generic::BinResource->new("")],
     )],

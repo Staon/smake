@@ -36,6 +36,7 @@ use SMake::Platform::Generic::CXXResolver;
 use SMake::Platform::Generic::HeaderResolver;
 use SMake::Platform::Generic::LibResolver;
 use SMake::Platform::Generic::LibResource;
+use SMake::Platform::Generic::LinkResolver;
 use SMake::ToolChain::Constructor::Generic;
 use SMake::ToolChain::Resolver::Chain;
 use SMake::ToolChain::ResourceFilter::SysLocation;
@@ -67,6 +68,7 @@ sub new {
             SMake::Platform::Generic::CXXResolver->new($objsuff),
             SMake::Platform::Generic::HeaderResolver->new(),
             SMake::Platform::Generic::BinResolver->new($objsuff),
+            SMake::Platform::Generic::LinkResolver->new(),
         ),
         [SMake::Platform::Generic::BinResource->new("")],
     )],
@@ -104,7 +106,7 @@ sub new {
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::LIB_GROUP, "", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
+                  $SMake::Executor::Const::LIB_GROUP, "-liost ", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1)),
       )],

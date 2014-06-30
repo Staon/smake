@@ -67,7 +67,7 @@ sub constructArtifact {
     if(!$context->resolveResource($queue, $resource)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
-          $SMake::Constructor::Constructor::SUBSYSTEM,
+          $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
           "there is no resource resolver registered for resource '%s'",
           $resource->getName());
     }
@@ -79,7 +79,7 @@ sub constructArtifact {
     if(!$context->resolveDependency($dependency)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
-          $SMake::Constructor::Constructor::SUBSYSTEM,
+          $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
           "there is no dependency resolver registered for dependency '%s'",
           $dependency->getDependencyType());
     }

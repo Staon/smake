@@ -73,10 +73,72 @@ sub src {
 sub deps {
   my ($this, $parser, $context, $deptype, $deplist) = @_;
   
-  my $artifact = $context->getArtifact();
+  my $object = $context->getArtifact();
   foreach my $dep (@$deplist) {
-    $artifact->createDependency(
-        $context, $deptype, $artifact->getProject()->getName(), $dep);
+  	if(ref($dep) eq "ARRAY") {
+  	  # -- array record
+  	  my $project = $dep->[0];
+  	  my $artspec;
+  	  if(ref($dep->[1]) eq "ARRAY") {
+  	    $artspec = $dep->[1];
+  	  }
+  	  else {
+  	  	$artspec = [@$dep];
+  	  	shift @$artspec;
+  	  	if($#$artspec > 0) {
+  	  	  $artspec = [$artspec];
+  	  	}
+  	  }
+  	  
+  	  foreach my $spec (@$artspec) {
+  	  	my ($artifact, $mainres);
+  	    if(ref($spec) eq "ARRAY") {
+  	      ($artifact, $mainres) = @$spec;
+  	    }
+  	    else {
+  	      # -- string record
+          if($spec =~ /^([^\/\@]+)(\@[^\/]+)?$/) {
+            ($artifact, $mainres) = ($1, $2);
+            if(defined($mainres)) {
+              $mainres =~ s/^\@//;
+            }
+          }
+          else {
+            SMake::Utils::Utils::dieReport(
+                $context->getReporter(),
+                $SMake::Parser::Parser::SUBSYSTEM,
+                "string '%s' is not a valid dependency specification (artifact[\@mainres])",
+                $dep->[1]);
+          }
+  	    }
+        $object->createDependency(
+            $context, $deptype, $project, $artifact, $mainres);
+  	  }
+  	}
+  	else {
+  	  # -- string record, parse it
+  	  if($dep =~ /^([^\/]+\/)?([^\/\@]+)(\@[^\/]+)?$/) {
+  	  	my ($project, $artifact, $mainres) = ($1, $2, $3);
+  	  	if(defined($project)) {
+  	  	  $project =~ s/[\/]$//;
+  	  	}
+  	  	else {
+  	  	  $project = $context->getProject()->getName();
+  	  	}
+  	  	if(defined($mainres)) {
+  	  	  $mainres =~ s/^\@//;
+  	  	}
+        $object->createDependency(
+            $context, $deptype, $project, $artifact, $mainres);
+  	  }
+  	  else {
+        SMake::Utils::Utils::dieReport(
+            $context->getReporter(),
+            $SMake::Parser::Parser::SUBSYSTEM,
+            "string '%s' is not a valid dependency specification ([project/]artifact[\@mainres])",
+            $dep);
+  	  }
+  	}
   }
 }
 
