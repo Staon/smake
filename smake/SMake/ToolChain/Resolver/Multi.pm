@@ -30,7 +30,7 @@ use SMake::ToolChain::Resolver::Container;
 # Usage: new($resolver*)
 sub new {
   my $class = shift;
-  return bless(SMake::Resolver::Resolver->new(@_), $class);
+  return bless(SMake::ToolChain::Resolver::Container->new(@_), $class);
 }
 
 sub resolvePartial {

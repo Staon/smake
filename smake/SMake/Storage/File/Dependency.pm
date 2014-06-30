@@ -24,20 +24,22 @@ use SMake::Model::Dependency;
 
 # Create new dependency object
 #
-# Usage: new($repository, $storage, $artifact, $deptype, $depprj, $departifact)
+# Usage: new($repository, $storage, $artifact, $depkind, $deptype, $depprj, $departifact)
 #    repository ........ repository
 #    storage ........... owner storage
 #    artifact .......... owner of the dependency
+#    depkind ........... dependency kind ("resource", "stage")
 #    deptype ........... type of the dependency
 #    depprj ............ name of the dependency project
 #    departifact ....... name of the dependency artifact
 #    depmain ........... type of the dependency main resource (undef for the default)
 sub new {
-  my ($class, $repository, $storage, $artifact, $deptype, $depprj, $departifact, $depmain) = @_;
+  my ($class, $repository, $storage, $artifact, $depkind, $deptype, $depprj, $departifact, $depmain) = @_;
   my $this = bless(SMake::Model::Dependency->new(), $class);
   $this->{repository} = $repository;
   $this->{storage} = $storage;
   $this->{artifact} = $artifact;
+  $this->{depkind} = $depkind;
   $this->{deptype} = $deptype;
   $this->{depprj} = $depprj;
   $this->{departifact} = $departifact;
@@ -52,6 +54,11 @@ sub destroy {
   $this->{repository} = undef;
   $this->{storage} = undef;
   $this->{artifact} = undef;
+}
+
+sub getDependencyKind {
+  my ($this) = @_;
+  return $this->{depkind};
 }
 
 sub getDependencyType {
@@ -70,6 +77,11 @@ sub getDependencyArtifact {
 }
 
 sub getDependencyMainResource {
+  my ($this) = @_;
+  return $this->{depmain};
+}
+
+sub getDependencyStage {
   my ($this) = @_;
   return $this->{depmain};
 }

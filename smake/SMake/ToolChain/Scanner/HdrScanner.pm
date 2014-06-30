@@ -71,7 +71,7 @@ sub scanSource {
             $task->getStage()->getName(),
             $path->asString(),
             $SMake::Model::Const::EXTERNAL_TASK,
-            $artifact->getPath());
+            undef);
         # -- create the external resource
         my $extres = $artifact->createResource(
             $context, $path, $SMake::Model::Const::EXTERNAL_RESOURCE, $insttask);

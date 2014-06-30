@@ -18,20 +18,27 @@
 # Generic link resolver
 package SMake::Platform::Generic::LinkResolver;
 
-use SMake::ToolChain::Resolver::Dependency;
+use SMake::ToolChain::Resolver::Multi;
 
-@ISA = qw(SMake::ToolChain::Resolver::Dependency);
+@ISA = qw(SMake::ToolChain::Resolver::Multi);
 
 use SMake::Model::Const;
+use SMake::ToolChain::Resolver::DepInstall;
+use SMake::ToolChain::Resolver::DepResource;
 
 # Create new link resolver
 sub new {
   my ($class) = @_;
   
   my $this = bless(
-      SMake::ToolChain::Resolver::Dependency->new(
-          '^' . $SMake::Model::Const::LINK_DEPENDENCY . '$',
-          $SMake::Model::Const::BIN_MAIN_TYPE),
+      SMake::ToolChain::Resolver::Multi->new(
+          SMake::ToolChain::Resolver::DepResource->new(
+              '^' . $SMake::Model::Const::LINK_DEPENDENCY . '$',
+              $SMake::Model::Const::BIN_MAIN_TYPE),
+          SMake::ToolChain::Resolver::DepInstall->new(
+              '^' . $SMake::Model::Const::LINK_DEPENDENCY . '$',
+              $SMake::Model::Const::LIB_INSTALL_STAGE,
+              $SMake::Model::Const::BIN_MAIN_TYPE)),
       $class);
   return $this;
 }

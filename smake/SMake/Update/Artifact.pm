@@ -244,21 +244,82 @@ sub createStage {
   return $stage;
 }
 
+# Get stage object
+#
+# Usage: getStage($name)
+#    name ..... name of the stage
+# Returns: the stage or undef
+sub getStage {
+  my ($this, $name) = @_;
+  return $this->{stages}->getItemByKey(SMake::Model::Stage::createKey($name));
+}
+
+# Create resource dependency
+#
+# Usage: createResourceDependency($context, $deptype, $depprj, $departifact, $maintype)
+#    context ....... parser context
+#    deptype ....... dependency type
+#    depprj ........ name of the dependency project
+#    departifact ... name of the dependency artifact
+#    maintype ...... type of the main resource
+sub createResourceDependency {
+  my ($this, $context, $deptype, $depprj, $departifact, $maintype) = @_;
+  return $this->createDependency(
+      $context,
+      $SMake::Model::Dependency::RESOURCE_KIND,
+      $deptype,
+      $depprj,
+      $departifact,
+      $maintype);
+}
+
+# Create stage dependency
+#
+# Usage: createStageDependency($context, $deptype, $depprj, $departifact, $depstage)
+#    context ....... parser context
+#    deptype ....... dependency type
+#    depprj ........ name of the dependency project
+#    departifact ... name of the dependency artifact
+#    depstage ...... name of the dependency stage
+sub createStageDependency {
+  my ($this, $context, $deptype, $depprj, $departifact, $depstage) = @_;
+  return $this->createDependency(
+      $context,
+      $SMake::Model::Dependency::STAGE_KIND,
+      $deptype,
+      $depprj,
+      $departifact,
+      $depstage);
+}
+
 # Create new dependency
 #
-# Usage: createDependency($context, $deptype, $depprj, $departifact, $maintype)
+# Usage: createDependency($context, $depkind, $deptype, $depprj, $departifact, $maintype)
 #    context ....... parser context
+#    depkind ....... dependency kind
 #    deptype ....... dependency type
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact
 #    maintype ...... type of the main artifact (can be undef for default)
 sub createDependency {
-  my ($this, $context, $deptype, $depprj, $departifact, $maintype) = @_;
+  my $this = shift;
+  my $context = shift;
   
-  my $dep = SMake::Update::Dependency->new(
-      $context, $this, $deptype, $depprj, $departifact, $maintype);
+  my $dep = SMake::Update::Dependency->new($context, $this, @_);
   $this->{dependencies}->addItem($dep);
   return $dep;
+}
+
+# Get dependency object
+#
+# Usage: getDependency($depkind, $deptype, $depprj, $departifact, ...)
+#    depkind ....... kind of the dependency
+#    deptype ....... dependency type
+#    depprj ........ name of the dependency project
+#    departifact ... name of the dependency artifact
+sub getDependency {
+  my $this = shift;
+  return $this->{dependencies}->getItemByKey(SMake::Model::Dependency::createKey(@_));
 }
 
 # Get list of dependency objects

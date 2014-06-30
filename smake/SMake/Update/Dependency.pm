@@ -20,22 +20,21 @@ package SMake::Update::Dependency;
 
 # Create new dependency object
 #
-# Usage: new($context, $artifact, $deptype, $depprj, $departifact, $maintype)
+# Usage: new($context, $artifact, $depkind, $deptype, $depprj, $departifact, $maintype)
 #    context ...... parser context
 #    artifact ..... parent artifact object
+#    depkind ...... dependency kind
 #    deptype ...... dependency type
 #    depprj ....... dependency project
 #    departifact .. dependency artifact
 #    maintype ..... type of the main resource (can be null for default)
 sub new {
-  my ($class, $context, $artifact, $deptype, $depprj, $departifact, $maintype) = @_;
+  my ($class, $context, $artifact) = splice(@_, 0, 3);
   my $this = bless({}, $class);
   
-  my $dep = $artifact->getObject()->getDependency(
-      $deptype, $depprj, $departifact, $maintype);
+  my $dep = $artifact->getObject()->getDependency(@_);
   if(!defined($dep)) {
-    $dep = $artifact->getObject()->createDependency(
-        $deptype, $depprj, $departifact, $maintype);
+    $dep = $artifact->getObject()->createDependency(@_);
   }
   $this->{artifact} = $artifact;
   $this->{dependency} = $dep;

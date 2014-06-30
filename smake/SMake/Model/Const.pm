@@ -62,4 +62,8 @@ $PUBLISH_STAGE = "publish";
 $PUBLISH_RESOURCE = "public";
 $PUBLISH_TASK = "publish";
 
+# -- installation
+$INSTALL_DEPENDENCY = "install";
+$LIB_INSTALL_STAGE = "libinstall";
+
 return 1;

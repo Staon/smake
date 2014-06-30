@@ -18,6 +18,7 @@
 # Updateable stage object
 package SMake::Update::Stage;
 
+use SMake::Model::Stage;
 use SMake::Model::Task;
 use SMake::Update::Table;
 use SMake::Update::Task;
@@ -116,6 +117,16 @@ sub createTask {
   $this->{tasks}->addItem($taskobj);
   
   return $taskobj;
+}
+
+# Get task object
+#
+# Usage: getTask($name)
+#    name .... name of the task
+# Returns: the task or undef
+sub getTask {
+  my ($this, $name) = @_;
+  return $this->{tasks}->getItemByKey(SMake::Model::Task::createKey($name));
 }
 
 return 1;

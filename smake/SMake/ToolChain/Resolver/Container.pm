@@ -57,6 +57,7 @@ sub resolveResource {
 
 sub resolveDependency {
   my ($this, $context, $dependency) = @_;
+  
   my $status = 0;
   my $stop = 0;
   foreach my $resolver (@{$this->{list}}) {

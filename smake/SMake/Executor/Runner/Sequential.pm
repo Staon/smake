@@ -81,10 +81,12 @@ sub wait {
 
     # -- prepare current working directory
     my $dirkeeper = SMake::Utils::Chdir->new();
-    $dirkeeper->pushDir(
-        $record->[2]->systemAbsolute(),
-        $context->getReporter(),
-        $SMake::Executor::Executor::SUBSYSTEM);
+    if(defined($record->[2])) {
+      $dirkeeper->pushDir(
+          $record->[2]->systemAbsolute(),
+          $context->getReporter(),
+          $SMake::Executor::Executor::SUBSYSTEM);
+    }
 
     # -- run the command
     my $command = $record->[1];
@@ -94,8 +96,10 @@ sub wait {
     $record->[3] = (!$?)?1:0;
     
     # -- change current working directory back
-    $dirkeeper->popDir(
-        $context->getReporter(), $SMake::Executor::Executor::SUBSYSTEM);
+    if(defined($record->[2])) {
+      $dirkeeper->popDir(
+          $context->getReporter(), $SMake::Executor::Executor::SUBSYSTEM);
+    }
   }
 }
 

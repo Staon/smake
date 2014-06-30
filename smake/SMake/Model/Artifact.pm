@@ -23,6 +23,7 @@ use SMake::Model::Object;
 
 @ISA = qw(SMake::Model::Object);
 
+use SMake::Model::Dependency;
 use SMake::Utils::Abstract;
 use SMake::Utils::Print;
 
@@ -198,24 +199,58 @@ sub getStages {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Create new dependency
+# Create resource dependency
 #
-# Usage: createDependency($deptype, $depprj, $departifact, $maintype)
+# Usage: createResourceDependency($deptype, $depprj, $departifact, $maintype)
 #    deptype ....... dependency type
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact
 #    maintype ...... type of the main resource
+sub createResourceDependency {
+  my ($this, $deptype, $depprj, $departifact, $maintype) = @_;
+  return $this->createDependency(
+      $SMake::Model::Dependency::RESOURCE_KIND,
+      $deptype,
+      $depprj,
+      $departifact,
+      $maintype);
+}
+
+# Create stage dependency
+#
+# Usage: createStageDependency($deptype, $depprj, $departifact, $depstage)
+#    deptype ....... dependency type
+#    depprj ........ name of the dependency project
+#    departifact ... name of the dependency artifact
+#    depstage ...... name of the dependency stage
+sub createStageDependency {
+  my ($this, $deptype, $depprj, $departifact, $depstage) = @_;
+  return $this->createDependency(
+      $SMake::Model::Dependency::STAGE_KIND,
+      $deptype,
+      $depprj,
+      $departifact,
+      $depstage);
+}
+
+# Create dependency
+#
+# Usage: createDependency($depkind, $deptype, $depprj, $departifact, ...)
+#    depkind ....... kind of the dependency
+#    deptype ....... dependency type
+#    depprj ........ name of the dependency project
+#    departifact ... name of the dependency artifact
 sub createDependency {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Get dependency object
 #
-# Usage: getDependency($deptype, $depprj, $departifact, $maintype)
+# Usage: getDependency($depkind, $deptype, $depprj, $departifact, ...)
+#    depkind ....... kind of the dependency
 #    deptype ....... dependency type
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact
-#    maintype ...... type of the main resource
 sub getDependency {
   SMake::Utils::Abstract::dieAbstract();
 }

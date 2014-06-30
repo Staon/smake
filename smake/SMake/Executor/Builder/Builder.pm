@@ -113,6 +113,27 @@ sub addResources {
   $this->addSourceResources($context, $task, $command);
 }
 
+sub addDependencies {
+  my ($this, $context, $task, $command, $group, $deptype) = @_;
+
+  my $groupnode = $command->getChild($group);
+  if(!defined($groupnode)) {
+    $groupnode = SMake::Executor::Command::Group->new($group);
+    $command->putChild($groupnode);
+  }
+  
+  my $deps = $task->getDependencies();
+  foreach my $dep (@$deps) {
+    if($dep->getDependencyType() eq $deptype) {
+      my ($depprj, $depart, $stage, $depres) = $dep->getObjects(
+          $context->getReporter(),
+          $SMake::Executor::Executor::SUBSYSTEM,
+          $context->getRepository());
+      $groupnode->appendChild($this->createResourceNode($context, $depres));
+    }
+  }
+}
+
 # A builder function - add group of libraries computed from artifact's
 #    dependencies
 #
@@ -122,21 +143,28 @@ sub addResources {
 #    command ...... Root of the logical command (a Command::Set)
 sub addLibraries {
   my ($this, $context, $task, $command) = @_;
+  $this->addDependencies(
+      $context,
+      $task,
+      $command,
+      $SMake::Executor::Const::LIB_GROUP,
+      $SMake::Model::Const::LINK_DEPENDENCY);
+}
 
-  my $libs = SMake::Executor::Command::Group->new(
-      $SMake::Executor::Const::LIB_GROUP);
-  $command->putChild($libs);
-  
-  my $deps = $task->getDependencies();
-  foreach my $dep (@$deps) {
-    if($dep->getDependencyType() eq $SMake::Model::Const::LINK_DEPENDENCY) {
-      my ($depprj, $depart, $depres) = $dep->getObjects(
-          $context->getReporter(),
-          $SMake::Executor::Executor::SUBSYSTEM,
-          $context->getRepository());
-      $libs->appendChild($this->createResourceNode($context, $depres));
-    }
-  }
+# A builder function - add group of libraries to be installed
+#
+# Usage: addLibInstalls($context, $task, $command)
+#    context ...... Executor context
+#    task ......... Task object
+#    command ...... Root of the logical command (a Command::Set)
+sub addLibInstalls {
+  my ($this, $context, $task, $command) = @_;
+  $this->addDependencies(
+      $context,
+      $task,
+      $command,
+      $SMake::Executor::Const::SOURCE_GROUP,
+      $SMake::Model::Const::LINK_DEPENDENCY);
 }
 
 return 1;

@@ -215,12 +215,14 @@ sub getStages {
 }
 
 sub createDependency {
-  my ($this, $deptype, $depprj, $departifact, $maintype) = @_;
+  my ($this, $depkind, $deptype, $depprj, $departifact, $maintype) = @_;
   
   my $dependency = SMake::Storage::File::Dependency->new(
       $this->{repository},
       $this->{storage},
-      $this, $deptype,
+      $this,
+      $depkind,
+      $deptype,
       $depprj,
       $departifact,
       $maintype);
@@ -229,10 +231,8 @@ sub createDependency {
 }
 
 sub getDependency {
-  my ($this, $deptype, $depprj, $departifact, $maintype) = @_;
-  
-  return $this->{dependencies}->{
-      SMake::Model::Dependency::createKey($deptype, $depprj, $departifact, $maintype)};
+  my $this = shift;
+  return $this->{dependencies}->{SMake::Model::Dependency::createKey(@_)};
 }
 
 sub getDependencyKeys {

@@ -37,7 +37,7 @@ sub new {
   $this->{stage} = $stage;
   $this->{name} = $name;
   $this->{type} = $type;
-  $this->{wdir} = SMake::Data::Path->new($wd);
+  $this->{wdir} = (defined($wd))?SMake::Data::Path->new($wd):undef;
   $this->{args} = defined($args)?$args:{};
   $this->{targets} = {};
   $this->{sources} = {};

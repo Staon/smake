@@ -15,31 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Dependency resolver
+# Generic dependency resolver
 package SMake::ToolChain::Resolver::Dependency;
 
 use SMake::ToolChain::Resolver::Resolver;
 
 @ISA = qw(SMake::ToolChain::Resolver::Resolver);
 
-use SMake::ToolChain::Constructor::Constructor;
+use SMake::Utils::Abstract;
 
 # Create new dependency resolver
 #
 # Usage: new($mask, \@mainres)
 #    mask ..... mask of the dependency type
-#    mainres .. list of type of main resources
 sub new {
-  my ($class, $mask, $mainres) = @_;
+  my ($class, $mask) = @_;
+
   my $this = bless(SMake::ToolChain::Resolver::Resolver->new(), $class);
   $this->{mask} = $mask;
-  if(ref($mainres) eq "ARRAY") {
-    $this->{mainres} = $mainres;
-  }
-  else {
-    $this->{mainres} = [$mainres];
-  }
-  
   return $this;
 }
 
@@ -51,26 +44,22 @@ sub resolveDependency {
   my ($this, $context, $dependency) = @_;
   
   if($dependency->getDependencyType() =~ /$this->{mask}/) {
-  	# -- attach the dependency to the main resources
-    my $artifact = $context->getArtifact();
-  	foreach my $mainr (@{$this->{mainres}}) {
-  	  my $mainres = $artifact->getMainResource($mainr);
-  	  if(!defined($mainres)) {
-        SMake::Utils::Utils::dieReport(
-            $context->getReporter(),
-            $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
-            "dependency cannot be attached to main resource '%s'",
-            $mainr);
-  	  }
-  	  my $task = $mainres->getTask();
-  	  $task->appendDependency($dependency);
-  	}
-  	
+    $this->doJob($context, $dependency);
     return 1;
   }
   else {
     return 0;
   }
+}
+
+# Do the job with a matched dependency
+#
+# Usage: doJob($context, $dependency)
+#    context ..... parser context
+#    dependency .. the dependency
+# 
+sub doJob {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 return 1;

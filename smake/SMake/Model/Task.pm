@@ -241,7 +241,10 @@ sub prettyPrint {
   print ::HANDLE "type: " . $this->getType() . "\n";
 
   SMake::Utils::Print::printIndent($indent + 1);
-  print ::HANDLE "wd: " . $this->getWDPath()->asString() . "\n";
+  {
+    my $wd = $this->getWDPath();
+    print ::HANDLE "wd: " . ((defined($wd))?$wd->asString():"undef") . "\n";
+  }
 
   SMake::Utils::Print::printIndent($indent + 1);
   print ::HANDLE "force_run: " . $this->isForceRun() . "\n";

@@ -111,7 +111,7 @@ sub deps {
                 $dep->[1]);
           }
   	    }
-        $object->createDependency(
+        $object->createResourceDependency(
             $context, $deptype, $project, $artifact, $mainres);
   	  }
   	}
@@ -128,7 +128,7 @@ sub deps {
   	  	if(defined($mainres)) {
   	  	  $mainres =~ s/^\@//;
   	  	}
-        $object->createDependency(
+        $object->createResourceDependency(
             $context, $deptype, $project, $artifact, $mainres);
   	  }
   	  else {

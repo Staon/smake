@@ -137,9 +137,8 @@ sub getDependencies {
     # -- external dependencies
     my $dependencies = $task->getDependencies();
     foreach my $dep (@$dependencies) {
-      my ($project, $artifact, $resource) = $dep->getObjects(
+      my ($project, $artifact, $stage, $resource) = $dep->getObjects(
           $reporter, $subsystem, $this->{repository});
-      my $stage = $resource->getStage();
       my $address = $stage->getAddress();
       $addresses{$address->getKey()} = $address;
     }

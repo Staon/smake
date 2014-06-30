@@ -34,7 +34,7 @@ use SMake::ToolChain::Decider::DeciderBox;
 use SMake::ToolChain::Decider::DeciderTime;
 use SMake::Utils::Dirutils;
 
-#local $SIG{__DIE__} = sub { Carp::confess(@_); };
+local $SIG{__DIE__} = sub { Carp::confess(@_); };
 local $SIG{__WARN__} = sub { die @_ };
 
 # -- reporter
