@@ -126,6 +126,17 @@ sub getTasks {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Compute list of dependent stages
+#
+# Usage: computeDependencies($context, $subsystem)
+#    context ..... executor context
+#    subsystem ... logging subsystem
+# Returns: \@list
+#    list of stage addresses
+sub computeDependencies {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Create address of this stage
 sub getAddress {
   my ($this) = @_;

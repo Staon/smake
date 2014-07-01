@@ -80,13 +80,15 @@ sub printableString {
 
 # Get model objects addressed by this object
 #
-# Usage: getObjects($reporter, $subsystem, $repository)
+# Usage: getObjects($context, $subsystem)
+#    context ..... executor context
+#    subsystem ... logging subsystem
 # Returns: ($project, $artifact, $stage, $task)
 sub getObjects {
-  my ($this, $reporter, $subsystem, $repository) = @_;
+  my ($this, $context, $subsystem) = @_;
   
   my ($project, $artifact, $stage) = $this->{stageaddress}->getObjects(
-      $reporter, $subsystem, $repository);
+      $context, $subsystem);
   my $task = $stage->getTask($this->{taskid});
   if(!defined($task)) {
     SMake::Utils::Utils::dieReport(

@@ -37,9 +37,7 @@ sub execute {
 
   # -- get model objects
   my ($project, $artifact, $stage, $task) = $taskaddress->getObjects(
-      $context->getReporter(),
-      $SMake::Executor::Executor::SUBSYSTEM,
-      $context->getRepository());
+      $context, $SMake::Executor::Executor::SUBSYSTEM);
   
   # -- force execution of the task
   return $SMake::Executor::Instruction::Instruction::NEXT if($task->isForceRun());

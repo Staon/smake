@@ -117,12 +117,12 @@ sub getTasks {
 }
 
 sub getDependencies {
-  my ($this, $reporter, $subsystem) = @_;
+  my ($this, $context, $subsystem) = @_;
   my $self = $this->getAddress();
   
   my %addresses = ();
   
-  # -- dependencies defined by resources
+  # -- dependencies defined by tasks
   foreach my $task (values %{$this->{tasks}}) {
   	# -- source resources
     my $sources = $task->getSources();
@@ -138,9 +138,11 @@ sub getDependencies {
     my $dependencies = $task->getDependencies();
     foreach my $dep (@$dependencies) {
       my ($project, $artifact, $stage, $resource) = $dep->getObjects(
-          $reporter, $subsystem, $this->{repository});
-      my $address = $stage->getAddress();
-      $addresses{$address->getKey()} = $address;
+          $context, $subsystem);
+      if(!$context->getVisibility()->isExternal($project->getName())) {
+        my $address = $stage->getAddress();
+        $addresses{$address->getKey()} = $address;
+      }
     }
   }
   

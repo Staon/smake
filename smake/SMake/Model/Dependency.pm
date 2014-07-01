@@ -155,19 +155,20 @@ sub getDependencyStage {
 
 # Get model objects addressed by this dependency object
 #
-# Usage: getObjects($reporter, $subsystem, $repository)
+# Usage: getObjects($context, $subsystem)
 # Returns: ($project, $artifact, $stage, $resource)
 #    $project ..... dependency project
 #    $artifact .... dependency artifact
 #    $stage ....... dependency stage
 #    $resource .... dependency main resource. It can be undef for stage dependency.
 sub getObjects {
-  my ($this, $reporter, $subsystem, $repository) = @_;
+  my ($this, $context, $subsystem) = @_;
   
-  my $project = $repository->getProject($this->getDependencyProject());
+  my $project = $context->getVisibility()->getProject(
+      $context, $subsystem, $this->getDependencyProject());
   if(!defined($project)) {
     SMake::Utils::Utils::dieReport(
-        $reporter,
+        $context->getReporter(),
         $subsystem,
         "unknown dependent project '%s'",
         $this->getDependencyProject());
@@ -176,7 +177,7 @@ sub getObjects {
   my $artifact = $project->getArtifact($this->getDependencyArtifact());
   if(!defined($artifact)) {
     SMake::Utils::Utils::dieReport(
-        $reporter,
+        $context->getReporter(),
         $subsystem,
         "unknown dependent artifact '%s' in the project '%s'",
         $this->getDependencyProject(),
@@ -197,7 +198,7 @@ sub getObjects {
     }
     if(!defined($resource)) {
       SMake::Utils::Utils::dieReport(
-          $reporter,
+          $context->getReporter(),
           $subsystem,
           "unknown dependent main resource '%s' of the artifact '%s' in the project '%s'",
           (defined($restype)?$restype:"default"),
@@ -211,7 +212,7 @@ sub getObjects {
     $stage = $artifact->getStage($this->getDependencyStage());
     if(!defined($stage)) {
       SMake::Utils::Utils::dieReport(
-          $reporter,
+          $context->getReporter(),
           $subsystem,
           "unknown dependent stage '%s' of the artifact '%s' in the project '%s'",
           $this->getDependencyStage(),

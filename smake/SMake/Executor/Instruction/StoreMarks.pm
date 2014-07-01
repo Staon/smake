@@ -35,9 +35,7 @@ sub execute {
 
   # -- get model objects
   my ($project, $artifact, $stage, $task) = $taskaddress->getObjects(
-      $context->getReporter(),
-      $SMake::Executor::Executor::SUBSYSTEM,
-      $context->getRepository());
+      $context, $SMake::Executor::Executor::SUBSYSTEM);
 
   # -- update timestamps
   my $stamps = $task->getSourceTimestamps();

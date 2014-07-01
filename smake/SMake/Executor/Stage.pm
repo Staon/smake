@@ -28,13 +28,11 @@ sub getChildren {
   my ($context, $executor, $taskid) = @_;
   
   my ($project, $artifact, $stage) = $executor->getAddress()->getObjects(
-      $context->getReporter(),
-      $SMake::Executor::Executor::SUBSYSTEM,
-      $context->getRepository());
+      $context, $SMake::Executor::Executor::SUBSYSTEM);
   my $task = $stage->getTask($taskid);
   die "unknown task" if(!defined($task));
   return $task->getDependentTasks(
-      $context->getReporter(), $SMake::Executor::Executor::SUBSYSTEM);
+      $context, $SMake::Executor::Executor::SUBSYSTEM);
 }
 
 # Create new stage executor
@@ -52,9 +50,7 @@ sub new {
 
   # -- compute topological order of tasks inside the stage
   my ($project, $artifact, $stage) = $address->getObjects(
-      $context->getReporter(),
-      $SMake::Executor::Executor::SUBSYSTEM,
-      $context->getRepository());
+      $context, $SMake::Executor::Executor::SUBSYSTEM);
   my $tasks = $stage->getTaskNames();
   my ($info, $cyclelist) = $this->{toporder}->compute($tasks);
   if(!$info) {

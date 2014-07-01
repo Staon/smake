@@ -206,8 +206,8 @@ sub printableKey {
 
 # Get list of ids of tasks which this is dependent on
 #
-# Usage: getDependentTasks($reporter, $subsystem)
-#    reporter .... a reporter object
+# Usage: getDependentTasks($context, $subsystem)
+#    context ..... executor context
 #    subsystem ... logging subsystem
 # Returns: \@list of task ids
 sub getDependentTasks {

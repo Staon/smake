@@ -181,7 +181,7 @@ sub getDependencies {
 }
 
 sub getDependentTasks {
-  my ($this, $reporter, $subsystem) = @_;
+  my ($this, $context, $subsystem) = @_;
   
   my $list = [];
   foreach my $source (values %{$this->{sources}}) {

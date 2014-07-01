@@ -32,9 +32,8 @@ $SUBSYSTEM = "executor";
 sub getChildren {
   my ($context, $address) = @_;
   
-  my ($project, $artifact, $stage) = $address->getObjects(
-      $context->getReporter(), $SUBSYSTEM, $context->getRepository());
-  return $stage->getDependencies($context->getReporter(), $SUBSYSTEM);
+  my ($project, $artifact, $stage) = $address->getObjects($context, $SUBSYSTEM);
+  return $stage->getDependencies($context, $SUBSYSTEM);
 }
 
 # Create new executor object

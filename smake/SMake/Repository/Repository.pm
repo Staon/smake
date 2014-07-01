@@ -203,10 +203,12 @@ sub createProject {
 #
 # Usage: getProject($name)
 #    name .... name of the project
-# Returns: the project object or undef
+# Returns: ($project, $external)
+#    project ..... the project object or undef
+#    external .... external flag
 sub getProject {
   my ($this, $name) = @_;
-  return $this->{storage}->getProject($this, $name);
+  return ($this->{storage}->getProject($this, $name), 1);
 }
 
 return 1;

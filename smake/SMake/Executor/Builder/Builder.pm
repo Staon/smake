@@ -126,9 +126,7 @@ sub addDependencies {
   foreach my $dep (@$deps) {
     if($dep->getDependencyType() eq $deptype) {
       my ($depprj, $depart, $stage, $depres) = $dep->getObjects(
-          $context->getReporter(),
-          $SMake::Executor::Executor::SUBSYSTEM,
-          $context->getRepository());
+          $context, $SMake::Executor::Executor::SUBSYSTEM);
       $groupnode->appendChild($this->createResourceNode($context, $depres));
     }
   }

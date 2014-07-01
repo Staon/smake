@@ -70,16 +70,19 @@ sub printableString {
 
 # Get model objects addressed by this object
 #
-# Usage: getObjects($reporter, $subsystem, $repository)
+# Usage: getObjects($context, $subsystem)
+#    context ...... executor context
+#    subsystem .... logging subsystem
 # Returns: ($project, $artifact, $stage)
 sub getObjects {
-  my ($this, $reporter, $subsystem, $repository) = @_;
+  my ($this, $context, $subsystem) = @_;
   
   # -- get project
-  my $project = $repository->getProject($this->{project});
+  my $project = $context->getVisibility()->getProject(
+      $context, $subsystem, $this->{project});
   if(!defined($project)) {
     SMake::Utils::Utils::dieReport(
-        $reporter,
+        $context->getReporter(),
         $subsystem,
         "project '%s' is not known", $this->{project});
   }
@@ -88,7 +91,7 @@ sub getObjects {
   my $artifact = $project->getArtifact($this->{artifact});
   if(!defined($artifact)) {
     SMake::Utils::Utils::dieReport(
-        $reporter,
+        $context->getReporter(),
         $subsystem,
         "artifact '%s' is not defined in the project '%s'",
         $this->{artifact},
@@ -99,7 +102,7 @@ sub getObjects {
   my $stage = $artifact->getStage($this->{stage});
   if(!defined($stage)) {
     SMake::Utils::Utils::dieReport(
-        $reporter,
+        $context->getReporter(),
         $subsystem,
         "stage '%s' is not defined in the artifact '%s' of the project '%s'",
         $this->{stage},

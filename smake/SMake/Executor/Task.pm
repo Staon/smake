@@ -33,9 +33,7 @@ sub new {
 
   # -- get model object
   my ($project, $artifact, $stage, $task) = $this->{taskaddress}->getObjects(
-      $context->getReporter(),
-      $SMake::Executor::Executor::SUBSYSTEM,
-      $context->getRepository());
+      $context, $SMake::Executor::Executor::SUBSYSTEM);
   
   # -- build abstract command tree
   my $builder = $context->getToolChain()->getBuilder();

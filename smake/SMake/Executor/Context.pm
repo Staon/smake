@@ -20,13 +20,14 @@ package SMake::Executor::Context;
 
 # Create new context
 #
-# Usage: new($reporter, $decider, $repository)
+# Usage: new($reporter, $decider, $repository, $visibility)
 sub new {
-  my ($class, $reporter, $decider, $repository) = @_;
+  my ($class, $reporter, $decider, $repository, $visibility) = @_;
   return bless({
     reporter => $reporter,
     decider => $decider,
     repository => $repository,
+    visibility => $visibility,
   }, $class);
 }
 
@@ -46,6 +47,12 @@ sub getDecider {
 sub getRepository() {
   my ($this) = @_;
   return $this->{repository};
+}
+
+# Get the visibility object
+sub getVisibility {
+  my ($this) = @_;
+  return $this->{visibility};
 }
 
 # Get configured toolchain

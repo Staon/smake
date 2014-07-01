@@ -24,6 +24,7 @@ use SMake::Parser::Context;
 use SMake::Parser::Parser;
 use SMake::Parser::Version;
 use SMake::Parser::VersionRequest;
+use SMake::Parser::Visibility;
 use SMake::Platform::Aveco::ToolChain;
 use SMake::Platform::GCC::ToolChain;
 use SMake::Reporter::Reporter;
@@ -60,7 +61,8 @@ $repository->setToolChain($toolchain);
 
 # -- parser
 my $parser = SMake::Parser::Parser->new();
-my $context = SMake::Parser::Context->new($reporter, $decider, $repository);
+my $visibility = SMake::Parser::Visibility->new();
+my $context = SMake::Parser::Context->new($reporter, $decider, $repository, $visibility);
 my $path = SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefile"));
 
 # -- parse SMakefiles
@@ -71,12 +73,9 @@ $repository->commitTransaction();
 # -- execute the project
 $repository->openTransaction();
 my $executor = SMake::Executor::Executor->new();
-my $execcontext = SMake::Executor::Context->new($reporter, $decider, $repository);
-$executor->executeRoots(
-    $execcontext,
-    [
-      SMake::Data::Address->new("Haha", "hello", "binlink"),
-    ]);
+my $execcontext = SMake::Executor::Context->new($reporter, $decider, $repository, $visibility);
+my $execlist = $visibility->createRootList($execcontext, "main", ".*", "binlink");
+$executor->executeRoots($execcontext, $execlist);
 $repository->commitTransaction();
 
 $repository -> destroyRepository();

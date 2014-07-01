@@ -20,6 +20,7 @@
 package SMake::Update::Project;
 
 use SMake::Model::Artifact;
+use SMake::Parser::Parser;
 use SMake::Update::Artifact;
 use SMake::Update::Table;
 
@@ -34,20 +35,14 @@ sub new {
   my $this = bless({}, $class);
   
   # -- get existing project or create new
-  my $project = $context->getRepository()->getProject($name);
-  if(defined($project)) {
-    $project->update($path);
-    
-    # -- get list of artifacts
-    $this->{artifacts} = SMake::Update::Table->new(
-        \&SMake::Model::Artifact::createKey,
-        $project->getArtifactKeys());
-  }
-  else {
-    $project = $context->getRepository()->createProject($name, $path);
-    $this->{artifacts} = SMake::Update::Table->new(
-        &SMake::Model::Artifact::createKey, []);
-  }
+  my $project = $context->getVisibility()->createProject(
+      $context, $SMake::Parser::Parser::SUBSYSTEM, $name);
+  
+  # -- prepare update data
+  $project->update($path);
+  $this->{artifacts} = SMake::Update::Table->new(
+      \&SMake::Model::Artifact::createKey,
+      $project->getArtifactKeys());
   $this->{project} = $project;
   
   return $this;
