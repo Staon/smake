@@ -59,8 +59,12 @@ sub src {
 
   # -- create new source resources
   my $artifact = $context->getArtifact();
+  my $reslist = [];
   my $wrong = $artifact->appendSourceResources(
-      $context->getRepository(), $context->getResourcePrefix(), $srclist); 
+      $context,
+      $context->getResourcePrefix(),
+      $srclist,
+      $reslist); 
   if(defined($wrong)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
@@ -68,12 +72,17 @@ sub src {
           "complex or empty paths ('%s') are not allowed for directive 'Src'",
           $wrong);
   }
+  
+  # -- resolve appended resources
+  $context->getToolChain()->getConstructor()->resolveResources(
+      $context, $artifact, $reslist);
 }
 
 sub deps {
   my ($this, $parser, $context, $deptype, $deplist) = @_;
   
   my $object = $context->getArtifact();
+  my $added = [];
   foreach my $dep (@$deplist) {
   	if(ref($dep) eq "ARRAY") {
   	  # -- array record
@@ -111,8 +120,9 @@ sub deps {
                 $dep->[1]);
           }
   	    }
-        $object->createResourceDependency(
+        my $depobject = $object->createResourceDependency(
             $context, $deptype, $project, $artifact, $mainres);
+        push @$added, $depobject;
   	  }
   	}
   	else {
@@ -128,8 +138,9 @@ sub deps {
   	  	if(defined($mainres)) {
   	  	  $mainres =~ s/^\@//;
   	  	}
-        $object->createResourceDependency(
+        my $depobject = $object->createResourceDependency(
             $context, $deptype, $project, $artifact, $mainres);
+        push @$added, $depobject;
   	  }
   	  else {
         SMake::Utils::Utils::dieReport(
@@ -140,6 +151,10 @@ sub deps {
   	  }
   	}
   }
+
+  # -- resolve appended dependencies
+  $context->getToolChain()->getConstructor()->resolveDependencies(
+      $context, $object, $added);
 }
 
 sub endArtifact {
@@ -147,10 +162,13 @@ sub endArtifact {
   $context->getReporter()->report(
       5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "EndArtifact()");
   
-  # -- construct the artifact
+  # -- finish constructed artifact
   my $artifact = $context->getArtifact();
-  $context->getRepository()->getToolChain()->getConstructor()
-      ->constructArtifact($context, $artifact);
+  $context->getToolChain()->getConstructor()->finishArtifact(
+      $context, $artifact);
+
+  # -- remove the profile level
+  $context->getProfiles()->popList();
   
   # -- change current context
   $context->popArtifact();

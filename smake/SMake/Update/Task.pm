@@ -38,6 +38,7 @@ sub new {
   
   my $task = $stage->getObject()->getTask($name);
   if(defined($task)) {
+    $task->update();
     $this->{targets} = SMake::Update::Table->new(
         \&SMake::Model::Timestamp::createKey,
         $task->getTargetKeys());
@@ -165,11 +166,22 @@ sub appendTarget {
 
 # Append an external dependency
 #
-# Usage: appendDependency($dep)
-#    dep ..... the dependency object
+# Usage: appendDependency($context, $dep)
+#    context .. parser context
+#    dep ...... the dependency object
 sub appendDependency {
-  my ($this, $dep) = @_;
+  my ($this, $context, $dep) = @_;
   $this->{dependencies}->{$dep->getKey()} = $dep;
+}
+
+# Create and append new task's profile
+#
+# Usage: appendProfile($context, $dump)
+#    context .. parser context
+#    dump ..... profile's dump string
+sub appendProfile {
+  my ($this, $context, $dump) = @_;
+  $this->{task}->appendProfile($dump);
 }
 
 return 1;

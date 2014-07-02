@@ -66,7 +66,7 @@ sub doJob {
   }
   
   # -- insert dependency into the installation task
-  $task->appendDependency($dependency);
+  $task->appendDependency($context, $dependency);
 
   # -- get installation dependency
   my $instdep = $artifact->getDependency(
@@ -96,7 +96,7 @@ sub doJob {
           $mainr);
     }
     my $task = $mainres->getTask();
-    $task->appendDependency($instdep);
+    $task->appendDependency($context, $instdep);
   }
 }
 

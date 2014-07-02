@@ -20,10 +20,11 @@ package SMake::ToolChain::Constructor::Queue;
 
 # Create new queue
 #
-# Usage: new()
+# Usage: new(\@list)
+#    list ..... initial list of resources
 sub new {
-  my ($class) = @_;
-  return bless([], $class);
+  my ($class, $list) = @_;
+  return bless([@$list], $class);
 }
 
 # Push a resource into the queue

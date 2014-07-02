@@ -60,10 +60,11 @@ sub project {
   # -- create the update object
   my $project = SMake::Update::Project->new(
       $context, $name, $context->getCurrentDir());
-      
-  # -- push the project into the context
   $context->pushProject($project);
   
+  # -- prepare new profile level
+  $context->getProfiles()->pushList();
+      
   # -- switch parser's state
   $parser->switchState(
       SMake::Parser::States::Project->new($this));

@@ -95,10 +95,57 @@ sub subdirs {
           $dir);
     }
     $path = $basedir->joinPaths($path, "SMakefile");
+
+    # -- add profile level
+    $context->getProfiles()->pushList();
     
     # -- parse the description file
     $parser->parseFile($context, $path, $this);
+    
+    # -- remove the profile level
+    $context->getProfiles()->popList();
   }
+}
+
+# Profile directive
+#
+# The directive appends a compilation profile into currently active profile
+# list.
+#
+# Usage: profile($name, ...)
+#    name ...... name of the profile and its arguments
+sub profile {
+  my ($this, $parser, $context, $name, @args) = @_;
+
+  $context->getReporter()->report(
+      5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "Profile($name, @args)");
+  
+  my $profile = $context->getRepository()->createProfile($name, @args);
+  $context->getProfiles()->appendProfile($profile);
+}
+
+# Open profile group
+#
+# Usage: group()
+sub group {
+  my ($this, $parser, $context) = @_;
+
+  $context->getReporter()->report(
+      5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "Group()");
+  
+  $context->getProfiles()->pushList();
+}
+
+# Close profile group
+#
+# Usage: endgroup()
+sub endGroup {
+  my ($this, $parser, $context) = @_;
+
+  $context->getReporter()->report(
+      5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "EndGroup()");
+  
+  $context->getProfiles()->popList();
 }
 
 return 1;

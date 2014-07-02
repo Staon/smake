@@ -15,30 +15,53 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic interface of compilation profile
+# Generic profile model object
 package SMake::Model::Profile;
 
+use SMake::Model::Object;
+
+@ISA = qw(SMake::Model::Object);
+
+use SMake::Profile::Profile;
 use SMake::Utils::Abstract;
 
-# Create new compilation profile
+# Create new profile object
 #
-# Usage: new($name)
+# Usage: new()
 sub new {
-  my ($class, $name) = @_;
-  return bless({ name => $name }, $class);
+  my ($class) = @_;
+  return bless(SMake::Model::Object->new(), $class);
 }
 
-# Get name of the profile
-sub getName {
-  my ($this) = @_;
-  return $this->{name};
-}
-
-# Append this profile into a list of profiles
-#
-# Usage: appendToList($profilelist)
-sub appendToList {
+# Get profile's dump string
+sub getDumpString {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Create profile object according to the stored dump
+#
+# Usage: createProfile()
+# Returns: the profile object
+sub createProfile {
+  my ($this) = @_;
+  
+  my $profile = SMake::Profile::Profile::ressurect(
+      $this->getDumpString());
+}
+
+# Print content of the object
+#
+# Usage: prettyPrint($indent)
+sub prettyPrint {
+  my ($this, $indent) = @_;
+  
+  print ::HANDLE "Profile {\n";
+
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "dump: " . $this->getDumpString() . "\n";
+  
+  SMake::Utils::Print::printIndent($indent);
+  print ::HANDLE "}";
 }
 
 return 1;

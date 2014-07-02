@@ -16,7 +16,7 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Factory of compilation profiles
-package SMake::Model::ProfileFactory;
+package SMake::Profile::Factory;
 
 # Create new factory
 sub new {

@@ -18,7 +18,7 @@
 # Generic repository interface
 package SMake::Repository::Repository;
 
-use SMake::Model::ProfileFactory;
+use SMake::Profile::Factory;
 use SMake::ToolChain::ToolChain;
 
 # Create new repository
@@ -32,8 +32,7 @@ sub new {
   	parent => $parent,
   	storage => $storage,
   	variants => {},
-  	profilefactory => SMake::Model::ProfileFactory->new(),
-    profiles => [],
+  	profilefactory => SMake::Profile::Factory->new(),
     toolchain => SMake::ToolChain::ToolChain->new(
         defined($parent)?$parent->getToolChain():undef),
   }, $class);
@@ -86,14 +85,6 @@ sub createProfile {
   return $profile;
 }
 
-# Append a variant object (used from configuration files)
-#
-# Usage: appendVariant($variant)
-sub appendVariant {
-  my ($this, $variant) = @_;
-  $this->{variants}->{$variant->getName()} = $variant;
-}
-
 # Register named profile
 #
 # Usage: registerProfile($name, $module, ...)
@@ -105,17 +96,12 @@ sub registerProfile {
   $this->{profilefactory}->registerRecord($name, $module, @args);
 }
 
-# Append a profile into the repository
+# Append a variant object (used from configuration files)
 #
-# Usage: appendProfile($profile, ...)
-#     profile ..... the profile object, or profile name
-#     ... and other arguments for profile creation
-sub appendProfile {
-  my ($this, $profile, @args) = @_;
-  if(!ref($profile)) {
-  	$profile = $this->createProfile($profile, @args);
-  }
-  push @{$this->{profiles}}, $profile;
+# Usage: appendVariant($variant)
+sub appendVariant {
+  my ($this, $variant) = @_;
+  $this->{variants}->{$variant->getName()} = $variant;
 }
 
 # Convert a resource location to an absolute physical (filesystem) path

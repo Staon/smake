@@ -15,42 +15,36 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# List of compilation profiles
-package SMake::Model::ProfileList;
+# List of profiles
+package SMake::Profile::List;
 
-# Create new list
+# Create new profile list
 #
 # Usage: new()
 sub new {
   my ($class) = @_;
-  return bless({ profiles => [] }, $class);
+  return bless([], $class);
 }
 
-# Remove colliding profiles
-#
-# Usage: removeColliding(\%colliding)
-sub removeColliding {
-  my ($this, $colliding) = @_;
-
-  my @profiles = grep { !defined($colliding->{$_->getName()})} @{$this->{profiles}};
-  $this->{profiles} = \@profiles;  
-}
-
-# Append a profile
+# Append a profile into the list
 #
 # Usage: appendProfile($profile)
 sub appendProfile {
   my ($this, $profile) = @_;
-  push @{$this->{profiles}}, $profile;
+  push @$this, $profile;
 }
 
-# Append list of profiles
+# Create model objects of profile data
 #
-# Usage: appendProfileList(\@profiles)
-sub appendProfileList {
-  my ($this, $profiles) = @_;
-  for my $profile (@$profiles) {
-    $profile->appendToList($this);
+# Usage: constructProfiles($context, $task)
+#    context ..... parser context
+#    task ........ a task which the profiles are created for
+sub constructProfiles {
+  my ($this, $context, $task) = @_;
+
+  foreach my $profile (@$this) {
+    my $dumpstring = $profile->dumpContent();
+    $task->appendProfile($context, $dumpstring);
   }
 }
 

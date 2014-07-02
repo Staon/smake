@@ -39,4 +39,33 @@ sub constructArtifact {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Resolve queue of resources in area of the artifact
+#
+# Usage: resolveResources($context, $artifact, \@list)
+#    context ..... parser context
+#    artifact .... the artifact object
+#    list ........ list of resources
+sub resolveResources {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Resolve list of dependencies
+#
+# Usage: resolveDependencies($context, $artifact, \@list)
+#    context ..... parser context
+#    artifact .... the artifact object
+#    list ........ list of the dependencies
+sub resolveDependencies {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Finish construction of an artifact
+#
+# Usage: finishArtifact($context, $artifact)
+#    context ..... parser context
+#    artifact .... the artifact object
+sub finishArtifact {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

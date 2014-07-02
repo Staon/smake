@@ -24,6 +24,7 @@ use SMake::Model::Task;
 
 use SMake::Data::Path;
 use SMake::Model::Timestamp;
+use SMake::Storage::File::Profile;
 use SMake::Storage::File::Timestamp;
 
 # Create new task object
@@ -42,6 +43,7 @@ sub new {
   $this->{targets} = {};
   $this->{sources} = {};
   $this->{dependencies} = {};
+  $this->{profiles} = [];
   $this->{force_run} = 0;
    
   return $this;
@@ -60,7 +62,17 @@ sub destroy {
   foreach my $timestamp (values %{$this->{sources}}) {
     $timestamp->destroy();
   }
+  $this->{sources} = undef;
+  foreach my $profile (@{$this->{profiles}}) {
+    $profile->destroy();
+  }
+  $this->{profiles} = undef;
   $this->{dependencies} = undef;
+}
+
+sub update {
+  my ($this) = @_;
+  $this->{profiles} = [];
 }
 
 sub getRepository {
@@ -178,6 +190,19 @@ sub setDependencyMap {
 sub getDependencies {
   my ($this) = @_;
   return [values %{$this->{dependencies}}];
+}
+
+sub appendProfile {
+  my ($this, $dump) = @_;
+  
+  my $profile = SMake::Storage::File::Profile->new(
+      $this->{repository}, $this->{storage}, $this, $dump);
+  push @{$this->{profiles}}, $profile;
+}
+
+sub getProfiles {
+  my ($this) = @_;
+  return [@{$this->{profiles}}];
 }
 
 sub getDependentTasks {

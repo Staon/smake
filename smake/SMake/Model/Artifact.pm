@@ -206,6 +206,7 @@ sub getStages {
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact
 #    maintype ...... type of the main resource
+# Returns: the dependency object
 sub createResourceDependency {
   my ($this, $deptype, $depprj, $departifact, $maintype) = @_;
   return $this->createDependency(
@@ -223,6 +224,7 @@ sub createResourceDependency {
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact
 #    depstage ...... name of the dependency stage
+# Returns: the dependency object
 sub createStageDependency {
   my ($this, $deptype, $depprj, $departifact, $depstage) = @_;
   return $this->createDependency(
@@ -240,6 +242,7 @@ sub createStageDependency {
 #    deptype ....... dependency type
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact
+# Returns: the dependency object
 sub createDependency {
   SMake::Utils::Abstract::dieAbstract();
 }

@@ -33,6 +33,13 @@ sub new {
   return bless(SMake::Model::Object->new(), $class);
 }
 
+# Update data of the task
+#
+# The method should clear the list of compilation profiles
+sub update {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Create key tuple (static)
 #
 # Usage: createKeyTuple($name)
@@ -199,6 +206,22 @@ sub getDependencies {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Create and append new profile object
+#
+# Usage: appendProfile($dump)
+#    dump ...... profile's dump string
+sub appendProfile {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get profile objects
+#
+# Usage: getProfiles()
+# Returns: \@list
+sub getProfiles {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get a printable representation of the task's key
 sub printableKey {
   SMake::Utils::Abstract::dieAbstract();
@@ -280,6 +303,18 @@ sub prettyPrint {
   foreach my $dep (@$deps) {
     SMake::Utils::Print::printIndent($indent + 2);
     $dep->prettyPrint($indent + 2);
+    print ::HANDLE "\n";
+  }
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "}\n";
+  
+  # -- profiles
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "profiles: {\n";
+  my $profs = $this->getProfiles();
+  foreach my $prof (@$profs) {
+    SMake::Utils::Print::printIndent($indent + 2);
+    $prof->prettyPrint($indent + 2);
     print ::HANDLE "\n";
   }
   SMake::Utils::Print::printIndent($indent + 1);

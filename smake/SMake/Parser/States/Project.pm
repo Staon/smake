@@ -57,6 +57,13 @@ sub artifact {
   # -- change current context
   $context->pushArtifact($artifact);
   $context->pushResourcePrefix(SMake::Data::Path->new());
+
+  # -- construct the artifact
+  $context->getRepository()->getToolChain()->getConstructor()
+      ->constructArtifact($context, $artifact);
+  
+  # -- new profile level
+  $context->getProfiles()->pushList();
   
   # -- switch parser state      
   my $state = SMake::Parser::States::Artifact->new($this);
@@ -67,12 +74,15 @@ sub endProject {
   my ($this, $parser, $context) = @_;
   $context->getReporter()->report(
       5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "EndProject()");
-  
+
   # -- update data of the ending project and remove it from the stack
   my $project = $context->getProject();
   my $prj = $project->getObject();
   $context->popProject();
   $project->update($context);
+  
+  # -- remove profile level
+  $context->getProfiles()->popList();
   
   {
     local *::HANDLE;

@@ -93,6 +93,9 @@ sub new {
       EndArtifact => \&directive_,
       Src => \&directive_A,
       Deps => \&directive_SA,
+      Profile => \&directive_S,
+      Group => \&directive_,
+      EndGroup => \&directive_,
     },
   }, $class);
 }

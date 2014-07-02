@@ -27,6 +27,8 @@ use SMake::Parser::VersionRequest;
 use SMake::Parser::Visibility;
 use SMake::Platform::Aveco::ToolChain;
 use SMake::Platform::GCC::ToolChain;
+use SMake::Profile::Profile;
+use SMake::Profile::Stack;
 use SMake::Reporter::Reporter;
 use SMake::Reporter::TargetConsole;
 use SMake::Repository::Repository;
@@ -59,10 +61,15 @@ my $toolchain = SMake::Platform::Aveco::ToolChain->new($runner);
 #my $toolchain = SMake::Platform::GCC::ToolChain->new($runner);
 $repository->setToolChain($toolchain);
 
+# -- profiles
+$repository->registerProfile("memtest", SMake::Profile::Profile);
+
 # -- parser
 my $parser = SMake::Parser::Parser->new();
 my $visibility = SMake::Parser::Visibility->new();
-my $context = SMake::Parser::Context->new($reporter, $decider, $repository, $visibility);
+my $profiles = SMake::Profile::Stack->new();
+my $context = SMake::Parser::Context->new(
+    $reporter, $decider, $repository, $visibility, $profiles);
 my $path = SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefile"));
 
 # -- parse SMakefiles

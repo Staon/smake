@@ -42,17 +42,18 @@ sub new {
 sub constructArtifact {
   my ($this, $context, $artifact) = @_;
   
-  # -- prepare queue of resources to be resolved
-  my $queue = SMake::ToolChain::Constructor::Queue->new();
-  my $resources = $artifact->getResources($context);
-  foreach my $resource (@$resources) {
-    $queue->pushResource($resource);
-  }
-  
   # -- create main resources
   foreach my $record (@{$this->{resources}}) {
     $record->createMainResource($context, $artifact);
   }
+  
+  # -- clear pushed resolvers and scanners
+  $context->clearScanners();
+  $context->clearResolvers();
+}
+
+sub resolveResources {
+  my ($this, $context, $artifact, $list) = @_;
 
   # -- push resolver and scanner into the context to allow pushing of artifact dependent
   #    resolvers and scanners
@@ -60,6 +61,7 @@ sub constructArtifact {
   $context->pushScanner($context->getToolChain()->getScanner());
   
   # -- resolve resources
+  my $queue = SMake::ToolChain::Constructor::Queue->new($list);
   for(
       $resource = $queue->getResource();
       defined($resource);
@@ -73,9 +75,20 @@ sub constructArtifact {
     }
   }
   
+  # -- clear pushed resolvers and scanners
+  $context->clearScanners();
+  $context->clearResolvers();
+}
+
+sub resolveDependencies {
+  my ($this, $context, $artifact, $list) = @_;
+
+  # -- push resolver and into the context to allow pushing of artifact dependent
+  #    resolvers
+  $context->pushResolver($this->{resolver});
+  
   # -- resolve dependency records
-  my $dependencies = $artifact->getDependencyRecords();
-  foreach my $dependency (@$dependencies) {
+  foreach my $dependency (@$list) {
     if(!$context->resolveDependency($dependency)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
@@ -85,9 +98,14 @@ sub constructArtifact {
     }
   }
   
-  # -- clear pushed resolvers and scanners
-  $context->clearScanners();
+  # -- clear pushed resolvers
   $context->clearResolvers();
+}
+
+sub finishArtifact {
+  my ($this, $context, $artifact) = @_;
+
+  # -- currently nothing to do
 }
 
 return 1;

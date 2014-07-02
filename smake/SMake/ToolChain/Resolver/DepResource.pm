@@ -57,7 +57,7 @@ sub doJob {
           $mainr);
     }
     my $task = $mainres->getTask();
-    $task->appendDependency($dependency);
+    $task->appendDependency($context, $dependency);
   }
 }
 

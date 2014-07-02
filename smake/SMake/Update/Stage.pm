@@ -112,9 +112,13 @@ sub getProject {
 sub createTask {
   my ($this, $context, $name, $task, $wd, $args) = @_;
 
+  # -- create new task object
   my $taskobj = SMake::Update::Task->new(
       $context, $this, $name, $task, $wd, $args);
   $this->{tasks}->addItem($taskobj);
+  
+  # -- store currently active compilation profiles
+  $context->getProfiles()->constructProfiles($context, $taskobj);
   
   return $taskobj;
 }

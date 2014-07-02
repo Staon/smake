@@ -262,6 +262,7 @@ sub getStage {
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact
 #    maintype ...... type of the main resource
+# Returns: the dependency object
 sub createResourceDependency {
   my ($this, $context, $deptype, $depprj, $departifact, $maintype) = @_;
   return $this->createDependency(
@@ -281,6 +282,7 @@ sub createResourceDependency {
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact
 #    depstage ...... name of the dependency stage
+# Returns: the dependency object
 sub createStageDependency {
   my ($this, $context, $deptype, $depprj, $departifact, $depstage) = @_;
   return $this->createDependency(
@@ -301,6 +303,7 @@ sub createStageDependency {
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact
 #    maintype ...... type of the main artifact (can be undef for default)
+# Returns: the dependency object
 sub createDependency {
   my $this = shift;
   my $context = shift;
@@ -351,13 +354,14 @@ sub createTaskInStage {
 
 # A helper method - append source resources
 #
-# Usage: appendSourceResources($context, $prefix, \@srclist)
+# Usage: appendSourceResources($context, $prefix, \@srclist, \@reslist)
 #    context ..... parser context
 #    prefix ...... relative path of the sources based on this artifact
 #    srclist ..... list of sources (names of resources)
+#    reslist ..... (out) all newly created resources must be added here
 # Returns: undef if everything is OK, name of wrong resource otherwise
 sub appendSourceResources {
-  my ($this, $context, $prefix, $srclist) = @_;
+  my ($this, $context, $prefix, $srclist, $reslist) = @_;
   return undef if($#$srclist < 0);  # -- optimization
 
   # -- get the source stage (create new or use an already existing)
@@ -387,6 +391,7 @@ sub appendSourceResources {
         $prefix->joinPaths($name),
         $SMake::Model::Const::SOURCE_RESOURCE,
         $task);
+    push @$reslist, $resource;
   }
   
   return undef;

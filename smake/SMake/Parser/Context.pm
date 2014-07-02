@@ -19,22 +19,26 @@
 package SMake::Parser::Context;
 
 use File::Basename;
+use SMake::Profile::Stack;
 use SMake::Utils::Dirutils;
 use SMake::Utils::Stack;
 
 # Create new parser context
 #
-# Usage: new($reporter, $version, $variant, $project)
+# Usage: new($reporter, $decider, $repository, $visibility, $profiles)
 #    reporter .... reporter object
 #    decider ..... decider box
 #    repository .. used repository
+#    visibility .. projects' visibility object
+#    profiles .... stack of compilation profiles
 sub new {
-  my ($class, $reporter, $decider, $repository, $visibility) = @_;
+  my ($class, $reporter, $decider, $repository, $visibility, $profiles) = @_;
   return bless({
   	reporter => $reporter,
   	decider => $decider,
   	repository => $repository,
   	visibility => $visibility,
+  	profiles => SMake::Profile::Stack->new($profiles),
   	currdir => SMake::Utils::Stack->new("currdir"),
   	project => SMake::Utils::Stack->new("project"),
   	artifact => SMake::Utils::Stack->new("artifact"),
@@ -98,6 +102,12 @@ sub getToolChain {
 sub getMangler {
   my ($this) = @_;
   return $this->{repository}->getToolChain()->getMangler();
+}
+
+# Get stack of compilation profiles
+sub getProfiles {
+  my ($this) = @_;
+  return $this->{profiles};
 }
 
 # Push current directory

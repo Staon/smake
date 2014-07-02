@@ -15,34 +15,33 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# A compilation profile which simply combines several another profiles
-package SMake::Model::ProfileContainer;
+# Implementation of the profile object
+package SMake::Storage::File::Profile;
 
-use SMake::Model::ProfileCfg;
+use SMake::Model::Profile;
 
-@ISA = qw(SMake::Model::ProfileCfg);
+@ISA = qw(SMake::Model::Profile);
 
-# Create new container profile
+# Create new profile object
 #
-# Usage: new($name, \@profiles, \%colliding)
+# Usage: new($repository, $storage, $task, $dump)
+#    repository ..... a repository which the storage belongs to
+#    storage ........ the storage
+#    task ........... parent task object
+#    dump ........... profile dump string
 sub new {
-  my ($class, $name, $colliding, $profiles) = @_;
-  my $this = bless(SUPER->new($name, $colliding));
-  if(defined($profiles)) {
-  	$this -> {profiles} = $profiles;
-  }
-  else {
-  	$this -> {profiles} = [];
-  }
+  my ($class, $repository, $storage, $task, $dump) = @_;
+  my $this = bless(SMake::Model::Profile->new(), $class);
+  $this->{repository} = $repository;
+  $this->{storage} = $storage;
+  $this->{task} = $task;
+  $this->{dumpstring} = $dump;
   return $this;
 }
 
-# Append a profile
-#
-# Usage: appendProfile($profile)
-sub appendProfile {
-  my ($this, $profile) = @_;
-  push @{$this->{profiles}}, $profile;
+sub getDumpString {
+  my ($this) = @_;
+  return $this->{dumpstring};
 }
 
 return 1;
