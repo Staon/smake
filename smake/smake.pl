@@ -20,6 +20,7 @@ use SMake::Data::Address;
 use SMake::Data::Path;
 use SMake::Executor::Context;
 use SMake::Executor::Runner::Sequential;
+use SMake::InstallArea::StdArea;
 use SMake::Parser::Context;
 use SMake::Parser::Parser;
 use SMake::Parser::Version;
@@ -80,7 +81,9 @@ $repository->commitTransaction();
 # -- execute the project
 $repository->openTransaction();
 my $executor = SMake::Executor::Executor->new();
-my $execcontext = SMake::Executor::Context->new($reporter, $decider, $repository, $visibility);
+my $installarea = SMake::InstallArea::StdArea->new();
+my $execcontext = SMake::Executor::Context->new(
+    $reporter, $decider, $repository, $visibility, $installarea, undef);
 my $execlist = $visibility->createRootList($execcontext, "main", ".*", "binlink");
 $executor->executeRoots($execcontext, $execlist);
 $repository->commitTransaction();

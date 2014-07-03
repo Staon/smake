@@ -15,29 +15,36 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic header resolver
-package SMake::Platform::Generic::HeaderResolver;
+# Table of public resources
+package SMake::Storage::File::PublicTable;
 
-use SMake::ToolChain::Resolver::Publish;
+use SMake::Model::Resource;
 
-@ISA = qw(SMake::ToolChain::Resolver::Publish);
-
-use SMake::Data::Path;
-use SMake::Model::Const;
-
-# Create new header resolver
-#
-# Usage: new()
+# Create new table
 sub new {
   my ($class) = @_;
-  my $this = bless(
-      SMake::ToolChain::Resolver::Publish->new(
-          '.*',
-          '[.]h$',
-          $SMake::Model::Const::PUBLISH_RESOURCE,
-          SMake::Data::Path->new("include")),
-      $class);
-  return $this;
+  return bless({
+    table => {},
+  }, $class);
+}
+
+# Search for public resource
+#
+# Usage: searchResource($resource)
+#    resource .. resource key tuple
+# Returns: \@list
+#    list ...... list of project's key tuples or undef
+sub searchResource {
+  my ($this, $resource) = @_;
+  
+  my $key = SMake::Model::Resource::createKey(@$resource);
+  my $record = $this->{table}->{$key};
+  if(defined($record)) {
+    return [@$record];
+  }
+  else {
+    return undef;
+  }
 }
 
 return 1;

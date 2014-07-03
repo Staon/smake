@@ -28,30 +28,59 @@ use SMake::Model::Const;
 #    context ...... executor context
 #    subsystem .... logging subsystem
 #    resource ..... the external resources
-# Returns: ($found, $resource)
+# Returns: ($found, $resource, $local)
 #    found ........ true if the resource is resolved
 #    resource ..... resolved resource. The value is valid only if the found
 #                   flag is true. The value can be undef, if the resource shall
 #                   be ignored (e.g. typically system headers)
+#    local ........ resolved resource is local - it's not accessed through
+#                   the installation area. The value is valid only if the found
+#                   flag is true.
 sub resolveExternal {
   my ($context, $subsystem, $resource) = @_;
   
   # -- search in the local project
-  my $project = $resource->getProject();
-  my $resolved = $project->searchResource(
-      "^" . $SMake::Model::Const::SOURCE_RESOURCE . "|"
-          . $SMake::Model::Const::PRODUCT_RESOURCE . "\$",
-      $resource->getName());
-  return (1, $resolved) if(defined($resolved));
+  {
+    my $project = $resource->getProject();
+    my $resolved = $project->searchResource(
+        "^" . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . "|"
+            . quotemeta($SMake::Model::Const::PRODUCT_RESOURCE) . "\$",
+        $resource->getName());
+    return (1, $resolved, 1) if(defined($resolved));
+  }
   
-  # -- TODO: search in the global table of public resources
+  # -- search table of public resources
+  my $prjlist = $context->getRepository()->searchPublicResource(
+      SMake::Model::Resource::createKeyTuple(
+          $SMake::Model::Const::PUBLISH_RESOURCE,
+          $resource->getName()));
+  if(defined($prjlist)) {
+  	# -- TODO: select appropriate project
+    my $project = $context->getVisibility()->getProject(
+        $context, $subsystem, $prjlist->[0]->[0]);
+    
+    # -- search public resource in the project
+    my $resolved = $project->searchResource(
+        "^" . quotemeta($SMake::Model::Const::PUBLISH_RESOURCE) . "\$",
+        $resource->getName());
+    if(!defined($resolved)) {
+      die "project '" . $prjlist->[0]->[0] 
+          . "' doesn't exist but it's registered for public resource "
+          . $resource->getName()->asString() . "!";
+    }
+    
+    # -- get origin resource of the public resource
+    $resolved = $resolved->getTask()->getSources()->[0];
+    
+    return (1, $resolved, 0);
+  }
   
   # -- filter the resource by the toolchain
   if($context->getToolChain()->getResourceFilter()->filterResource($context, $resource)) {
-    return (1, undef);
+    return (1, undef, undef);
   }
   
-  return (0, undef);
+  return (0, undef, undef);
 }
 
 # Compute transitive closure of an external resource (all dependent external
@@ -75,7 +104,7 @@ sub externalTransitiveClosure {
     my $current = shift(@queue);
     if(!defined($extmap{$current->getName()->asString()})) {
       # -- not processed yet
-      my ($found, $resolved) = resolveExternal($context, $subsystem, $current);
+      my ($found, $resolved, $local) = resolveExternal($context, $subsystem, $current);
       if(!$found) {
         SMake::Utils::Utils::dieReport(
             $context->getReporter(),
@@ -84,6 +113,9 @@ sub externalTransitiveClosure {
             $current->getName()->asString());
       }
       if(defined($resolved)) {
+        # -- append to the return list
+        push @$list, $resolved;
+        
         # -- search its external resources
         my $task = $resolved->getTask();
         my $srctasks = $task->getSources();
@@ -92,8 +124,6 @@ sub externalTransitiveClosure {
             push @queue, $src;
           }
         }
-        # -- append to the return list
-        push @$list, $resolved;
       }
     }
   }

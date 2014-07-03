@@ -57,8 +57,6 @@ sub destroy {
   $this->{task} = undef;
 }
 
-#    type ..... type of the resource
-#    task ..... task which creates the resource
 sub update {
   my ($this, $type, $task) = @_;
   
@@ -96,14 +94,9 @@ sub getTask {
   return $this->{task};
 }
 
-sub getStage {
+sub publishResource {
   my ($this) = @_;
-  if(defined($this->{task})) {
-    return $this->{task}->getStage();
-  }
-  else {
-    return undef;
-  }
+  $this->getProject()->registerPublicResource($this);
 }
 
 return 1;

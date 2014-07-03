@@ -50,8 +50,9 @@ sub new {
     [$SMake::Model::Const::LIB_TASK, SMake::Executor::Builder::Compile->new()],
     [$SMake::Model::Const::BIN_TASK, SMake::Executor::Builder::Compile->new(
         "addResources", "addLibraries")],
+    [$SMake::Model::Const::PUBLISH_TASK, SMake::Executor::Builder::Empty->new()],
     [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Builder::Compile->new(
-        "addResources", "addLibInstalls")],
+        "addTargetResources")],
   );
   my $translator = SMake::Executor::Translator::Table->new();
   my $scanner = SMake::ToolChain::Scanner::Chain->new();

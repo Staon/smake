@@ -26,36 +26,41 @@ use SMake::Model::Const;
 
 # Create new publishing resolver
 #
-# Usage: new($type, $file)
+# Usage: new($type, $file, restype, path)
 #    type ...... mask of type of the resources
 #    file ...... mask of path of the resources
+#    restype ...... type of the public resource
+#    path ...... installation path (relative path based on the installation area)
 sub new {
-  my ($class, $type, $file) = @_;
+  my ($class, $type, $file, $restype, $path) = @_;
+  
   my $this = bless(
       SMake::ToolChain::Resolver::Resource->new($type, $file), $class);
+  $this->{restype} = $restype;
+  $this->{path} = $path;
   return $this;
 }
 
 sub doJob {
   my ($this, $context, $queue, $resource) = @_;
 
-  # TODO: do some work
+  # -- construct name of the public resource
+  my $resname = $resource->getName()->getBasepath();
+  my $instpath = $this->{path}->joinPaths($resname);
   
-#  # -- create name of the new resource
-#  my $tgpath = $context->getMangler()->mangleName(
-#      $context, $this->{mangler}, $resource->getRelativePath());
-#
-#  # -- create the task and the resource
-#  my $artifact = $context->getArtifact();
-#  my $task = $artifact->createTaskInStage(
-#      $this->{stage}, $this->{tasktype}, $artifact->getPath(), undef);
-#  $task->appendSource($resource);
-#  my $tgres = $artifact->createResource(
-#      $tgpath, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
-#  $queue->pushResource($tgres);
-#  
-#  # -- execute source scanner
-#  $context->scanSource($queue, $artifact, $resource, $task);
+  # -- create the public resource and its task
+  my $artifact = $context->getArtifact();
+  my $task = $artifact->createTaskInStage(
+      $context,
+      $resource->getStage()->getName(),
+      "publish:" . $instpath->asString(),
+      $SMake::Model::Const::PUBLISH_TASK,
+      undef,
+      undef);
+  my $instres = $artifact->createResource(
+      $context, $instpath, $this->{restype}, $task);
+  $instres->publishResource();
+  $task->appendSource($context, $resource);
 }
 
 return 1;

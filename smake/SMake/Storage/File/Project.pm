@@ -40,6 +40,7 @@ sub new {
   $this->{path} = $path;
   $this->{descriptions} = {};
   $this->{artifacts} = {};
+  $this->{publics} = {};
   return $this;
 }
 
@@ -57,7 +58,14 @@ sub destroy {
 
 sub update {
   my ($this, $path) = @_;
+  
   $this->{path} = $path;
+  
+  # -- clean table of public resources
+  my $prjkey = $this->getKeyTuple();
+  foreach my $resource (values %{$this->{publics}}) {
+    $this->{storage}->unregisterPublicResource($resource, $prjkey);
+  }
 }
 
 sub getRepository {
@@ -116,6 +124,18 @@ sub searchResource {
     return $resource if(defined($resource));
   }
   return undef;
+}
+
+# Register public resource
+#
+# Usage: registerPublicResource($resource)
+#    resource ...... the resource object
+sub registerPublicResource {
+  my ($this, $resource) = @_;
+  
+  my $reskey = $resource->getKeyTuple();
+  $this->{publics}->{$resource->getKey()} = $resource->getKeyTuple();
+  $this->{storage}->registerPublicResource($reskey, $this->getKeyTuple());
 }
 
 return 1;

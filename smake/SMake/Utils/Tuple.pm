@@ -15,29 +15,27 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic header resolver
-package SMake::Platform::Generic::HeaderResolver;
+# Helper functions to work with key tuples
+package SMake::Utils::Tuple;
 
-use SMake::ToolChain::Resolver::Publish;
-
-@ISA = qw(SMake::ToolChain::Resolver::Publish);
-
-use SMake::Data::Path;
-use SMake::Model::Const;
-
-# Create new header resolver
+# Compare two tuples
 #
-# Usage: new()
-sub new {
-  my ($class) = @_;
-  my $this = bless(
-      SMake::ToolChain::Resolver::Publish->new(
-          '.*',
-          '[.]h$',
-          $SMake::Model::Const::PUBLISH_RESOURCE,
-          SMake::Data::Path->new("include")),
-      $class);
-  return $this;
+# Usage: isEqual($t1, $t2)
+#    t1 ..... first tuple
+#    t2 ..... second tuple
+# Returns: true if the tuples are equal
+sub isEqual {
+  my ($t1, $t2) = @_;
+  
+  # -- check sizes
+  return 0 if($#$t1 != $#$t2);
+  
+  # -- compare values
+  for(my $index = 0; $index <= $#$t1; ++$index) {
+    return 0 if($t1->[$index] ne $t2->[$index]);
+  }
+  
+  return 1;
 }
 
 return 1;

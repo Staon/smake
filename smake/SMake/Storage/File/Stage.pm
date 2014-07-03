@@ -23,8 +23,10 @@ use SMake::Model::Stage;
 @ISA = qw(SMake::Model::Stage);
 
 use SMake::Executor::Executor;
+use SMake::Model::Const;
 use SMake::Model::Task;
 use SMake::Storage::File::Task;
+use SMake::Utils::Searching;
 use SMake::Utils::Utils;
 
 # Create new stage object
@@ -116,7 +118,7 @@ sub getTasks {
   return [values %{$this->{tasks}}];  
 }
 
-sub getDependencies {
+sub computeDependencies {
   my ($this, $context, $subsystem) = @_;
   my $self = $this->getAddress();
   
@@ -127,9 +129,30 @@ sub getDependencies {
   	# -- source resources
     my $sources = $task->getSources();
     foreach my $source (@$sources) {
-      # -- TODO: handle external resources
-      my $address = $source->getStage()->getAddress();
-      if(!$address->isEqual($self)) {
+      my $address = undef;
+      if($source->getType() ne $SMake::Model::Const::EXTERNAL_RESOURCE) {
+        # -- local resource
+        $address = $source->getStage()->getAddress();
+      }
+      else {
+        # -- external resource
+        my ($found, $resolved, $local) = SMake::Utils::Searching::resolveExternal(
+            $context, $subsystem, $source);
+        if(!$found) {
+          SMake::Utils::Utils::dieReport(
+              $context->getReporter(),
+              $subsystem,
+              "external resource '%s' cannot be resolved!",
+              $source->getName()->asString());
+        }
+        # -- if the external resource is not filtered (i.e. it's not any system header)
+        #    and if the external project is in the visibility set, append the stage
+        if(defined($resolved)
+           && !$context->getVisibility()->isExternal($resolved->getProject()->getName())) {
+          $address = $resolved->getStage()->getAddress();
+        }
+      }
+      if(defined($address) && !$address->isEqual($self)) {
         $addresses{$address->getKey()} = $address;
       }
     }

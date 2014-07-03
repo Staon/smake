@@ -123,4 +123,12 @@ sub getStage {
   return $this->getTask()->getStage();
 }
 
+# Make the resource public
+#
+# Usage: publishResource()
+sub publishResource {
+  my ($this) = @_;
+  $this->{resource}->publishResource();
+}
+
 return 1;

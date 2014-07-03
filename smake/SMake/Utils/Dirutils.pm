@@ -213,18 +213,17 @@ sub linkFakeDirectoryContent {
 	return 1;
 }
 
-#  Link a file into a directory
+# Link a file into a directory
 #
-#  Usage: linkFile($tgpath, $file)
-#  Return: false when the function fails.
+# Usage: linkFile($tgpath, $srcpath)
+#    tgpath ...... string path of the target (link name)
+#    srcpath ..... string path of the source file (linked file)
+# Returns: false when the function fails.
 sub linkFile {
-	my $tgpath = $_[0];
-	my $file = $_[1];
-	
-	my $basename = fileparse($file);
-	my $tgfile = File::Spec->catfile($tgpath, $basename);
-	unlink($tgfile);
-	return symlink($file, $tgfile);
+  my ($tgpath, $srcpath) = @_;
+
+  unlink($tgpath);
+  return symlink($srcpath, $tgpath);  
 }
 
 return 1;

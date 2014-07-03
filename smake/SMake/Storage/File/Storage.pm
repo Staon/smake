@@ -27,6 +27,7 @@ use SMake::Storage::Storage;
 use Data::Dumper;
 use File::Spec;
 use SMake::Storage::File::Cache;
+use SMake::Storage::File::PublicTable;
 use SMake::Storage::File::Transaction;
 use SMake::Utils::Dirutils;
 
@@ -39,6 +40,8 @@ else {
   import Digest::SHA qw(sha1_hex);
 }
 
+$PUBLIC_TABLE_FILE = "publics";
+
 # Create new file storage
 #
 # Usage: new($path)
@@ -48,6 +51,7 @@ sub new {
   my $this = bless(SMake::Storage::Storage->new(), $class);
   $this->{path} = $path;
   $this->{projects} = SMake::Storage::File::Cache->new(10);
+  $this->{publics} = SMake::Storage::File::PublicTable->new();
   
   return $this;
 }
@@ -58,7 +62,29 @@ sub new {
 sub loadStorage {
   my ($this, $repository_) = @_;
 
-  # -- curently nothing to do
+  # -- load table of public resources
+  my $filename = File::Spec->catfile($this->{path}, $PUBLIC_TABLE_FILE);
+  if(-f $filename) {
+    # -- read the content
+    my $data;
+    {
+      local $/ = undef;
+      local *PRJFILE;
+      open(PRJFILE, "<$filename");
+      $data = <PRJFILE>;
+      close(PRJFILE);
+    }
+
+    { 
+      local $publics;
+      my $info = eval $data;
+      if(!defined($info) && (defined($@) && $@ ne "")) {
+        die "it's not possible to read table of public resources!";
+      }
+      
+      $this->{publics} = $publics;
+    }
+  }
 }
 
 sub destroyStorage {
@@ -167,6 +193,18 @@ sub commitTransaction {
     # -- commit changes
     $this->{transaction}->commit($repository);
     $this->{transaction} = undef;
+    
+    # -- store table of public resources
+    {
+      my $filename = File::Spec->catfile($this->{path}, $PUBLIC_TABLE_FILE);
+      local *PUBFILE;
+      open(PUBFILE, ">$filename");
+      my $dumper = Data::Dumper->new([$this->{publics}], [qw(publics)]);
+      $dumper->Indent(1);
+      $dumper->Purity(1);
+      print PUBFILE $dumper->Dump();
+      close(PUBFILE);
+    }
   }
 }
 
@@ -180,6 +218,39 @@ sub getProject {
   my ($this, $repository, $name, $path) = @_;
   die "not opened transaction" if(!defined($this->{transaction}));
   return $this->{transaction}->getProject($repository, $name);
+}
+
+sub searchPublicResource {
+  my ($this, $repository, $resource) = @_;
+  
+  if(defined($this->{transaction})) {
+    return $this->{transaction}->searchPublicResource($repository, $resource);
+  }
+  else {
+    return $this->{publics}->searchResource($resource);
+  }
+}
+
+# Register a public resource
+#
+# Usage: registerPublicResource($resource, $project)
+#    resource ....... resource key tuple
+#    project ........ project key tuple
+sub registerPublicResource {
+  my ($this, $resource, $project) = @_;
+  die "not opened transaction" if(!defined($this->{transaction}));
+  return $this->{transaction}->registerPublicResource($resource, $project);
+}
+
+# Unregister a public resource
+#
+# Usage: unregisterPublicResource($resource, $project)
+#    resource ....... resource key tuple
+#    project ........ project key tuple
+sub unregisterPublicResource {
+  my ($this, $resource, $project) = @_;
+  die "not opened transaction" if(!defined($this->{transaction}));
+  return $this->{transaction}->unregisterPublicResource($resource, $project);
 }
 
 return 1;

@@ -23,6 +23,7 @@ use SMake::Executor::Translator::Translator;
 @ISA = qw(SMake::Executor::Translator::Translator);
 
 use SMake::Data::Path;
+use SMake::Executor::Executor;
 use SMake::Executor::Instruction::Shell;
 use SMake::Utils::Abstract;
 
@@ -47,13 +48,10 @@ sub translate {
   my ($this, $context, $command, $wd) = @_;
   
   # -- get the value node
-  my $len = $this->{address}->getSize();
-  my $value = $command;
-  foreach my $i (0 .. ($len - 1)) {
-    my $part = $this->{address}->getPart($i);
-    $value = $value->getChild($part);
-  }
-  
+  my $value = $command->getNode(
+      $context, $SMake::Executor::Executor::SUBSYSTEM, $this->{address});
+
+  # -- translate the value
   my $cmds = $this->translateValue($context, $command, $wd, $value);
   my $list = [];
   foreach my $cmd (@$cmds) {

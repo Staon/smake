@@ -180,8 +180,8 @@ sub getObjects {
         $context->getReporter(),
         $subsystem,
         "unknown dependent artifact '%s' in the project '%s'",
-        $this->getDependencyProject(),
-        $this->getDependencyArtifact());
+        $this->getDependencyArtifact(),
+        $this->getDependencyProject());
   }
   
   my $kind = $this->getDependencyKind();

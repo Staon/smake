@@ -197,4 +197,26 @@ sub getProject {
   return ($this->{storage}->getProject($this, $name), 1);
 }
 
+# Search for a public resource
+#
+# Usage: searchPublicResource($resource)
+#    resource ..... resource key tuple
+# Returns: \@list
+#    list ......... list of project key tuples
+sub searchPublicResource {
+  my ($this, $resource) = @_;
+  
+  # -- search in my storage
+  my $prjlist = $this->{storage}->searchPublicResource($this, $resource);
+  return $prjlist if(defined($prjlist));
+  
+  # -- redirect to the parent
+  if(defined($this->{parent})) {
+    return $this->{parent}->searchPublicResource($resource);
+  }
+  else {
+    return undef;
+  }
+}
+
 return 1;

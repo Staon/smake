@@ -22,14 +22,15 @@ use SMake::Profile::Stack;
 
 # Create new context
 #
-# Usage: new($reporter, $decider, $repository, $visibility, $profiles)
+# Usage: new($reporter, $decider, $repository, $visibility, $installarea, $profiles)
 sub new {
-  my ($class, $reporter, $decider, $repository, $visibility, $profiles) = @_;
+  my ($class, $reporter, $decider, $repository, $visibility, $installarea, $profiles) = @_;
   return bless({
     reporter => $reporter,
     decider => $decider,
     repository => $repository,
     visibility => $visibility,
+    installarea => $installarea,
     profiles => SMake::Profile::Stack->new($profiles),
   }, $class);
 }
@@ -80,6 +81,12 @@ sub getRunner {
 sub getMangler {
   my ($this) = @_;
   return $this->{repository}->getToolChain()->getMangler();
+}
+
+# Get installation area object
+sub getInstallArea {
+  my ($this) = @_;
+  return $this->{installarea};
 }
 
 return 1;

@@ -71,7 +71,7 @@ sub resolveResources {
           $context->getReporter(),
           $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
           "there is no resource resolver registered for resource '%s'",
-          $resource->getName());
+          $resource->getName()->asString());
     }
   }
   

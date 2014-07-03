@@ -33,7 +33,7 @@ sub getChildren {
   my ($context, $address) = @_;
   
   my ($project, $artifact, $stage) = $address->getObjects($context, $SUBSYSTEM);
-  return $stage->getDependencies($context, $SUBSYSTEM);
+  return $stage->computeDependencies($context, $SUBSYSTEM);
 }
 
 # Create new executor object

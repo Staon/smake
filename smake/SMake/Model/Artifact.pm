@@ -105,6 +105,16 @@ sub createResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Create new resource and register it as public
+#
+# Usage: createResource($name, $type, $task)
+#    name ...... name of the resource (relative path based on the artifact)
+#    type ...... type of the resource
+#    task ...... a task which generates this resource
+sub createPublicResource {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get resource
 #
 # Usage: getResource($type, $path)

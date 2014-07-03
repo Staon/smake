@@ -70,4 +70,15 @@ sub getProject {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Search for a public resource
+#
+# Usage: searchPublicResource($repository, $resource)
+#    repository ... owning repository
+#    resource ..... resource key tuple
+# Returns: \@list
+#    list ......... list of project key tuples or undef
+sub searchPublicResource {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

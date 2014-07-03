@@ -15,29 +15,26 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic header resolver
-package SMake::Platform::Generic::HeaderResolver;
+# Generic interface of the installation area
+package SMake::InstallArea::InstallArea;
 
-use SMake::ToolChain::Resolver::Publish;
+use SMake::Utils::Abstract;
 
-@ISA = qw(SMake::ToolChain::Resolver::Publish);
-
-use SMake::Data::Path;
-use SMake::Model::Const;
-
-# Create new header resolver
-#
-# Usage: new()
+# Create new installation area object
 sub new {
   my ($class) = @_;
-  my $this = bless(
-      SMake::ToolChain::Resolver::Publish->new(
-          '.*',
-          '[.]h$',
-          $SMake::Model::Const::PUBLISH_RESOURCE,
-          SMake::Data::Path->new("include")),
-      $class);
-  return $this;
+  return bless({}, $class);
+}
+
+# Install an external resource
+#
+# Usage: installResource($context, $subsystem, $project, $resource)
+#    context ..... executor context
+#    subsystem ... logging subsystem
+#    project ..... project object which the resource is installed in
+#    resource .... installed external resource
+sub installResource {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 return 1;

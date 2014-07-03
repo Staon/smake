@@ -19,6 +19,7 @@
 package SMake::Executor::Command::Node;
 
 use SMake::Utils::Abstract;
+use SMake::Utils::Utils;
 
 # Create new command node
 sub new {
@@ -31,6 +32,33 @@ sub new {
 # Usage: getName()
 sub getName {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get node at specified address
+#
+# Usage: getNode($context, $subsystem, $address)
+#    context ..... parser/executor context
+#    subsystem ... logging subsystem
+#    address ..... address of the node (an SMake::Data::Path object)
+# Return: the node
+sub getNode {
+  my ($this, $context, $subsystem, $address) = @_;
+
+  # -- get the value node
+  my $len = $address->getSize();
+  my $value = $this;
+  foreach my $i (0 .. ($len - 1)) {
+    my $part = $address->getPart($i);
+    $value = $value->getChild($part);
+    if(!defined($value)) {
+      SMake::Utils::Utils::dieReport(
+          $context->getReporter(),
+          $subsystem,
+          "command doesn't contain value '%s'!",
+          $address->asString());
+    }
+  }
+  return $value;
 }
 
 return 1;

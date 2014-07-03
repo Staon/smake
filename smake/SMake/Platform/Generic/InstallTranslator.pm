@@ -15,29 +15,26 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic header resolver
-package SMake::Platform::Generic::HeaderResolver;
+# Generic compile translator - it checks timestamps before the action
+# and it stores timestamps after the action
+package SMake::Platform::Generic::InstallTranslator;
 
-use SMake::ToolChain::Resolver::Publish;
+use SMake::Executor::Translator::Sequence;
 
-@ISA = qw(SMake::ToolChain::Resolver::Publish);
+@ISA = qw(SMake::Executor::Translator::Sequence);
 
-use SMake::Data::Path;
-use SMake::Model::Const;
+use SMake::Executor::Instruction::Install;
+use SMake::Executor::Translator::Instruction;
 
-# Create new header resolver
+# Create new install translator
 #
 # Usage: new()
 sub new {
   my ($class) = @_;
-  my $this = bless(
-      SMake::ToolChain::Resolver::Publish->new(
-          '.*',
-          '[.]h$',
-          $SMake::Model::Const::PUBLISH_RESOURCE,
-          SMake::Data::Path->new("include")),
-      $class);
-  return $this;
+  my $this = bless(SMake::Executor::Translator::Sequence->new(
+      SMake::Executor::Translator::Instruction->new(
+          SMake::Executor::Instruction::Install),
+  ), $class);
 }
 
 return 1;

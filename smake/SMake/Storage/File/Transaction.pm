@@ -20,6 +20,7 @@ package SMake::Storage::File::Transaction;
 
 use SMake::Model::Project;
 use SMake::Storage::File::Project;
+use SMake::Storage::File::PublicTransaction;
 use SMake::Storage::File::TransTable;
 
 # Create new transaction state
@@ -33,6 +34,7 @@ sub new {
         sub { return $storage->loadProject($_[1], $_[0]); },
         sub { $storage->storeProject($_[2], $_[0], $_[1]); },
         sub { $storage->deleteProject($_[1], $_[0]); }),
+    publics => SMake::Storage::File::PublicTransaction->new($storage->{publics}),
   }, $class);
 }
 
@@ -65,6 +67,38 @@ sub getProject {
       SMake::Model::Project::createKey($name), $repository);
 }
 
+# Register a public resource
+#
+# Usage: registerPublicResource($resource, $project)
+#    resource ....... resource key tuple
+#    project ........ project key tuple
+sub registerPublicResource {
+  my ($this, $resource, $project) = @_;
+  $this->{publics}->registerResource($resource, $project);
+}
+
+# Unregister a public resource
+#
+# Usage: unregisterPublicResource($resource, $project)
+#    resource ....... resource key tuple
+#    project ........ project key tuple
+sub unregisterPublicResource {
+  my ($this, $resource, $project) = @_;
+  $this->{publics}->unregisterResource($resource, $project);
+}
+
+# Search for a public resource
+#
+# Usage: searchPublicResource($repository, $resource)
+#    repository ..... the repository
+#    resource ....... resource key tuple
+# Returns: \@list
+#    list ........... list of project key tuples
+sub searchPublicResource {
+  my ($this, $repository, $resource) = @_;
+  return $this->{publics}->searchResource($resource);
+}
+
 # Commit the transaction
 #
 # Usage: commit($repository)
@@ -74,6 +108,7 @@ sub commit {
   # -- commit and store data
   my $storage = $this->{storage};
   $this->{projects}->commit($repository);
+  $this->{publics}->commit();
 }
 
 return 1;

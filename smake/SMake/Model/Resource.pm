@@ -111,8 +111,16 @@ sub getTask {
 
 # Get stage which the resource is created in
 #
-# Returns: the stage or undef, if the resource is an external resource
+# Returns: the stage
 sub getStage {
+  my ($this) = @_;
+  return $this->getTask()->getStage();
+}
+
+# Make the resource public
+#
+# Usage: publishResource()
+sub publishResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 

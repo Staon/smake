@@ -34,6 +34,7 @@ use SMake::Platform::Generic::CompileTranslator;
 use SMake::Platform::Generic::CResolver;
 use SMake::Platform::Generic::CXXResolver;
 use SMake::Platform::Generic::HeaderResolver;
+use SMake::Platform::Generic::InstallTranslator;
 use SMake::Platform::Generic::LibResolver;
 use SMake::Platform::Generic::LibResource;
 use SMake::Platform::Generic::LinkResolver;
@@ -110,13 +111,9 @@ sub new {
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1)),
       )],
-      [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Translator::Compositor->new(
-          "echo",
-          SMake::Executor::Translator::FileList->new(
-              $SMake::Executor::Const::PRODUCT_GROUP, "", "", "", "", " ", 0),
-          SMake::Executor::Translator::FileList->new(
-              $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 0),
-      )],
+      [$SMake::Model::Const::EXTERNAL_TASK,
+          SMake::Platform::Generic::InstallTranslator->new(),
+      ],
   );
   
   # -- source scanners

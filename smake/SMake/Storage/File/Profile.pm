@@ -39,6 +39,13 @@ sub new {
   return $this;
 }
 
+sub destroy {
+  my ($this) = @_;
+  
+  $this->{repository} = undef;
+  $this->{storage} = undef;
+}
+
 sub getDumpString {
   my ($this) = @_;
   return $this->{dumpstring};
