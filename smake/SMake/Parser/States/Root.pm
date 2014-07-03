@@ -64,6 +64,10 @@ sub project {
   
   # -- prepare new profile level
   $context->getProfiles()->pushList();
+  
+  # -- give a chance to the profiles
+  $context->getProfiles()->projectBegin(
+      $context, $SMake::Parser::Parser::SUBSYSTEM, $project);
       
   # -- switch parser's state
   $parser->switchState(

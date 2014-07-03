@@ -167,6 +167,10 @@ sub endArtifact {
   $context->getToolChain()->getConstructor()->finishArtifact(
       $context, $artifact);
 
+  # -- give a chance to the profiles
+  $context->getProfiles()->artifactEnd(
+      $context, $SMake::Parser::Parser::SUBSYSTEM, $artifact);
+
   # -- remove the profile level
   $context->getProfiles()->popList();
   

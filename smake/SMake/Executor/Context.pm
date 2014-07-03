@@ -18,16 +18,19 @@
 # Executor context
 package SMake::Executor::Context;
 
+use SMake::Profile::Stack;
+
 # Create new context
 #
-# Usage: new($reporter, $decider, $repository, $visibility)
+# Usage: new($reporter, $decider, $repository, $visibility, $profiles)
 sub new {
-  my ($class, $reporter, $decider, $repository, $visibility) = @_;
+  my ($class, $reporter, $decider, $repository, $visibility, $profiles) = @_;
   return bless({
     reporter => $reporter,
     decider => $decider,
     repository => $repository,
     visibility => $visibility,
+    profiles => SMake::Profile::Stack->new($profiles),
   }, $class);
 }
 
@@ -53,6 +56,12 @@ sub getRepository() {
 sub getVisibility {
   my ($this) = @_;
   return $this->{visibility};
+}
+
+# Get profiles stack
+sub getProfiles() {
+  my ($this) = @_;
+  return $this->{profiles};
 }
 
 # Get configured toolchain

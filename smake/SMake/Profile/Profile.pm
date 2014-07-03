@@ -44,13 +44,66 @@ sub dumpContent {
 sub ressurect {
   my ($dump) = @_;
   
-  local $project;
+  local $profile;
   my $info = eval $dump;
   if(!defined($info) && (defined($@) && $@ ne "")) {
     die "it's not possible to create profile object!";
   }
-  
-  return $project;
+  return $profile;
+}
+
+# Begining of construction of a project
+#
+# Usage: projectBegin($context, $subsystem, $project)
+#    context ..... parser context
+#    subsystem ... logging subsystem
+#    project ..... the project
+sub projectBegin {
+  # -- nothing to do as the default
+}
+
+# Ending of construction of a project
+#
+# Usage: projectEnd($context, $subsystem, $project)
+#    context ..... parser context
+#    subsystem ... logging subsystem
+#    project ..... the project
+sub projectEnd {
+  # -- nothing to do as the default
+}
+
+# Beginning of construction of an artifact
+#
+# Usage: artifactBegin($context, $subsystem, $artifact)
+#    context ..... parser context
+#    subsystem ... logging subsystem
+#    artifact .... the artifact object
+sub artifactBegin {
+  # -- nothing to do as the default
+}
+
+# Ending of construction of an artifact
+#
+# Usage: artifactEnd($context, $subsystem, $artifact)
+#    context ..... parser context
+#    subsystem ... logging subsystem
+#    artifact .... the artifact object
+sub artifactEnd {
+  # -- nothing to do as the default
+}
+
+# Modify logical command
+#
+# Usage: modifyCommand($context, $command, $task)
+#    context .... executor context
+#    command .... the logical command
+#    task ....... a task object which the command is attached to
+# Returns: modified logical command
+sub modifyCommand {
+  my ($this, $context, $command, $task) = @_;
+
+  # -- nothing to do as the default
+  return $command;
 }
 
 return 1;

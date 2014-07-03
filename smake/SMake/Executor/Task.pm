@@ -20,6 +20,8 @@ package SMake::Executor::Task;
 
 use SMake::Executor::Executor;
 use SMake::Executor::Instruction::Instruction;
+use SMake::Profile::Profile;
+use SMake::Profile::Stack;
 use SMake::Utils::Utils;
 
 # Create new task executor
@@ -39,11 +41,23 @@ sub new {
   my $builder = $context->getToolChain()->getBuilder();
   my $commands = $builder->build($context, $task);
   
+  # -- construct stack of compilation profiles
+  my $profstack = SMake::Profile::Stack->new($context->getProfiles());
+  my $profobjects = $task->getProfiles();
+  foreach my $profobject (@$profobjects) {
+    $profstack->appendProfile(
+        SMake::Profile::Profile::ressurect($profobject->getDumpString()));
+  }
+  
   # -- translate command to a shell commands
   my $translator = $context->getToolChain()->getTranslator();
   my $wd = $context->getRepository()->getPhysicalPathObject($task->getWDPath());
   my $instructions = [];
   foreach my $command (@$commands) {
+    # -- modify command by compilation profiles
+    $command = $profstack->modifyCommand($context, $command, $task);
+    
+    # -- translate the logical command to a sequence of instructions
   	my $instrs = $translator->translate($context, $command, $wd);
     push @$instructions, @$instrs;
   }
