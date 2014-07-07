@@ -235,6 +235,16 @@ sub getPart {
   return $this->[$index];
 }
 
+# Remove several first parts
+#
+# Usage: removePrefix($size)
+sub removePrefix {
+  my ($this, $size) = @_;
+  my $retval = [@$this];
+  splice(@$retval, 0, $size);
+  return bless($retval, ref($this)); 
+}
+
 sub printableString {
   my ($this) = @_;
   return $this->asString();

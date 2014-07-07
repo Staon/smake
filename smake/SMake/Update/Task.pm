@@ -21,6 +21,7 @@ package SMake::Update::Task;
 use SMake::Model::Resource;
 use SMake::Model::Timestamp;
 use SMake::Update::Table;
+use SMake::Update::TaskDependency;
 use SMake::Update::Timestamp;
 
 # Create new task
@@ -75,10 +76,6 @@ sub update {
   $this->{task}->deleteSources($ts_delete);
 
   $this->{task}->setForceRun($ts_changed || $tg_changed);
-  
-  # -- update dependency map
-  $this->{task}->setDependencyMap(
-    {map {$_ => $this->{dependencies}->{$_}->getObject()} keys(%{$this->{dependencies}})});
   
   $this->{sources} = undef;
   $this->{targets} = undef;
@@ -166,12 +163,16 @@ sub appendTarget {
 
 # Append an external dependency
 #
-# Usage: appendDependency($context, $dep)
-#    context .. parser context
-#    dep ...... the dependency object
+# Usage: appendDependency($context, $dep, $instmodule)
+#    context ...... parser context
+#    dep .......... the dependency object
+#    instmodule ... installation module
 sub appendDependency {
-  my ($this, $context, $dep) = @_;
-  $this->{dependencies}->{$dep->getKey()} = $dep;
+  my ($this, $context, $dep, $instmodule) = @_;
+  
+  my $taskdep = SMake::Update::TaskDependency->new(
+      $context, $this, $dep, $instmodule);
+  $this->{dependencies}->{$taskdep->getKey()} = $taskdep;
 }
 
 # Create and append new task's profile

@@ -39,13 +39,17 @@ use SMake::Model::Const;
 sub resolveExternal {
   my ($context, $subsystem, $resource) = @_;
   
+  my $resname = $resource->getName();
+  my $instmodule = $resname->getPart(0);
+  $resname = $resname->removePrefix(1);
+  
   # -- search in the local project
   {
     my $project = $resource->getProject();
     my $resolved = $project->searchResource(
         "^" . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . "|"
             . quotemeta($SMake::Model::Const::PRODUCT_RESOURCE) . "\$",
-        $resource->getName());
+        $resname);
     return (1, $resolved, 1) if(defined($resolved));
   }
   

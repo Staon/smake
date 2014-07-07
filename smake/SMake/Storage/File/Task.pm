@@ -25,6 +25,7 @@ use SMake::Model::Task;
 use SMake::Data::Path;
 use SMake::Model::Timestamp;
 use SMake::Storage::File::Profile;
+use SMake::Storage::File::TaskDependency;
 use SMake::Storage::File::Timestamp;
 
 # Create new task object
@@ -73,6 +74,7 @@ sub destroy {
 sub update {
   my ($this) = @_;
   $this->{profiles} = [];
+  $this->{dependencies} = {};
 }
 
 sub getRepository {
@@ -182,9 +184,13 @@ sub getSourceTimestamps {
   return [values(%{$this->{sources}})];
 }
 
-sub setDependencyMap {
-  my ($this, $map) = @_;
-  $this->{dependencies} = $map;
+sub appendDependency {
+  my ($this, $dependency, $instmodule) = @_;
+  
+  my $taskdep = SMake::Storage::File::TaskDependency->new(
+          $this->{repository}, $this->{storage}, $this, $dependency, $instmodule);
+  $this->{dependencies}->{$taskdep->getKey()} = $taskdep;
+  return $taskdep;
 }
 
 sub getDependencies {

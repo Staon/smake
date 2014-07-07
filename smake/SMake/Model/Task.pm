@@ -87,6 +87,18 @@ sub getStage {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get task's artifact
+sub getArtifact {
+  my ($this) = @_;
+  return $this->getStage()->getArtifact();
+}
+
+# Get task's project
+sub getProject {
+  my ($this) = @_;
+  return $this->getArtifact()->getProject();
+}
+
 # Get working path of the task
 #
 # The path has meaning in the context of the repository
@@ -191,11 +203,13 @@ sub getSourceTimestamps {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Set map of dependency objects
+# Append new task dependency object
 #
-# Usage: setDependencyMap(\%map)
-#    map ..... map of (key => dep_object)
-sub setDependencyMap {
+# Usage: appendDependency($dependency, $instmodule)
+#    dependency ...... the dependency object
+#    instmodule ...... installation module
+# Returns: the dependency object
+sub appendDependency {
   SMake::Utils::Abstract::dieAbstract();
 }
 

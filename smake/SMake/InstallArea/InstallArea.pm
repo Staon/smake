@@ -37,4 +37,27 @@ sub installResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Install resource dependency
+#
+# Usage: installDependnecy($context, $subsystem, $project, $dependency)
+#    context ..... executor context
+#    subsystem ... logging subsystem
+#    project ..... project object which the resource is installed in
+#    dependency .. the resource dependency
+sub installDependency {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get filesystem path of an installation module
+#
+# Usage: getModulePath($context, $subsystem, $module, $project)
+#    context ..... executor context
+#    subsystem ... logging subsystem
+#    module ...... installation module (e.g. "include" for headers)
+#    project ..... project object which the resource is installed in
+# Returns: the path (absolute path object with meaning of the repository)
+sub getModulePath {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

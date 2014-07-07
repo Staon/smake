@@ -28,6 +28,7 @@ use SMake::Parser::VersionRequest;
 use SMake::Parser::Visibility;
 use SMake::Platform::Aveco::ToolChain;
 use SMake::Platform::GCC::ToolChain;
+use SMake::Profile::InstallPaths;
 use SMake::Profile::Profile;
 use SMake::Profile::Stack;
 use SMake::Reporter::Reporter;
@@ -69,6 +70,10 @@ $repository->registerProfile("memtest", SMake::Profile::Profile);
 my $parser = SMake::Parser::Parser->new();
 my $visibility = SMake::Parser::Visibility->new();
 my $profiles = SMake::Profile::Stack->new();
+$profiles->appendProfile(SMake::Profile::InstallPaths->new(
+    $SMake::Model::Const::CXX_TASK, "header_dirs", $SMake::Model::Const::HEADER_MODULE));
+$profiles->appendProfile(SMake::Profile::InstallPaths->new(
+    $SMake::Model::Const::BIN_TASK, "lib_dirs", $SMake::Model::Const::LIB_MODULE));
 my $context = SMake::Parser::Context->new(
     $reporter, $decider, $repository, $visibility, $profiles);
 my $path = SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefile"));
@@ -83,7 +88,7 @@ $repository->openTransaction();
 my $executor = SMake::Executor::Executor->new();
 my $installarea = SMake::InstallArea::StdArea->new();
 my $execcontext = SMake::Executor::Context->new(
-    $reporter, $decider, $repository, $visibility, $installarea, undef);
+    $reporter, $decider, $repository, $visibility, $installarea, $profiles);
 my $execlist = $visibility->createRootList($execcontext, "main", ".*", "binlink");
 $executor->executeRoots($execcontext, $execlist);
 $repository->commitTransaction();

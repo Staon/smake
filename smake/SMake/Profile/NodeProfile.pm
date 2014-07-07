@@ -64,4 +64,22 @@ sub modifyNode {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Create new group node if it doesn't exist yet
+#
+# Usage: createNodeIfNotExists($address, $parent, $node)
+#    address .... address of the node
+#    parent ..... parent node
+#    node ....... the node or undef, if the node doesn't exist
+# Returns: the node
+sub createGroupIfNotExists {
+  my ($this, $address, $parent, $node) = @_;
+  
+  # -- create new group
+  if(!defined($node)) {
+    $node = SMake::Executor::Command::Group->new($address->getBasename());
+    $parent->putChild($node);
+  }
+  return $node;
+}
+
 return 1;

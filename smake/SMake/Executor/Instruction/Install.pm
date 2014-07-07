@@ -25,9 +25,12 @@ use SMake::Executor::Instruction::Instruction;
 use SMake::Executor::Executor;
 
 # Create new instruction
+#
+# Usage: new()
 sub new {
   my ($class) = @_;
-  return bless(SMake::Executor::Instruction::Instruction->new(), $class);
+  my $this = bless(SMake::Executor::Instruction::Instruction->new(), $class);
+  return $this;
 }
 
 sub execute {
@@ -37,10 +40,25 @@ sub execute {
   my ($project, $artifact, $stage, $task) = $taskaddress->getObjects(
       $context, $SMake::Executor::Executor::SUBSYSTEM);
 
-  # -- install the resource
-  my $resource = $task->getTargets()->[0];
-  $context->getInstallArea()->installResource(
-      $context, $SMake::Executor::Executor::SUBSYSTEM, $project, $resource);
+  # -- install the resources
+  my $resources = $task->getTargets();
+  foreach my $resource (@$resources) {
+    $context->getInstallArea()->installResource(
+        $context,
+        $SMake::Executor::Executor::SUBSYSTEM,
+        $project,
+        $resource);
+  }
+  
+  # -- install dependencies
+  my $deps = $task->getDependencies();
+  foreach my $dep (@$deps) {
+    $context->getInstallArea()->installDependency(
+        $context,
+        $SMake::Executor::Executor::SUBSYSTEM,
+        $project,
+        $dep);
+  }
   
   return $SMake::Executor::Instruction::Instruction::NEXT;
 }

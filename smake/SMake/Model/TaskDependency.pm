@@ -15,42 +15,36 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# An object which describes a dependency of an artifact
-package SMake::Model::Dependency;
+# An object which describes a dependency of a task
+package SMake::Model::TaskDependency;
 
 use SMake::Model::Object;
 
 @ISA = qw(SMake::Model::Object);
 
+use SMake::Model::Dependency;
 use SMake::Utils::Abstract;
-use SMake::Utils::Print;
 
-$RESOURCE_KIND = "resource";
-$STAGE_KIND = "stage";
-
-# Create new dependency object
+# Create new task dependency
 #
 # Usage: new()
 sub new {
   my ($class) = @_;
   my $this = bless(SMake::Model::Object->new(), $class);
-  
   return $this;
 }
 
 # Create key tuple
 #
-# Usage: createKey($kind, $type, $project, $artifact, ($main, $instmodule)|$stage)
+# Usage: createKey($kind, $type, $project, $artifact, ($main|$stage)
 #    kind ........ kind of the dependency
 #    type ........ type of the dependency
 #    project ..... name of the project
 #    artifact .... name of the artifact
 #    main ........ type of the main resource. It can be undef for default resource.
-#    instmodule .. installation module
 #    stage ....... name of the dependent stage
 sub createKeyTuple {
-  my ($kind, $type, $project, $artifact, $main) = @_;
-  return [$kind, $type, $project, $artifact, $main];
+  return SMake::Model::Dependency::createKeyTuple(@_);
 }
 
 # Create a string which can be used as a hash key (static)
@@ -62,60 +56,32 @@ sub createKeyTuple {
 #    artifact .. name of the artifact
 #    main ...... type of the main resource
 sub createKey {
-  my ($kind, $type, $project, $artifact, $main) = @_;
-  return "$kind:$type/$project/$artifact" . (($main)?"/$main":"");
+  return SMake::Model::Dependency::createKey(@_);
 }
 
-# Get a string which can be used as a hash key
 sub getKeyTuple {
   my ($this) = @_;
-  
-  my $kind = $this->getDependencyKind();
-  if($kind eq $RESOURCE_KIND) {
-    return createKeyTuple(
-        $this->getDependencyKind(),
-        $this->getDependencyType(),
-        $this->getDependencyProject(),
-        $this->getDependencyArtifact(),
-        $this->getDependencyMainResource()); 
-  }
-  elsif($kind eq $STAGE_KIND) {
-    return createKeyTuple(
-        $this->getDependencyKind(),
-        $this->getDependencyType(),
-        $this->getDependencyProject(),
-        $this->getDependencyArtifact(),
-        $this->getDependencyStage()); 
-  }
-  else {
-    die "wrong dependency kind";
-  }
+  return $this->getDependency()->getKeyTuple();
 }
 
-# Get a string which can be used as a hash key
 sub getKey {
   my ($this) = @_;
-  
-  my $kind = $this->getDependencyKind();
-  if($kind eq $RESOURCE_KIND) {
-    return createKey(
-        $this->getDependencyKind(),
-        $this->getDependencyType(),
-        $this->getDependencyProject(),
-        $this->getDependencyArtifact(),
-        $this->getDependencyMainResource()); 
-  }
-  elsif($kind eq $STAGE_KIND) {
-    return createKey(
-        $this->getDependencyKind(),
-        $this->getDependencyType(),
-        $this->getDependencyProject(),
-        $this->getDependencyArtifact(),
-        $this->getDependencyStage()); 
-  }
-  else {
-    die "wrong dependency kind";
-  }
+  return $this->getDependency()->getKey();
+}
+
+# Get the parent task
+sub getTask {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get the dependency object
+sub getDependency {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get installation module of the dependency (it can be undef)
+sub getInstallModule {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 # Get kinf of the dependency (dependency on a main resource, or on a stage)
@@ -123,22 +89,26 @@ sub getKey {
 # Usage: getDepedencyKind();
 # Returns: "resource" or "stage"
 sub getDependencyKind {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this) = @_;
+  return $this->getDependency()->getDependencyKind();
 }
 
 # Get type of the dependency
 sub getDependencyType {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this) = @_;
+  return $this->getDependency()->getDependencyType();
 }
 
 # Get a name of the project
 sub getDependencyProject {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this) = @_;
+  return $this->getDependency()->getDependencyProject();
 }
 
 # Get name of the artifact
 sub getDependencyArtifact {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this) = @_;
+  return $this->getDependency()->getDependencyArtifact();
 }
 
 # Get type of the references main resource. The value is valid only if
@@ -146,13 +116,15 @@ sub getDependencyArtifact {
 #
 # Returns: name of the type or undef if the default main resource should be used
 sub getDependencyMainResource {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this) = @_;
+  return $this->getDependency()->getDependencyMainResource();
 }
 
 # Get name of dependenc stage. This value is valid only if the dependency
 # is the "stage" kind.
 sub getDependencyStage {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this) = @_;
+  return $this->getDependency()->getDependencyStage();
 }
 
 # Get model objects addressed by this dependency object
@@ -189,7 +161,7 @@ sub getObjects {
   my $kind = $this->getDependencyKind();
   my $stage;
   my $resource;
-  if($kind eq $RESOURCE_KIND) {
+  if($kind eq $SMake::Model::Dependency::RESOURCE_KIND) {
     # -- dependency on a main resource
     my $restype = $this->getDependencyMainResource();
     if(!defined($restype)) {
@@ -209,7 +181,7 @@ sub getObjects {
     }
     $stage = $resource->getStage();
   }
-  elsif($kind eq $STAGE_KIND) {
+  elsif($kind eq $SMake::Model::Dependency::STAGE_KIND) {
     # -- dependency on a stage
     $stage = $artifact->getStage($this->getDependencyStage());
     if(!defined($stage)) {
@@ -235,7 +207,7 @@ sub getObjects {
 sub prettyPrint {
   my ($this, $indent) = @_;
   
-  print ::HANDLE "Dependency {\n";
+  print ::HANDLE "TaskDependency {\n";
 
   my $kind = $this->getDependencyKind();
   SMake::Utils::Print::printIndent($indent + 1);
@@ -251,14 +223,18 @@ sub prettyPrint {
   print ::HANDLE "artifact: " . $this->getDependencyArtifact() . "\n";
 
   SMake::Utils::Print::printIndent($indent + 1);
-  if($kind eq $RESOURCE_KIND) {
+  if($kind eq $SMake::Model::Dependency::RESOURCE_KIND) {
     my $maintype = $this->getDependencyMainResource();
     print ::HANDLE "maintype: " . (defined($maintype)?$maintype:"default") . "\n";
   }
-  elsif($kind eq $STAGE_KIND) {
+  elsif($kind eq $SMake::Model::Dependency::STAGE_KIND) {
     my $stage = $this->getDependencyStage();
     print ::HANDLE "stage: $stage\n";
   }
+
+  SMake::Utils::Print::printIndent($indent + 1);
+  my $instmodule = $this->getInstallModule();
+  print ::HANDLE "instmodule: " . (($instmodule)?$instmodule:"undef") . "\n";
   
   SMake::Utils::Print::printIndent($indent);
   print ::HANDLE "}";

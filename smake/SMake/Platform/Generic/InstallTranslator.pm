@@ -28,13 +28,14 @@ use SMake::Executor::Translator::Instruction;
 
 # Create new install translator
 #
-# Usage: new()
+# Usage: new($module)
 sub new {
   my ($class) = @_;
   my $this = bless(SMake::Executor::Translator::Sequence->new(
       SMake::Executor::Translator::Instruction->new(
           SMake::Executor::Instruction::Install),
   ), $class);
+  return $this;
 }
 
 return 1;

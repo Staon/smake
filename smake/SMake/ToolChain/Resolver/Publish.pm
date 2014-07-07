@@ -27,16 +27,18 @@ use SMake::Model::Const;
 # Create new publishing resolver
 #
 # Usage: new($type, $file, restype, path)
-#    type ...... mask of type of the resources
-#    file ...... mask of path of the resources
-#    restype ...... type of the public resource
-#    path ...... installation path (relative path based on the installation area)
+#    type ........ mask of type of the resources
+#    file ........ mask of path of the resources
+#    restype ..... type of the public resource
+#    instmodule .. installation module
+#    path ........ installation path (relative path based on the installation area)
 sub new {
-  my ($class, $type, $file, $restype, $path) = @_;
+  my ($class, $type, $file, $restype, $instmodule, $path) = @_;
   
   my $this = bless(
       SMake::ToolChain::Resolver::Resource->new($type, $file), $class);
   $this->{restype} = $restype;
+  $this->{instmodule} = $instmodule;
   $this->{path} = $path;
   return $this;
 }
@@ -46,7 +48,8 @@ sub doJob {
 
   # -- construct name of the public resource
   my $resname = $resource->getName()->getBasepath();
-  my $instpath = $this->{path}->joinPaths($resname);
+  my $instpath = SMake::Data::Path->new($this->{instmodule});
+  $instpath = $instpath->joinPaths($this->{path}, $resname);
   
   # -- create the public resource and its task
   my $artifact = $context->getArtifact();

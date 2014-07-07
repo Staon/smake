@@ -63,7 +63,7 @@ sub scanSource {
       if($line =~ /^\s*#\s*include\s*[<"]([^">]+)[">]/) {
         my $path = $1;
         $path =~ s/\\/\//;  # -- windows paths
-        $path = SMake::Data::Path->new($path);
+        $path = SMake::Data::Path->new($SMake::Model::Const::HEADER_MODULE, $path);
       
         # -- create installation task
         my $insttask = $artifact->createTaskInStage(

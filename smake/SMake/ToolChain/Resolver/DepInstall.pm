@@ -26,13 +26,14 @@ use SMake::Model::Const;
 
 # Create new dependency installation resolver
 #
-# Usage: new($mask, $stage, $mainres|[$mainres*])
-#    mask ..... mask of the dependency type
-#    stage .... name of the installation stage
-#    mainres .. list of main resources which are dependent on the installation
+# Usage: new($mask, $stage, $mainres|[$mainres*], $instmodule)
+#    mask ........ mask of the dependency type
+#    stage ....... name of the installation stage
+#    mainres ..... list of main resources which are dependent on the installation
 #        stage.
+#    instmodule .. installation module
 sub new {
-  my ($class, $mask, $stage, $mainres) = @_;
+  my ($class, $mask, $stage, $mainres, $instmodule) = @_;
 
   my $this = bless(SMake::ToolChain::Resolver::Dependency->new($mask), $class);
   $this->{stage} = $stage;
@@ -42,6 +43,7 @@ sub new {
   else {
     $this->{mainres} = [$mainres];
   }
+  $this->{instmodule} = $instmodule;
   return $this;
 }
 
@@ -66,7 +68,7 @@ sub doJob {
   }
   
   # -- insert dependency into the installation task
-  $task->appendDependency($context, $dependency);
+  $task->appendDependency($context, $dependency, $this->{instmodule});
 
   # -- get installation dependency
   my $instdep = $artifact->getDependency(
@@ -76,9 +78,8 @@ sub doJob {
       $artifact->getName(),
       $this->{stage});
   if(!defined($instdep)) {
-    $instdep = $artifact->createDependency(
+    $instdep = $artifact->createStageDependency(
         $context,
-        $SMake::Model::Dependency::STAGE_KIND,
         $SMake::Model::Const::INSTALL_DEPENDENCY,
         $artifact->getProject()->getName(),
         $artifact->getName(),
@@ -96,7 +97,7 @@ sub doJob {
           $mainr);
     }
     my $task = $mainres->getTask();
-    $task->appendDependency($context, $instdep);
+    $task->appendDependency($context, $instdep, undef);
   }
 }
 

@@ -39,7 +39,7 @@ sub new {
 
 sub resolveResource {
   my ($this, $context, $queue, $resource) = @_;
-  
+
   if(($resource->getType() =~ /$this->{typemask}/)
      && ($resource->getName()->asString() =~ /$this->{resmask}/)) {
     $this->doJob($context, $queue, $resource);

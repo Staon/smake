@@ -35,7 +35,8 @@ sub new {
           '.*',
           '[.]h$',
           $SMake::Model::Const::PUBLISH_RESOURCE,
-          SMake::Data::Path->new("include")),
+          $SMake::Model::Const::HEADER_MODULE,
+          SMake::Data::Path->new($SMake::Model::Const::HEADER_MODULE)),
       $class);
   return $this;
 }

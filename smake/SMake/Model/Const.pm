@@ -66,4 +66,8 @@ $PUBLISH_TASK = "publish";
 $INSTALL_DEPENDENCY = "install";
 $LIB_INSTALL_STAGE = "libinstall";
 
+# -- installation modules
+$HEADER_MODULE = "include";
+$LIB_MODULE = "lib";
+
 return 1;

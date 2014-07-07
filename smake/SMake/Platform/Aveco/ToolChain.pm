@@ -26,6 +26,7 @@ use SMake::Model::Const;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Executor::Translator::Instruction;
+use SMake::Executor::Translator::OptionList;
 use SMake::Executor::Translator::Select;
 use SMake::Executor::Translator::Sequence;
 use SMake::Platform::Generic::BinResolver;
@@ -88,6 +89,8 @@ sub new {
       [$SMake::Model::Const::CXX_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "cc",
+              SMake::Executor::Translator::OptionList->new(
+                  "header_dirs", "", "", "-I ", "", " "),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::PRODUCT_GROUP, "-c ", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
@@ -106,6 +109,8 @@ sub new {
               "cc",
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
+              SMake::Executor::Translator::OptionList->new(
+                  "lib_dirs", "", "", "-L ", "", " "),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::LIB_GROUP, "-liost ", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
               SMake::Executor::Translator::FileList->new(

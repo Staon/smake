@@ -37,7 +37,7 @@ sub new {
 
 sub modifyCommand {
   my ($this, $context, $command, $task) = @_;
-  
+ 
   if($command->getName() =~ /^$this->{cmdmask}$/) {
     return $this->doJob($context, $command, $task);
   }

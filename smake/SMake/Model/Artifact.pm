@@ -211,7 +211,7 @@ sub getStages {
 
 # Create resource dependency
 #
-# Usage: createResourceDependency($deptype, $depprj, $departifact, $maintype)
+# Usage: createResourceDependency($deptype, $depprj, $departifact, $maintype, instmodule)
 #    deptype ....... dependency type
 #    depprj ........ name of the dependency project
 #    departifact ... name of the dependency artifact

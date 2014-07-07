@@ -39,9 +39,10 @@ sub new {
 
 sub filterResource {
   my ($this, $context, $resource) = @_;
-  
+
+  my $resname = $resource->getName()->removePrefix(1);  
   my $path = File::Spec->catfile(
-      $this->{location}, $resource->getName()->systemRelative());
+      $this->{location}, $resname->systemRelative());
   if(-f $path) {
     return 1;
   }

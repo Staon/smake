@@ -121,7 +121,7 @@ sub deps {
           }
   	    }
         my $depobject = $object->createResourceDependency(
-            $context, $deptype, $project, $artifact, $mainres);
+            $context, $deptype, $project, $artifact, $mainres, undef);
         push @$added, $depobject;
   	  }
   	}
