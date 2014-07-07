@@ -70,4 +70,7 @@ $LIB_INSTALL_STAGE = "libinstall";
 $HEADER_MODULE = "include";
 $LIB_MODULE = "lib";
 
+# -- profile variables
+$VAR_HEADER_DIRECTORY = "HEADER_DIR";
+
 return 1;

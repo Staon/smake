@@ -106,4 +106,14 @@ sub modifyCommand {
   return $command;
 }
 
+# Get profile variable
+#
+# Usage: getVariable($context, $name)
+#    context .... executor/parser context
+#    name ....... name of the variable
+# Returns: value of the variable or undef
+sub getVariable {
+  return undef;
+}
+
 return 1;

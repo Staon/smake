@@ -31,7 +31,8 @@ use SMake::Model::Const;
 #    file ........ mask of path of the resources
 #    restype ..... type of the public resource
 #    instmodule .. installation module
-#    path ........ installation path (relative path based on the installation area)
+#    path ........ profile variable which contains installation path 
+#                  (relative path based on the installation area)
 sub new {
   my ($class, $type, $file, $restype, $instmodule, $path) = @_;
   
@@ -46,24 +47,29 @@ sub new {
 sub doJob {
   my ($this, $context, $queue, $resource) = @_;
 
-  # -- construct name of the public resource
-  my $resname = $resource->getName()->getBasepath();
-  my $instpath = SMake::Data::Path->new($this->{instmodule});
-  $instpath = $instpath->joinPaths($this->{path}, $resname);
+  my $profvar = $context->getProfiles()->getVariable($context, $this->{path});
+  if(defined($profvar)) {
+    my $path = SMake::Data::Path->new($profvar);
+
+    # -- construct name of the public resource
+    my $resname = $resource->getName()->getBasepath();
+    my $instpath = SMake::Data::Path->new($this->{instmodule});
+    $instpath = $instpath->joinPaths($path, $resname);
   
-  # -- create the public resource and its task
-  my $artifact = $context->getArtifact();
-  my $task = $artifact->createTaskInStage(
-      $context,
-      $resource->getStage()->getName(),
-      "publish:" . $instpath->asString(),
-      $SMake::Model::Const::PUBLISH_TASK,
-      undef,
-      undef);
-  my $instres = $artifact->createResource(
-      $context, $instpath, $this->{restype}, $task);
-  $instres->publishResource();
-  $task->appendSource($context, $resource);
+    # -- create the public resource and its task
+    my $artifact = $context->getArtifact();
+    my $task = $artifact->createTaskInStage(
+        $context,
+        $resource->getStage()->getName(),
+        "publish:" . $instpath->asString(),
+        $SMake::Model::Const::PUBLISH_TASK,
+        undef,
+        undef);
+    my $instres = $artifact->createResource(
+        $context, $instpath, $this->{restype}, $task);
+    $instres->publishResource();
+    $task->appendSource($context, $resource);
+  }
 }
 
 return 1;

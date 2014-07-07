@@ -15,30 +15,34 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic header resolver
-package SMake::Platform::Generic::HeaderResolver;
+# Generic variable profile
+package SMake::Profile::VarProfile;
 
-use SMake::ToolChain::Resolver::Publish;
+use SMake::Profile::Profile;
 
-@ISA = qw(SMake::ToolChain::Resolver::Publish);
+@ISA = qw(SMake::Profile::Profile);
 
-use SMake::Data::Path;
-use SMake::Model::Const;
-
-# Create new header resolver
+# Create new variable profile
 #
-# Usage: new()
+# Usage: new($profname, $name, $value)
 sub new {
-  my ($class) = @_;
-  my $this = bless(
-      SMake::ToolChain::Resolver::Publish->new(
-          '.*',
-          '[.]h$',
-          $SMake::Model::Const::PUBLISH_RESOURCE,
-          $SMake::Model::Const::HEADER_MODULE,
-          $SMake::Model::Const::VAR_HEADER_DIRECTORY),
-      $class);
+  my ($class, $profname, $name, $value) = @_;
+  
+  my $this = bless(SMake::Profile::Profile->new(), $class);
+  $this->{name} = $name;
+  $this->{value} = $value;
   return $this;
+}
+
+sub getVariable {
+  my ($this, $context, $name) = @_;
+  
+  if($name eq $this->{name}) {
+    return $this->{value};
+  }
+  else {
+    return undef;
+  }
 }
 
 return 1;

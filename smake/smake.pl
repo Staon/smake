@@ -31,6 +31,7 @@ use SMake::Platform::GCC::ToolChain;
 use SMake::Profile::InstallPaths;
 use SMake::Profile::Profile;
 use SMake::Profile::Stack;
+use SMake::Profile::VarProfile;
 use SMake::Reporter::Reporter;
 use SMake::Reporter::TargetConsole;
 use SMake::Repository::Repository;
@@ -65,6 +66,10 @@ $repository->setToolChain($toolchain);
 
 # -- profiles
 $repository->registerProfile("memtest", SMake::Profile::Profile);
+$repository->registerProfile(
+    "header",
+    SMake::Profile::VarProfile,
+    $SMake::Model::Const::VAR_HEADER_DIRECTORY);
 
 # -- parser
 my $parser = SMake::Parser::Parser->new();

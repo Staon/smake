@@ -114,4 +114,23 @@ sub modifyCommand {
   return $command;
 }
 
+# Get profile variable
+#
+# Usage: getVariable($context, $name)
+#    context .... parser/executor context
+#    name ....... name of the variable
+sub getVariable {
+  my ($this, $context, $name) = @_;
+  
+  my $value = undef;
+  $this->iterateItems(sub {
+    my $val = $_[0]->getVariable($context, $name);
+    if(defined($val)) {
+      print "set value $name = $val\n";
+      $value = $val;
+    }
+  });
+  return $value;
+}
+
 return 1;
