@@ -150,7 +150,7 @@ sub getProject {
   return $this->{project};
 }
 
-# Create resource
+# Create resource or use already created
 #
 # Usage: createResource($context, $path, $type, $task)
 #    context ... parser context

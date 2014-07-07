@@ -34,8 +34,7 @@ sub new {
       SMake::ToolChain::Resolver::Publish->new(
           '.*',
           '[.]h$',
-          $SMake::Model::Const::PUBLISH_RESOURCE,
-          $SMake::Model::Const::HEADER_MODULE,
+          $SMake::Model::Const::HEADER_RESOURCE,
           $SMake::Model::Const::VAR_HEADER_DIRECTORY),
       $class);
   return $this;

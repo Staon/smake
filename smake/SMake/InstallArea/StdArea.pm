@@ -40,31 +40,14 @@ sub getBasePath {
   return $project->getPath()->joinPaths(".install", $module);
 }
 
-sub getBasePathForName {
-  my ($this, $context, $subsystem, $project, $name) = @_;
-
-  # -- get module name (first part of the resource path)
-  if($name->getSize() < 2) {
-    SMake::Utils::Utils::dieReport(
-        $context->getReporter(),
-        $subsystem,
-        "path '%s' is not a valid path of an installable resource",
-        $name->asString());
-  }
-  my $module = $name->getPart(0);
-  $name = $name->removePrefix(1);
-  return $this->getBasePath($project, $module), $name;
-}
-
 sub installResolvedResource {
-  my ($this, $context, $subsystem, $project, $name, $resolved) = @_;
+  my ($this, $context, $subsystem, $project, $module, $name, $resolved) = @_;
 
   # -- area base path
-  my ($basepath, $path) = $this->getBasePathForName(
-      $context, $subsystem, $project, $name);
+  my $basepath = $this->getBasePath($project, $module);
       
   # -- prepare installation directory
-  my $dirpath = $basepath->joinPaths($path->getDirpath());
+  my $dirpath = $basepath->joinPaths($name->getDirpath());
   my $dirname = $context->getRepository()->getPhysicalPath($dirpath);
   if(! -d $dirname) {
     my $msg = SMake::Utils::Dirutils::makeDirectory($dirname);
@@ -103,7 +86,12 @@ sub installResource {
   if($found) {
     if(defined($resolved) && !$local) {
       $this->installResolvedResource(
-          $context, $subsystem, $project, $resource->getName(), $resolved);
+          $context,
+          $subsystem,
+          $project,
+          $resource->getType(),
+          $resource->getName(),
+          $resolved);
     }
   }
   else {
@@ -120,10 +108,13 @@ sub installDependency {
   
   my ($depproject, $artifact, $stage, $resource) = $dependency->getObjects(
       $context, $subsystem);
-  my $instname = SMake::Data::Path->new($dependency->getInstallModule());
-  $instname = $instname->joinPaths($resource->getName());
   $this->installResolvedResource(
-      $context, $subsystem, $project, $instname, $resource);
+      $context,
+      $subsystem,
+      $project,
+      $dependency->getInstallModule(),
+      $resource->getName(),
+      $resource);
 }
 
 sub getModulePath {

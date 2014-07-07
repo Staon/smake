@@ -39,25 +39,19 @@ use SMake::Model::Const;
 sub resolveExternal {
   my ($context, $subsystem, $resource) = @_;
   
-  my $resname = $resource->getName();
-  my $instmodule = $resname->getPart(0);
-  $resname = $resname->removePrefix(1);
-  
   # -- search in the local project
   {
     my $project = $resource->getProject();
     my $resolved = $project->searchResource(
         "^" . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . "|"
             . quotemeta($SMake::Model::Const::PRODUCT_RESOURCE) . "\$",
-        $resname);
+        $resource->getName());
     return (1, $resolved, 1) if(defined($resolved));
   }
   
   # -- search table of public resources
   my $prjlist = $context->getRepository()->searchPublicResource(
-      SMake::Model::Resource::createKeyTuple(
-          $SMake::Model::Const::PUBLISH_RESOURCE,
-          $resource->getName()));
+      $resource->getKeyTuple());
   if(defined($prjlist)) {
   	# -- TODO: select appropriate project
     my $project = $context->getVisibility()->getProject(
@@ -65,7 +59,7 @@ sub resolveExternal {
     
     # -- search public resource in the project
     my $resolved = $project->searchResource(
-        "^" . quotemeta($SMake::Model::Const::PUBLISH_RESOURCE) . "\$",
+        "^" . quotemeta($resource->getType()) . "\$",
         $resource->getName());
     if(!defined($resolved)) {
       die "project '" . $prjlist->[0]->[0] 
@@ -80,7 +74,8 @@ sub resolveExternal {
   }
   
   # -- filter the resource by the toolchain
-  if($context->getToolChain()->getResourceFilter()->filterResource($context, $resource)) {
+  if($context->getToolChain()->getResourceFilter()->filterResource(
+      $context, $resource)) {
     return (1, undef, undef);
   }
   

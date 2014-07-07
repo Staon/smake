@@ -130,7 +130,7 @@ sub computeDependencies {
     my $sources = $task->getSources();
     foreach my $source (@$sources) {
       my $address = undef;
-      if($source->getType() ne $SMake::Model::Const::EXTERNAL_RESOURCE) {
+      if(!$context->getToolChain->isExternal($source)) {
         # -- local resource
         $address = $source->getStage()->getAddress();
       }

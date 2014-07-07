@@ -63,7 +63,7 @@ sub scanSource {
       if($line =~ /^\s*#\s*include\s*[<"]([^">]+)[">]/) {
         my $path = $1;
         $path =~ s/\\/\//;  # -- windows paths
-        $path = SMake::Data::Path->new($SMake::Model::Const::HEADER_MODULE, $path);
+        $path = SMake::Data::Path->new($path);
       
         # -- create installation task
         my $insttask = $artifact->createTaskInStage(
@@ -74,7 +74,7 @@ sub scanSource {
             undef);
         # -- create the external resource
         my $extres = $artifact->createResource(
-            $context, $path, $SMake::Model::Const::EXTERNAL_RESOURCE, $insttask);
+            $context, $path, $SMake::Model::Const::HEADER_RESOURCE, $insttask);
         $task->appendSource($context, $extres);
       }
     }
