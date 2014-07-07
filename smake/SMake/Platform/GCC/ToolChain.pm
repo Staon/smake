@@ -26,6 +26,7 @@ use SMake::Model::Const;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Executor::Translator::Instruction;
+use SMake::Executor::Translator::OptionList;
 use SMake::Executor::Translator::Select;
 use SMake::Executor::Translator::Sequence;
 use SMake::Platform::Generic::BinResolver;
@@ -34,6 +35,7 @@ use SMake::Platform::Generic::CompileTranslator;
 use SMake::Platform::Generic::CResolver;
 use SMake::Platform::Generic::CXXResolver;
 use SMake::Platform::Generic::HeaderResolver;
+use SMake::Platform::Generic::InstallTranslator;
 use SMake::Platform::Generic::LibResolver;
 use SMake::Platform::Generic::LibResource;
 use SMake::ToolChain::Constructor::Generic;
@@ -86,6 +88,8 @@ sub new {
       [$SMake::Model::Const::CXX_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "g++",
+              SMake::Executor::Translator::OptionList->new(
+                  "header_dirs", "", "", "-I ", "", " "),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::PRODUCT_GROUP, "-c ", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
@@ -93,7 +97,7 @@ sub new {
       )],
       [$SMake::Model::Const::LIB_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
-              "ar",
+              "ar rs",
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::PRODUCT_GROUP, "", "", "", "", "", 0),
               SMake::Executor::Translator::FileList->new(
@@ -105,17 +109,18 @@ sub new {
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::LIB_GROUP, "", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
+                  $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
+              SMake::Executor::Translator::OptionList->new(
+                  "lib_dirs", "", "", "-L ", "", " "),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1)),
+                  $SMake::Executor::Const::LIB_GROUP, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
+              SMake::Executor::Translator::FileList->new(
+                  $SMake::Executor::Const::LIB_GROUP, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
+          ),
       )],
-      [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Translator::Compositor->new(
-          "echo",
-          SMake::Executor::Translator::FileList->new(
-              $SMake::Executor::Const::PRODUCT_GROUP, "", "", "", "", " ", 0),
-          SMake::Executor::Translator::FileList->new(
-              $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 0),
-      )],
+      [$SMake::Model::Const::EXTERNAL_TASK,
+          SMake::Platform::Generic::InstallTranslator->new(),
+      ],
   );
   
   # -- source scanners
