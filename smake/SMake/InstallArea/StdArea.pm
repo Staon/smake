@@ -40,7 +40,13 @@ sub new {
 
 sub getBasePath {
   my ($this, $project, $module) = @_;
-  return $project->getPath()->joinPaths(".install", $module);
+  
+  if(defined($module)) {
+    return $project->getPath()->joinPaths(".install", $module);
+  }
+  else {
+    return $project->getPath()->joinPaths(".install");
+  }
 }
 
 sub installResolvedResource {
@@ -125,6 +131,21 @@ sub installDependency {
 sub getModulePath {
   my ($this, $context, $subsystem, $module, $project) = @_;
   return $this->{restype}, $this->getBasePath($project, $module);
+}
+
+# Clean the installation area
+#
+# Usage: cleanArea($context, $subsystem, $project)
+#    context ..... executor context
+#    subsystem ... logging subsystem
+#    project ..... project object which the resource is installed in
+sub cleanArea {
+  my ($this, $context, $subsystem, $project) = @_;
+
+  my $path = $this->getBasePath($project);
+  $path = $context->getRepository()->getPhysicalLocationString(
+      $this->{restype}, $path);
+  SMake::Utils::Dirutils::removeDirectory($path);
 }
 
 return 1;

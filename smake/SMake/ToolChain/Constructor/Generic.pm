@@ -22,6 +22,7 @@ use SMake::ToolChain::Constructor::Constructor;
 
 @ISA = qw(SMake::ToolChain::Constructor::Constructor);
 
+use SMake::Model::Const;
 use SMake::ToolChain::Constructor::Queue;
 use SMake::Utils::Utils;
 
@@ -105,7 +106,15 @@ sub resolveDependencies {
 sub finishArtifact {
   my ($this, $context, $artifact) = @_;
 
-  # -- currently nothing to do
+  # -- add cleaning stage and task
+  my $task = $artifact->createTaskInStage(
+      $context,
+      $SMake::Model::Const::CLEAN_STAGE,
+      $SMake::Model::Const::CLEAN_STAGE,
+      $SMake::Model::Const::CLEAN_TASK,
+      undef,
+      undef,
+      undef);
 }
 
 return 1;

@@ -71,4 +71,8 @@ $LIB_MODULE = "lib";
 # -- profile variables
 $VAR_HEADER_DIRECTORY = "HEADER_DIR";
 
+# -- cleaning task
+$CLEAN_STAGE = "clean";
+$CLEAN_TASK = "clean";
+
 return 1;

@@ -62,4 +62,14 @@ sub getModulePath {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Clean the installation area
+#
+# Usage: cleanArea($context, $subsystem, $project)
+#    context ..... executor context
+#    subsystem ... logging subsystem
+#    project ..... project object which the resource is installed in
+sub cleanArea {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

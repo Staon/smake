@@ -31,6 +31,7 @@ use SMake::Executor::Translator::Select;
 use SMake::Executor::Translator::Sequence;
 use SMake::Platform::Generic::BinResolver;
 use SMake::Platform::Generic::BinResource;
+use SMake::Platform::Generic::CleanTranslator;
 use SMake::Platform::Generic::CompileTranslator;
 use SMake::Platform::Generic::CResolver;
 use SMake::Platform::Generic::CXXResolver;
@@ -118,6 +119,9 @@ sub new {
       )],
       [$SMake::Model::Const::EXTERNAL_TASK,
           SMake::Platform::Generic::InstallTranslator->new(),
+      ],
+      [$SMake::Model::Const::CLEAN_TASK,
+          SMake::Platform::Generic::CleanTranslator->new(),
       ],
   );
   

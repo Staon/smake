@@ -94,18 +94,19 @@ sub getProject {
 # Usage: createRootList($context, $subsystem, $artifact, $stage)
 #    context ...... parser/executor context
 #    subsystem .... logging subsystem
+#    project ...... a regulat expression to match projects
 #    artifact ..... a regular expression to match artifacts
 #    stage ........ name of root stages
 # Returns: \@list
 #    list of stage addresses
 sub createRootList {
-  my ($this, $context, $subsystem, $artifact, $stage) = @_;
+  my ($this, $context, $subsystem, $project, $artifact, $stage) = @_;
   
   my $list = [];
   foreach my $record (values %{$this->{projects}}) {
-    my $project = $context->getVisibility()->getProject(
+    my $prj = $context->getVisibility()->getProject(
         $context, $subsystem, $record->[0]);
-    if(!defined($project)) {
+    if(!defined($prj)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
           $subsystem,
@@ -113,12 +114,14 @@ sub createRootList {
           $record->[0]);
     }
     
-    my $artifacts = $project->getArtifacts();
-    foreach my $art (@$artifacts) {
-      if($art->getName() =~ /$artifact/) {
-        $st = $art->getStage($stage);
-        if(defined($st)) {
-          push @$list, $st->getAddress();
+    if($prj->getName() =~ /$project/) {
+      my $artifacts = $prj->getArtifacts();
+      foreach my $art (@$artifacts) {
+        if($art->getName() =~ /$artifact/) {
+          $st = $art->getStage($stage);
+          if(defined($st)) {
+            push @$list, $st->getAddress();
+          }
         }
       }
     }
