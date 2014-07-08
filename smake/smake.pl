@@ -34,11 +34,12 @@ use SMake::Profile::Stack;
 use SMake::Profile::VarProfile;
 use SMake::Reporter::Reporter;
 use SMake::Reporter::TargetConsole;
-use SMake::Repository::Repository;
+use SMake::Repository::Factory;
 use SMake::Storage::File::Storage;
 use SMake::ToolChain::Decider::DeciderBox;
 use SMake::ToolChain::Decider::DeciderTime;
 use SMake::Utils::Dirutils;
+use SMake::Utils::Searcher;
 
 local $SIG{__DIE__} = sub { Carp::confess(@_); };
 local $SIG{__WARN__} = sub { die @_ };
@@ -47,16 +48,13 @@ local $SIG{__WARN__} = sub { die @_ };
 my $reporter = SMake::Reporter::Reporter->new();
 $reporter->addTarget(SMake::Reporter::TargetConsole->new(1, 5, ".*"));
 
+# -- create repositories
+my $repository = SMake::Repository::Factory::createRepositoriesVar(
+    $reporter, $ENV{'SMAKE_REPOSITORY'});
+
 # -- file change decider
 my $decider = SMake::ToolChain::Decider::DeciderBox->new(
     SMake::ToolChain::Decider::DeciderTime->new());
-
-# -- file storage
-my $reppath = $ENV{'SMAKE_REPOSITORY'};
-my $storage = SMake::Storage::File::Storage->new($reppath);
-
-# -- repository
-my $repository = SMake::Repository::Repository->new(undef, $storage);
 
 # -- toolchain
 my $runner = SMake::Executor::Runner::Sequential->new();
@@ -71,22 +69,39 @@ $repository->registerProfile(
     SMake::Profile::VarProfile,
     $SMake::Model::Const::VAR_HEADER_DIRECTORY);
 
-# -- parser
-my $parser = SMake::Parser::Parser->new();
-my $visibility = SMake::Parser::Visibility->new();
+# -- configuration profiles
 my $profiles = SMake::Profile::Stack->new();
 $profiles->appendProfile(SMake::Profile::InstallPaths->new(
     $SMake::Model::Const::CXX_TASK, "header_dirs", $SMake::Model::Const::HEADER_MODULE));
 $profiles->appendProfile(SMake::Profile::InstallPaths->new(
     $SMake::Model::Const::BIN_TASK, "lib_dirs", $SMake::Model::Const::LIB_MODULE));
+
+# -- get list of SMakefiles to be parsed
+my $paths = [];
+if(1) {
+  # -- local SMakefile
+  push @$paths, SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefile"));
+}
+else {
+  # -- SMakefile searching
+  my $searcher = SMake::Utils::Searcher->new();
+  my $basedir = SMake::Utils::Dirutils::getCwd();
+  my $list = $searcher->search($basedir, "SMakefile");
+  foreach my $path (@$list) {
+    push @$paths, SMake::Data::Path->fromSystem($path);
+  }
+}
+
+# -- parse the SMakefiles
+my $parser = SMake::Parser::Parser->new();
+my $visibility = SMake::Parser::Visibility->new();
 my $context = SMake::Parser::Context->new(
     $reporter, $decider, $repository, $visibility, $profiles);
-my $path = SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefile"));
-
-# -- parse SMakefiles
-$repository->openTransaction();
-$parser -> parse($context, $path);
-$repository->commitTransaction();
+foreach my $path (@$paths) {
+  $repository->openTransaction();
+  $parser -> parse($context, $path);
+  $repository->commitTransaction();
+}
 
 # -- execute the project
 $repository->openTransaction();

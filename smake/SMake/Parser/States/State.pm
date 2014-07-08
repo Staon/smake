@@ -128,12 +128,18 @@ sub profile {
 #
 # Usage: group()
 sub group {
-  my ($this, $parser, $context) = @_;
+  my ($this, $parser, $context, $profname, @args) = @_;
 
   $context->getReporter()->report(
       5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "Group()");
-  
+
+  # -- open new profile level  
   $context->getProfiles()->pushList();
+  
+  # -- optional profile
+  if(defined($profname)) {
+    $this->profile($parser, $context, $profname, @args);
+  }
 }
 
 # Close profile group
