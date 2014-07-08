@@ -91,7 +91,7 @@ $repository->commitTransaction();
 # -- execute the project
 $repository->openTransaction();
 my $executor = SMake::Executor::Executor->new();
-my $installarea = SMake::InstallArea::StdArea->new();
+my $installarea = SMake::InstallArea::StdArea->new($SMake::Model::Const::SOURCE_RESOURCE);
 my $execcontext = SMake::Executor::Context->new(
     $reporter, $decider, $repository, $visibility, $installarea, $profiles);
 my $execlist = $visibility->createRootList($execcontext, "main", ".*", "binlink");

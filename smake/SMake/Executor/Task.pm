@@ -51,7 +51,7 @@ sub new {
   
   # -- translate command to a shell commands
   my $translator = $context->getToolChain()->getTranslator();
-  my $wd = $context->getRepository()->getPhysicalPathObject($task->getWDPath());
+  my $wd = $task->getWDPhysicalPathString();
   my $instructions = [];
   foreach my $command (@$commands) {
     # -- modify command by compilation profiles

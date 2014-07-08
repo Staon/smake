@@ -51,7 +51,7 @@ sub scanSource {
       && ($task->getType() =~ /$this->{tasktype}/)) {
       	
     # -- scan the file
-    my $filename = $context->getRepository()->getPhysicalPath($resource->getPath());
+    my $filename = $resource->getPhysicalPathString();
     local *SRCFILE;
     if(!open(SRCFILE, "<" . $filename)) {
       SMake::Utils::Utils::dieReport(

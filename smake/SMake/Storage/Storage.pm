@@ -81,4 +81,13 @@ sub searchPublicResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get physical (filesystem) location
+#
+# Usage: getPhysicalLocation($path)
+#    path ..... a path object in the storage meaning
+# Returns: a path object with absolute filesystem path
+sub getPhysicalLocation {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

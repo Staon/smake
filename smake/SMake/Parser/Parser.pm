@@ -18,6 +18,7 @@
 # Parser of SMakefiles and compositor of project model
 package SMake::Parser::Parser;
 
+use SMake::Model::Const;
 use SMake::Parser::States::Root;
 use SMake::Utils::ArgChecker;
 use SMake::Utils::Chdir;
@@ -119,7 +120,8 @@ sub parseFile {
   my $currdir = $path->getDirpath();
   $context_->pushCurrentDir($currdir);
   $this->{dirstack}->pushDir(
-      $context_->getRepository()->getPhysicalPath($currdir), 
+      $context_->getRepository()->getPhysicalLocationString(
+          $SMake::Model::Const::SOURCE_RESOURCE, $currdir), 
       $context_->getReporter(),
       $SUBSYSTEM);
 
@@ -133,7 +135,8 @@ sub parseFile {
     local $parser = $this;
     local $context = $context_;
     local $parser_state = $state;
-    my $file = $context->getRepository()->getPhysicalPath($path);
+    my $file = $context->getRepository()->getPhysicalLocationString(
+        $SMake::Model::Const::SOURCE_RESOURCE, $path);
     my $info = SMake::Utils::Evaluate::evaluateSpecFile($file, $this->{evals});
     if($info) {
       SMake::Utils::Utils::dieReport($context->getReporter(), $SUBSYSTEM, '%s', $info);

@@ -104,27 +104,26 @@ sub appendVariant {
   $this->{variants}->{$variant->getName()} = $variant;
 }
 
-# Convert a resource location to an absolute physical (filesystem) path
+# Get physical location of a resource
 #
-# Usage: getPhysicalPathObject($location)
-#    location .... a Path object which describes location of a resource in the
-#                  repository meaning
-# Returns: a Path object which describes the absolute physical path
-sub getPhysicalPathObject {
-  my ($this, $location) = @_;
-  # TODO: redirect to the source storage
-  return $location;
+# Usage: getPhysicalLocation($restype, $respath)
+#    restype ....... resource type
+#    respath ....... a location (a path object) in repository meaning
+# Returns: a path object with absolute filesystem path
+sub getPhysicalLocation {
+  my ($this, $restype, $respath) = @_;
+  return $this->{storage}->getPhysicalLocation($respath);
 }
 
-# Convert a resource location to an absolute physical (filesystem) path
+# Get physical location of a resource
 #
-# Usage: getPhysicalPath($location)
-#    location .... a Path object which describes location of a resource in the
-#                  repository meaning
-# Returns: A string which represents the path in meaning of the local filesystem.
-sub getPhysicalPath {
-  my ($this, $location) = @_;
-  $this->getPhysicalPathObject($location)->systemAbsolute();
+# Usage: getPhysicalLocation($restype, $respath)
+#    restype ....... resource type
+#    respath ....... a location (a path object) in repository meaning
+# Returns: a string which represents the absolute filesystem path
+sub getPhysicalLocationString {
+  my ($this, $restype, $respath) = @_;
+  return $this->getPhysicalLocation($restype, $respath)->systemAbsolute();
 }
 
 # Open transaction of the project storage

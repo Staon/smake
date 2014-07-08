@@ -48,7 +48,7 @@ sub build {
 # Returns: the physical path
 sub getResourcePath {
   my ($this, $context, $resource) = @_;
-  return $context->getRepository()->getPhysicalPathObject($resource->getPath());
+  return $resource->getPhysicalPath();
 }
 
 # A helper method - create resource node of a resource

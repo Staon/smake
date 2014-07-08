@@ -37,7 +37,7 @@ sub new {
 #
 # The method should clear the list of compilation profiles
 #
-# Usage: update($type, $wd, $args)
+# Usage: update($type, $wdtype, $wd, $args)
 sub update {
   SMake::Utils::Abstract::dieAbstract();
 }
@@ -101,11 +101,47 @@ sub getProject {
   return $this->getArtifact()->getProject();
 }
 
+# Get resource type of working directory
+sub getWDType {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get working path of the task
 #
-# The path has meaning in the context of the repository
+# The path has meaning in the context of the repository. It can be null.
 sub getWDPath {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get physical path of working directory
+#
+# Usage: getWDPhysicalPath()
+# Returns: a path object with absolute filesystem path
+sub getWDPhysicalPath {
+  my ($this) = @_;
+  my $wdtype = $this->getWDType();
+  my $wd = $this->getWDPath();
+  if(defined($wdtype) && defined($wd)) {
+    $this->getRepository()->getPhysicalLocation($wdtype, $wd);
+  }
+  else {
+    return undef;
+  }
+}
+
+# Get physical path of working directory
+#
+# Usage: getWDPhysicalPathString()
+# Returns: a string which represents the absolute filesystem path
+sub getWDPhysicalPathString {
+  my ($this) = @_;
+  my $wdpath = $this->getWDPhysicalPath();
+  if(defined($wdpath)) {
+    return $wdpath->systemAbsolute();
+  }
+  else {
+    return undef;
+  }
 }
 
 # Get list of key tuples of target timestamps

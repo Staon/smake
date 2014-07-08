@@ -31,7 +31,7 @@ sub new {
 # Append paths into the list
 #
 # Usage: appendPaths($path*)
-#    path .... absolute physical path (in the filesystem meaning)
+#    resource .... absolute physical path (in the filesystem meaning)
 sub appendPaths {
   my $this = shift;
   foreach my $path (@_) {

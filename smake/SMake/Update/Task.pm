@@ -31,15 +31,16 @@ use SMake::Update::Timestamp;
 #    stage ....... parent stage
 #    name ........ name of the task
 #    type ........ type of the task
+#    wdtype ...... resource type of working directory
 #    wd .......... task's working directory
 #    args ........ task's arguments
 sub new {
-  my ($class, $context, $stage, $name, $type, $wd, $args) = @_;
+  my ($class, $context, $stage, $name, $type, $wdtype, $wd, $args) = @_;
   my $this = bless({}, $class);
   
   my $task = $stage->getObject()->getTask($name);
   if(defined($task)) {
-    $task->update($type, $wd, $args);
+    $task->update($type, $wdtype, $wd, $args);
     $this->{targets} = SMake::Update::Table->new(
         \&SMake::Model::Timestamp::createKey,
         $task->getTargetKeys());
@@ -48,7 +49,7 @@ sub new {
         $task->getSourceKeys());
   }
   else {
-    $task = $stage->getObject()->createTask($name, $type, $wd, $args);
+    $task = $stage->getObject()->createTask($name, $type, $wdtype, $wd, $args);
     $this->{targets} = SMake::Update::Table->new(
         \&SMake::Model::Timestamp::createKey, []);
     $this->{sources} = SMake::Update::Table->new(

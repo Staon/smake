@@ -95,6 +95,24 @@ sub getPath {
   return $this->{resource}->getPath();
 }
 
+# Get physical path of the resource
+#
+# Usage: getPhysicalPath()
+# Returns: a path object with absolute filesystem path
+sub getPhysicalPath {
+  my ($this) = @_;
+  return $this->{resource}->getPhysicalPath();
+}
+
+# Get physical path of the resource
+#
+# Usage: getPhysicalPathString()
+# Returns: a string which represents absolute filesystem path
+sub getPhysicalPathString {
+  my ($this) = @_;
+  return $this->{resource}->getPhysicalPathString();
+}
+
 # Get artifact which the resource belongs to
 sub getArtifact {
   my ($this) = @_;

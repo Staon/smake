@@ -76,10 +76,11 @@ sub getProject {
 
 # Create new task
 #
-# Usage: createTask($name, $type, $wd, \%arguments)
+# Usage: createTask($name, $type, $wdtype, $wd, \%arguments)
 #    name ....... name of the task
 #    type ....... type of the task
-#    wd ......... task's working directory (a path object in repository meaning)
+#    wdtype ..... resource type of working directory (can be null)
+#    wd ......... task's working directory (a path object in repository meaning) (can be null)
 #    arguments .. task's generic arguments
 # Returns: new task
 sub createTask {

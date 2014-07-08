@@ -56,6 +56,7 @@ sub createMainResource {
       $this->{stage},
       $name->asString(),
       $this->{task},
+      $SMake::Model::Const::PRODUCT_RESOURCE,
       $artifact->getPath(),
       $this->{args});
   

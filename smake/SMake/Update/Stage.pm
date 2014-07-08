@@ -107,14 +107,15 @@ sub getProject {
 #    context ...... parser context
 #    name ......... name of the task
 #    task ......... type of the task
+#    wdtype ....... resource type of the working directory
 #    wd ........... task's working directory
 #    args ......... task's arguments
 sub createTask {
-  my ($this, $context, $name, $task, $wd, $args) = @_;
+  my ($this, $context, $name, $task, $wdtype, $wd, $args) = @_;
 
   # -- create new task object
   my $taskobj = SMake::Update::Task->new(
-      $context, $this, $name, $task, $wd, $args);
+      $context, $this, $name, $task, $wdtype, $wd, $args);
   $this->{tasks}->addItem($taskobj);
   
   # -- store currently active compilation profiles

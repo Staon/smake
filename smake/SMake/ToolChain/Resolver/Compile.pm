@@ -56,6 +56,7 @@ sub doJob {
       $this->{stage},
       $tgpath->asString(),
       $this->{tasktype},
+      $SMake::Model::Const::PRODUCT_RESOURCE,
       $artifact->getPath(),
       undef);
   $task->appendSource($context, $resource);

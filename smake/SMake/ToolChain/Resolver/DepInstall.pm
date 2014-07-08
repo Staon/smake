@@ -61,6 +61,7 @@ sub doJob {
         $this->{stage},
         $SMake::Model::Const::EXTERNAL_TASK,
         undef,
+        undef,
         undef);
   }
   else {

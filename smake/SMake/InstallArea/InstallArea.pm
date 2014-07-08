@@ -55,7 +55,9 @@ sub installDependency {
 #    subsystem ... logging subsystem
 #    module ...... installation module (e.g. "include" for headers)
 #    project ..... project object which the resource is installed in
-# Returns: the path (absolute path object with meaning of the repository)
+# Returns: ($restype, $path)
+#    restype ..... resource type of the installation area
+#    path ........ the path (absolute path object with meaning of the repository)
 sub getModulePath {
   SMake::Utils::Abstract::dieAbstract();
 }

@@ -30,9 +30,9 @@ use SMake::Storage::File::Timestamp;
 
 # Create new task object
 #
-# Usage: new($repository, $storage, $stage, $name, $type, $wd, \%args)
+# Usage: new($repository, $storage, $stage, $name, $type, $wdtype, $wd, \%args)
 sub new {
-  my ($class, $repository, $storage, $stage, $name, $type, $wd, $args) = @_;
+  my ($class, $repository, $storage, $stage, $name, $type, $wdtype, $wd, $args) = @_;
   
   my $this = bless(SMake::Model::Task->new(), $class);
   $this->{repository} = $repository;
@@ -40,6 +40,7 @@ sub new {
   $this->{stage} = $stage;
   $this->{name} = $name;
   $this->{type} = $type;
+  $this->{wdtype} = $wdtype;
   $this->{wdir} = (defined($wd))?SMake::Data::Path->new($wd):undef;
   $this->{args} = defined($args)?$args:{};
   $this->{targets} = {};
@@ -73,9 +74,10 @@ sub destroy {
 }
 
 sub update {
-  my ($this, $type, $wd, $args) = @_;
+  my ($this, $type, $wdtype, $wd, $args) = @_;
 
   $this->{type} = $type;
+  $this->{wdtype} = $wdtype;
   $this->{wdir} = (defined($wd))?SMake::Data::Path->new($wd):undef;
   $this->{args} = defined($args)?$args:{};
 
@@ -106,6 +108,11 @@ sub getArguments {
 sub getStage {
   my ($this) = @_;
   return $this->{stage};
+}
+
+sub getWDType {
+  my ($this) = @_;
+  return $this->{wdtype};
 }
 
 sub getWDPath {

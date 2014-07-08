@@ -65,6 +65,8 @@ sub installExternalResource {
         $stagename,
         $stagename,
         $SMake::Model::Const::EXTERNAL_TASK,
+        undef,
+        undef,
         undef);
     # -- create the external resource
     $extres = $artifact->createResource(

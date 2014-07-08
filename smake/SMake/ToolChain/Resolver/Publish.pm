@@ -59,6 +59,7 @@ sub doJob {
         "publish:" . $path->asString(),
         $SMake::Model::Const::PUBLISH_TASK,
         undef,
+        undef,
         undef);
     my $instres = $artifact->createResource(
         $context, $path, $SMake::Model::Const::PUBLISH_RESOURCE, $task);

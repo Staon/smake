@@ -28,10 +28,13 @@ use SMake::Utils::Utils;
 
 # Create new installation area
 #
-# Usage: new()
+# Usage: new($restype)
+#    restype ...... resource type of the installation area. The area can be placed
+#                   into the source tree or into the product tree
 sub new {
-  my ($class) = @_;
+  my ($class, $restype) = @_;
   my $this = bless(SMake::InstallArea::InstallArea->new(), $class);
+  $this->{restype} = $restype;
   return $this;
 }
 
@@ -49,7 +52,8 @@ sub installResolvedResource {
       
   # -- prepare installation directory
   my $dirpath = $basepath->joinPaths($name->getDirpath());
-  my $dirname = $context->getRepository()->getPhysicalPath($dirpath);
+  my $dirname = $context->getRepository()->getPhysicalLocationString(
+      $this->{restype}, $dirpath);
   if(! -d $dirname) {
     my $msg = SMake::Utils::Dirutils::makeDirectory($dirname);
     if($msg) {
@@ -63,9 +67,9 @@ sub installResolvedResource {
   }
       
   # -- install the resource
-  my $srcname = $context->getRepository()->getPhysicalPath($resolved->getPath());
-  my $tgname = $context->getRepository()->getPhysicalPath(
-      $dirpath->joinPaths($name->getBasepath()));
+  my $srcname = $resolved->getPhysicalPathString();
+  my $tgname = $context->getRepository()->getPhysicalLocationString(
+      $this->{restype}, $dirpath->joinPaths($name->getBasepath()));
   if(!SMake::Utils::Dirutils::linkFile($tgname, $srcname)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
@@ -120,7 +124,7 @@ sub installDependency {
 
 sub getModulePath {
   my ($this, $context, $subsystem, $module, $project) = @_;
-  return $this->getBasePath($project, $module);
+  return $this->{restype}, $this->getBasePath($project, $module);
 }
 
 return 1;

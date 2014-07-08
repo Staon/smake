@@ -46,12 +46,12 @@ sub modifyNode {
   $node = $this->createGroupIfNotExists($address, $parent, $node);
   
   # -- get the path
-  my $path = $context->getInstallArea()->getModulePath(
+  my ($restype, $path) = $context->getInstallArea()->getModulePath(
       $context,
       $SMake::Executor::Executor::SUBSYSTEM,
       $this->{instmodule},
       $task->getProject());
-  my $fspath = $context->getRepository()->getPhysicalPath($path);
+  my $fspath = $context->getRepository()->getPhysicalLocationString($restype, $path);
   $node->appendChild(SMake::Executor::Command::Option->new($fspath));
 
   return $command;

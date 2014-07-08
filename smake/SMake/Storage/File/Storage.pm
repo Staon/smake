@@ -26,6 +26,7 @@ use SMake::Storage::Storage;
 
 use Data::Dumper;
 use File::Spec;
+use SMake::Data::Path;
 use SMake::Storage::File::Cache;
 use SMake::Storage::File::PublicTable;
 use SMake::Storage::File::Transaction;
@@ -229,6 +230,11 @@ sub searchPublicResource {
   else {
     return $this->{publics}->searchResource($resource);
   }
+}
+
+sub getPhysicalLocation {
+  my ($this, $path) = @_;
+  return SMake::Data::Path->new($path);
 }
 
 # Register a public resource

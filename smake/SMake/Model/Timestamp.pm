@@ -116,14 +116,14 @@ sub computeCurrentMark {
   my $declist = SMake::ToolChain::Decider::DeciderList->new();
   if($resource->getType() eq $SMake::Model::Const::SOURCE_RESOURCE 
      || $resource->getType() eq $SMake::Model::Const::PRODUCT_RESOURCE) {
-    $declist->appendPaths($resource->getPath());
+    $declist->appendPaths($resource->getPhysicalPath());
   }
   elsif($resource->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
     # -- do transitive closure and compute combined stamp
     my $closure = SMake::Utils::Searching::externalTransitiveClosure(
         $context, $subsystem, $resource);
     foreach my $c (@$closure) {
-      $declist->appendPaths($c->getPath());
+      $declist->appendPaths($c->getPhysicalPath());
     }
   }
   else {

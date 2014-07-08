@@ -74,7 +74,7 @@ sub getArtifact {
 }
 
 sub createTask {
-  my ($this, $name, $type, $wd, $arguments) = @_;
+  my ($this, $name, $type, $wdtype, $wd, $arguments) = @_;
   
   my $task = SMake::Storage::File::Task->new(
       $this->{repository},
@@ -82,6 +82,7 @@ sub createTask {
       $this,
       $name,
       $type,
+      $wdtype,
       $wd,
       $arguments);
   $this->{tasks}->{$name} = $task;

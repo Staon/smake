@@ -54,7 +54,7 @@ sub getMark {
   my $basestr = "";
   my $paths = $declist->getOrderedList();
   foreach my $path (@$paths) {
-  	my $fspath = $repository->getPhysicalPath($path);
+    my $fspath = $path->systemAbsolute();
   	return undef if(! -f $fspath);
     $basestr .= $this->{decider}->getStamp($fspath);
   }
@@ -74,7 +74,7 @@ sub hasChanged {
   my ($this, $repository, $path, $mark) = @_;
   
   # -- get current mark
-  my $phpath = $repository->getPhysicalPath($path);
+  my $phpath = $path->systemAbsolute();
   my $curr_mark = "";
   if(-f $phpath) {
     $curr_mark = sha1_hex($this->{decider}->getStamp($phpath));

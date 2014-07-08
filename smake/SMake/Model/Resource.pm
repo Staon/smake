@@ -90,6 +90,25 @@ sub getPath {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get physical path of the resource
+#
+# Usage: getPhysicalPath()
+# Returns: a path object with absolute filesystem path
+sub getPhysicalPath {
+  my ($this) = @_;
+  return $this->getRepository()->getPhysicalLocation(
+      $this->getType(), $this->getPath());
+}
+
+# Get physical path of the resource
+#
+# Usage: getPhysicalPathString()
+# Returns: a string which represents absolute filesystem path
+sub getPhysicalPathString {
+  my ($this) = @_;
+  return $this->getPhysicalPath()->systemAbsolute();
+}
+
 # Get artifact which the resource belongs to
 sub getArtifact {
   SMake::Utils::Abstract::dieAbstract();
