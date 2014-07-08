@@ -34,7 +34,7 @@ use SMake::Utils::Utils;
 #    restype ..... a regular expression which describes type of the resource
 #    resname ..... a regular expression which describes name of the resource
 sub new {
-  my ($class, $tasktype, $restype, $resname) = @_;
+  my ($class, $tasktype, $restype, $resname, $instmodule) = @_;
   my $this = bless(SMake::ToolChain::Scanner::Scanner->new(), $class);
   $this->{tasktype} = $tasktype;
   $this->{restype} = $restype;
@@ -63,19 +63,8 @@ sub scanSource {
       if($line =~ /^\s*#\s*include\s*[<"]([^">]+)[">]/) {
         my $path = $1;
         $path =~ s/\\/\//;  # -- windows paths
-        $path = SMake::Data::Path->new($path);
-      
-        # -- create installation task
-        my $insttask = $artifact->createTaskInStage(
-            $context,
-            $task->getStage()->getName(),
-            $path->asString(),
-            $SMake::Model::Const::EXTERNAL_TASK,
-            undef);
-        # -- create the external resource
-        my $extres = $artifact->createResource(
-            $context, $path, $SMake::Model::Const::HEADER_RESOURCE, $insttask);
-        $task->appendSource($context, $extres);
+        $path = SMake::Data::Path->new($SMake::Model::Const::HEADER_MODULE, $path);
+        $this->installExternalResource($context, $artifact, $resource, $task, $path);
       }
     }
     close SRCFILE;

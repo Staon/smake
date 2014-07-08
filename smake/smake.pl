@@ -60,8 +60,8 @@ my $repository = SMake::Repository::Repository->new(undef, $storage);
 
 # -- toolchain
 my $runner = SMake::Executor::Runner::Sequential->new();
-#my $toolchain = SMake::Platform::Aveco::ToolChain->new($runner);
-my $toolchain = SMake::Platform::GCC::ToolChain->new($runner);
+my $toolchain = SMake::Platform::Aveco::ToolChain->new($runner);
+#my $toolchain = SMake::Platform::GCC::ToolChain->new($runner);
 $repository->setToolChain($toolchain);
 
 # -- profiles
@@ -76,9 +76,9 @@ my $parser = SMake::Parser::Parser->new();
 my $visibility = SMake::Parser::Visibility->new();
 my $profiles = SMake::Profile::Stack->new();
 $profiles->appendProfile(SMake::Profile::InstallPaths->new(
-    $SMake::Model::Const::CXX_TASK, "header_dirs", $SMake::Model::Const::HEADER_RESOURCE));
+    $SMake::Model::Const::CXX_TASK, "header_dirs", $SMake::Model::Const::HEADER_MODULE));
 $profiles->appendProfile(SMake::Profile::InstallPaths->new(
-    $SMake::Model::Const::BIN_TASK, "lib_dirs", $SMake::Model::Const::LIB_RESOURCE));
+    $SMake::Model::Const::BIN_TASK, "lib_dirs", $SMake::Model::Const::LIB_MODULE));
 my $context = SMake::Parser::Context->new(
     $reporter, $decider, $repository, $visibility, $profiles);
 my $path = SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefile"));

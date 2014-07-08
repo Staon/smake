@@ -40,7 +40,6 @@ sub new {
     runner => $runner,
     scanner => $scanner,
     filter => $filter,
-    externals => {},
   }, $class);
 }
 
@@ -93,24 +92,6 @@ sub getScanner {
 sub getResourceFilter {
   my ($this) = @_;
   return $this->{filter};
-}
-
-# Register type of external resource
-#
-# Usage: registerExternal($type)
-sub registerExternal {
-  my ($this, $type) = @_;
-  $this->{externals}->{$type} = 1;
-}
-
-# Check if a resource is external
-#
-# Usage: isExternal($resource)
-#    resource .... a resource object
-# Returns: true if the resource is external
-sub isExternal {
-  my ($this, $resource) = @_;
-  return defined($this->{externals}->{$resource->getType()});
 }
 
 return 1;

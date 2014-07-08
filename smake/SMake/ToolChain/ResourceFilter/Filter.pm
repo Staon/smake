@@ -33,7 +33,7 @@ sub new {
 #
 # Usage: filterResource($context, $resource)
 #    context ...... executor context
-#    resource ..... the resource
+#    resource ..... the resource 
 # Returns: true if the resource should be filtered.
 sub filterResource {
   SMake::Utils::Abstract::dieAbstract();

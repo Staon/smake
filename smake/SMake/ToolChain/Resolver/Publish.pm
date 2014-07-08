@@ -29,15 +29,15 @@ use SMake::Model::Const;
 # Usage: new($type, $file, restype, path)
 #    type ........ mask of type of the resources
 #    file ........ mask of path of the resources
-#    restype ..... type of the public resource
+#    instmodule .. installation module
 #    path ........ profile variable which contains installation path 
 #                  (relative path based on the installation area)
 sub new {
-  my ($class, $type, $file, $restype, $path) = @_;
+  my ($class, $type, $file, $instmodule, $path) = @_;
   
   my $this = bless(
       SMake::ToolChain::Resolver::Resource->new($type, $file), $class);
-  $this->{restype} = $restype;
+  $this->{instmodule} = $instmodule;
   $this->{path} = $path;
   return $this;
 }
@@ -47,10 +47,9 @@ sub doJob {
 
   my $profvar = $context->getProfiles()->getVariable($context, $this->{path});
   if(defined($profvar)) {
-    my $path = SMake::Data::Path->new($profvar);
-
     # -- construct name of the public resource
-    $path = $path->joinPaths($resource->getName()->getBasepath());
+    my $path = SMake::Data::Path->new(
+        $this->{instmodule}, $profvar, $resource->getName()->getBasepath());
   
     # -- create the public resource and its task
     my $artifact = $context->getArtifact();
@@ -62,7 +61,7 @@ sub doJob {
         undef,
         undef);
     my $instres = $artifact->createResource(
-        $context, $path, $this->{restype}, $task);
+        $context, $path, $SMake::Model::Const::PUBLISH_RESOURCE, $task);
     $instres->publishResource();
     $task->appendSource($context, $resource);
   }

@@ -39,7 +39,7 @@ sub new {
   
   my $task = $stage->getObject()->getTask($name);
   if(defined($task)) {
-    $task->update();
+    $task->update($type, $wd, $args);
     $this->{targets} = SMake::Update::Table->new(
         \&SMake::Model::Timestamp::createKey,
         $task->getTargetKeys());

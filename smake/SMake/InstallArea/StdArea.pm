@@ -45,6 +45,7 @@ sub installResolvedResource {
 
   # -- area base path
   my $basepath = $this->getBasePath($project, $module);
+  print "$module " . $basepath->asString() . "\n";
       
   # -- prepare installation directory
   my $dirpath = $basepath->joinPaths($name->getDirpath());
@@ -89,8 +90,8 @@ sub installResource {
           $context,
           $subsystem,
           $project,
-          $resource->getType(),
-          $resource->getName(),
+          $resource->getName()->getPart(0),
+          $resource->getName()->removePrefix(1),
           $resolved);
     }
   }

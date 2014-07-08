@@ -43,4 +43,43 @@ sub scanSource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# A helper method - install an external resource
+#
+# Usage: installExternalResource($context, $artifact, $resource, $task, $path)
+#    context ...... parser context
+#    artifact ..... artifact of the scanned resource
+#    resource ..... the scanned resource
+#    task ......... a task which the scanned resource is a source for
+#    path ......... path of the external resource
+sub installExternalResource {
+  my ($this, $context, $artifact, $resource, $task, $path) = @_;
+
+  # -- create the installation stage
+  my $stagename = "install:" . $path->asString();
+  my $stage = $artifact->getStage($stagename);
+  my $extres;
+  if(!defined($stage)) {
+    # -- create installation task
+    my $insttask = $artifact->createTaskInStage(
+        $context,
+        $stagename,
+        $stagename,
+        $SMake::Model::Const::EXTERNAL_TASK,
+        undef);
+    # -- create the external resource
+    $extres = $artifact->createResource(
+        $context, $path, $SMake::Model::Const::EXTERNAL_RESOURCE, $insttask);
+  }
+  else {
+    $extres = $artifact->getResource(
+        $SMake::Model::Const::EXTERNAL_RESOURCE, $path);
+    if(!defined($extres)) {
+      die "there is something wrong: resource '" . $path->asString() . "' is missing!";
+    }
+  }
+  
+  # -- append stage dependency
+  $task->appendSource($context, $extres);
+}
+
 return 1;

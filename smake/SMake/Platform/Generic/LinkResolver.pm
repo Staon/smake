@@ -39,7 +39,7 @@ sub new {
               '^' . $SMake::Model::Const::LINK_DEPENDENCY . '$',
               $SMake::Model::Const::LIB_INSTALL_STAGE,
               $SMake::Model::Const::BIN_MAIN_TYPE,
-              $SMake::Model::Const::LIB_RESOURCE)),
+              $SMake::Model::Const::LIB_MODULE)),
       $class);
   return $this;
 }

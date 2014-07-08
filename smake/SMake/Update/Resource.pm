@@ -32,7 +32,7 @@ sub new {
   
   my $resource = $artifact->getObject()->getResource($type, $name);
   if(defined($resource)) {
-    $resource->update($type, $task->getObject());
+    $resource->update($task->getObject());
   }
   else {
     $resource = $artifact->getObject()->createResource(

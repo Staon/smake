@@ -58,9 +58,8 @@ sub destroy {
 }
 
 sub update {
-  my ($this, $type, $task) = @_;
+  my ($this, $task) = @_;
   
-  $this->{type} = $type;
   $this->{task} = $task;
 }
 

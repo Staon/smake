@@ -118,7 +118,7 @@ sub computeCurrentMark {
      || $resource->getType() eq $SMake::Model::Const::PRODUCT_RESOURCE) {
     $declist->appendPaths($resource->getPath());
   }
-  elsif($context->getToolChain()->isExternal($resource)) {
+  elsif($resource->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
     # -- do transitive closure and compute combined stamp
     my $closure = SMake::Utils::Searching::externalTransitiveClosure(
         $context, $subsystem, $resource);

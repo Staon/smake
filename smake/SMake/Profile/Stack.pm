@@ -158,7 +158,6 @@ sub getVariable {
   $this->iterateItems(sub {
     my $val = $_[0]->getVariable($context, $name);
     if(defined($val)) {
-      print "set $name = $val\n";
       $value = $val;
     }
   });

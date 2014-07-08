@@ -45,13 +45,14 @@ sub resolveExternal {
     my $resolved = $project->searchResource(
         "^" . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . "|"
             . quotemeta($SMake::Model::Const::PRODUCT_RESOURCE) . "\$",
-        $resource->getName());
+        $resource->getName()->removePrefix(1));
     return (1, $resolved, 1) if(defined($resolved));
   }
   
   # -- search table of public resources
   my $prjlist = $context->getRepository()->searchPublicResource(
-      $resource->getKeyTuple());
+      SMake::Model::Resource::createKeyTuple(
+          $SMake::Model::Const::PUBLISH_RESOURCE, $resource->getName()));
   if(defined($prjlist)) {
   	# -- TODO: select appropriate project
     my $project = $context->getVisibility()->getProject(
@@ -59,7 +60,7 @@ sub resolveExternal {
     
     # -- search public resource in the project
     my $resolved = $project->searchResource(
-        "^" . quotemeta($resource->getType()) . "\$",
+        "^" . quotemeta($SMake::Model::Const::PUBLISH_RESOURCE) . "\$",
         $resource->getName());
     if(!defined($resolved)) {
       die "project '" . $prjlist->[0]->[0] 

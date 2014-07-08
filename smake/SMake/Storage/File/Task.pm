@@ -33,6 +33,7 @@ use SMake::Storage::File::Timestamp;
 # Usage: new($repository, $storage, $stage, $name, $type, $wd, \%args)
 sub new {
   my ($class, $repository, $storage, $stage, $name, $type, $wd, $args) = @_;
+  
   my $this = bless(SMake::Model::Task->new(), $class);
   $this->{repository} = $repository;
   $this->{storage} = $storage;
@@ -72,7 +73,12 @@ sub destroy {
 }
 
 sub update {
-  my ($this) = @_;
+  my ($this, $type, $wd, $args) = @_;
+
+  $this->{type} = $type;
+  $this->{wdir} = (defined($wd))?SMake::Data::Path->new($wd):undef;
+  $this->{args} = defined($args)?$args:{};
+
   $this->{profiles} = [];
   $this->{dependencies} = {};
 }

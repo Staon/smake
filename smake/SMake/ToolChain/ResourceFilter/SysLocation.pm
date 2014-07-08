@@ -24,6 +24,7 @@ use SMake::ToolChain::ResourceFilter::Filter;
 @ISA = qw(SMake::ToolChain::ResourceFilter::Filter);
 
 use File::Spec;
+use SMake::Model::Const;
 
 # Create new system location filter
 #
@@ -40,14 +41,12 @@ sub new {
 sub filterResource {
   my ($this, $context, $resource) = @_;
 
-  my $path = File::Spec->catfile(
-      $this->{location}, $resource->getName()->systemRelative());
-  if(-f $path) {
-    return 1;
+  if($resource->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
+    my $path = File::Spec->catfile(
+        $this->{location}, $resource->getName()->removePrefix(1)->systemRelative());
+    return 1 if(-f $path);
   }
-  else {
-    return 0;
-  }
+  return 0;
 }
 
 return 1;

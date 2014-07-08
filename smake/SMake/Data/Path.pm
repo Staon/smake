@@ -22,16 +22,13 @@ package SMake::Data::Path;
 sub new {
   my $class = shift;
   
-  my $this;
-  if($#_ == 0 && ref($_[0]) eq $class) {
-  	# -- copy ctor
-  	$this = [@{$_[0]}];
-  }
-  else {
-    # -- several arguments => path strings
-    $this = [];
-    for my $part (@_) {
-      my @dirs = split(/\//, $part);
+  my $this = [];
+  while(defined($_[0])) {
+    if(ref($_[0]) eq $class) {
+      push @$this, @{$_[0]};
+    }
+    else {
+      my @dirs = split(/\//, $_[0]);
       for my $dir (@dirs) {
         if(!defined($dir) || $dir eq '') {
           die "invalid path part!";
@@ -39,8 +36,8 @@ sub new {
         push @$this, $dir;
       }
     }
+    shift;
   }
-  
   return bless($this, $class);
 }
 
@@ -210,7 +207,7 @@ sub joinPaths {
 sub asString {
   my ($this) = @_;
   if($#$this >= 0) {
-    my $str = $this->[0]; 
+    my $str = $this->[0];
     foreach my $i (1 .. $#$this) {
       $str .= '/' . $this->[$i];
     }

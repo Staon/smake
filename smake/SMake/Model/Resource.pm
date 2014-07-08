@@ -32,8 +32,7 @@ sub new {
 
 # Update attributes of the resource
 #
-# Usage: update($type, $task)
-#    type ..... type of the resource
+# Usage: update($task)
 #    task ..... task which creates the resource
 sub update {
   SMake::Utils::Abstract::dieAbstract();

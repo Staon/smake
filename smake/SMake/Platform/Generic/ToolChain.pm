@@ -71,9 +71,6 @@ sub new {
       ),
       $class);
   
-  $this->registerExternal($SMake::Model::Const::HEADER_RESOURCE);
-  $this->registerExternal($SMake::Model::Const::LIB_RESOURCE);
-  
   return $this;
 }
 

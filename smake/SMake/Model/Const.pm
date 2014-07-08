@@ -54,9 +54,8 @@ $BIN_TASK = "bin";
 $LINK_DEPENDENCY = "link";
 
 # -- external resources
-$HEADER_RESOURCE = "include";
-$LIB_RESOURCE = "lib";
 $EXTERNAL_TASK = "install";
+$EXTERNAL_RESOURCE = "external";
 
 # -- public resources
 $PUBLISH_STAGE = "publish";
@@ -66,6 +65,8 @@ $PUBLISH_TASK = "publish";
 # -- installation
 $INSTALL_DEPENDENCY = "install";
 $LIB_INSTALL_STAGE = "libinstall";
+$HEADER_MODULE = "include";
+$LIB_MODULE = "lib";
 
 # -- profile variables
 $VAR_HEADER_DIRECTORY = "HEADER_DIR";

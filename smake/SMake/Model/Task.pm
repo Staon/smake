@@ -36,6 +36,8 @@ sub new {
 # Update data of the task
 #
 # The method should clear the list of compilation profiles
+#
+# Usage: update($type, $wd, $args)
 sub update {
   SMake::Utils::Abstract::dieAbstract();
 }
@@ -279,8 +281,7 @@ sub prettyPrint {
 
   SMake::Utils::Print::printIndent($indent + 1);
   {
-    my $wd = $this->getWDPath();
-    print ::HANDLE "wd: " . ((defined($wd))?$wd->asString():"undef") . "\n";
+    print ::HANDLE "wd: " . (defined($wd)?($wd->asString()):"undef") . "\n";
   }
 
   SMake::Utils::Print::printIndent($indent + 1);
