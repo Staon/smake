@@ -108,12 +108,12 @@ sub new {
       [$SMake::Model::Const::BIN_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "cc",
-              SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
               SMake::Executor::Translator::OptionList->new(
                   "lib_dirs", "", "", "-L ", "", " "),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::LIB_GROUP, "-liost ", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
+                  $SMake::Executor::Const::LIB_GROUP, "-liost -lunix3r ", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
+              SMake::Executor::Translator::FileList->new(
+                  $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1)),
       )],

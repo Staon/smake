@@ -113,38 +113,43 @@ sub resolveExternal {
 #    context ...... executor context
 #    subsystem .... logging subsystem
 #    resource ..... the external resources
-# Returns: \@list of external resources
+# Returns: \@list of [$external, $resolved, $local]
+#    external ..... external resource paired to the resolved resource
+#    resolved ..... the resolved resource
+#    local ........ local flag (based on the first external resource)
 sub externalTransitiveClosure {
   my ($context, $subsystem, $resource) = @_;
 
   my $list = [];
-  my @queue = ($resource);
+  my @queue = ([$resource, 1]);
   
   # -- append the root
   my %extmap = ();
   
   while($#queue >= 0) {
     my $current = shift(@queue);
-    if(!defined($extmap{$current->getName()->asString()})) {
+    if(!defined($extmap{$current->[0]->getName()->asString()})) {
       # -- not processed yet
-      my ($found, $resolved, $local) = resolveExternal($context, $subsystem, $current);
+      my ($found, $resolved, $local) = resolveExternal(
+          $context, $subsystem, $current->[0]);
       if(!$found) {
         SMake::Utils::Utils::dieReport(
             $context->getReporter(),
             $subsystem,
             "external resource '%s' cannot be resolved!",
-            $current->getName()->asString());
+            $current->[0]->getName()->asString());
       }
       if(defined($resolved)) {
         # -- append to the return list
-        push @$list, $resolved;
+        my $reslocal = $current->[1] && $local;
+        push @$list, [$current->[0], $resolved, $reslocal];
         
         # -- search its external resources
         my $task = $resolved->getTask();
         my $srctasks = $task->getSources();
         foreach my $src (@$srctasks) {
           if($src->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
-            push @queue, $src;
+            push @queue, [$src, $reslocal];
           }
         }
       }

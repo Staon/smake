@@ -123,7 +123,7 @@ sub computeCurrentMark {
     my $closure = SMake::Utils::Searching::externalTransitiveClosure(
         $context, $subsystem, $resource);
     foreach my $c (@$closure) {
-      $declist->appendPaths($c->getPhysicalPath());
+      $declist->appendPaths($c->[1]->getPhysicalPath());
     }
   }
   else {

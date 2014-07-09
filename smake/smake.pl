@@ -84,7 +84,7 @@ $profiles->appendProfile(SMake::Profile::InstallPaths->new(
 
 # -- get list of SMakefiles to be parsed
 my $paths = [];
-if(1) {
+if(0) {
   # -- local SMakefile
   push @$paths, SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefile"));
 }
@@ -115,7 +115,7 @@ my $executor = SMake::Executor::Executor->new(0);
 my $installarea = SMake::InstallArea::StdArea->new($SMake::Model::Const::SOURCE_RESOURCE);
 my $execcontext = SMake::Executor::Context->new(
     $reporter, $decider, $repository, $visibility, $installarea, $profiles);
-my $execlist = $visibility->createRootList($execcontext, "main", ".*", ".*", "liblink");
+my $execlist = $visibility->createRootList($execcontext, "main", ".*", ".*", "binlink");
 $executor->executeRoots($execcontext, $execlist);
 $repository->commitTransaction();
 

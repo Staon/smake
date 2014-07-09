@@ -75,42 +75,36 @@ sub installResolvedResource {
   my $srcname = $resolved->getPhysicalPathString();
   my $tgname = $project->getRepository()->getPhysicalLocationString(
       $this->{restype}, $dirpath->joinPaths($name->getBasepath()));
-  if(!SMake::Utils::Dirutils::linkFile($tgname, $srcname)) {
-      SMake::Utils::Utils::dieReport(
-          $context->getReporter(),
-          $subsystem,
-          "cannot link file '%s' to '%s'!",
-          $srcname,
-          $tgname);
+  if(!-f $tgname) {
+    if(!SMake::Utils::Dirutils::linkFile($tgname, $srcname)) {
+        SMake::Utils::Utils::dieReport(
+            $context->getReporter(),
+            $subsystem,
+            "cannot link file '%s' to '%s'!",
+            $srcname,
+            $tgname);
+    }
+    print "Installed resource '$srcname' as '$tgname'.\n";
   }
-  
-  print "Installed resource '$srcname' as '$tgname'.\n";
 }
 
 sub installResource {
   my ($this, $context, $subsystem, $project, $resource) = @_;
   
-  # -- resolve the external resource
-  my ($found, $resolved, $local) = SMake::Utils::Searching::resolveExternal(
+  # -- resolve the dependency closure of the external resource
+  my $resolved_list = SMake::Utils::Searching::externalTransitiveClosure(
       $context, $subsystem, $resource);
-  if($found) {
-    if(defined($resolved) && !$local) {
+  foreach my $res (@$resolved_list) {
+    if(!$res->[2]) {
       $this->installResolvedResource(
           $context,
           $subsystem,
           $project,
-          $resource->getName()->getPart(0),
-          $resource->getName()->removePrefix(1),
-          $resolved);
+          $res->[0]->getName()->getPart(0),
+          $res->[0]->getName()->removePrefix(1),
+          $res->[1]);
     }
   }
-  else {
-    SMake::Utils::Utils::dieReport(
-         $context->getReporter(),
-         $subsystem,
-         "cannot resolve external resource '%s'!",
-         $resource->getName()->asString());
-  } 
 }
 
 sub installDependency {
