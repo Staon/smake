@@ -16,6 +16,7 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 use Carp;
+use Getopt::Long;
 use SMake::Data::Address;
 use SMake::Data::Path;
 use SMake::Executor::Context;
@@ -44,6 +45,16 @@ use SMake::Utils::Searcher;
 
 local $SIG{__DIE__} = sub { Carp::confess(@_); };
 local $SIG{__WARN__} = sub { die @_ };
+
+# Parse command line options
+my $search = '';
+my $force = '';
+if(!GetOptions(
+    'search' => \$search,
+    'force' => \$force)) {
+  die "invalid command line optione.";
+}
+my @stages = @ARGV;
 
 # -- reporter
 my $reporter = SMake::Reporter::Reporter->new();
@@ -84,7 +95,7 @@ $profiles->appendProfile(SMake::Profile::InstallPaths->new(
 
 # -- get list of SMakefiles to be parsed
 my $paths = [];
-if(0) {
+if(!$search) {
   # -- local SMakefile
   push @$paths, SMake::Data::Path->fromSystem(SMake::Utils::Dirutils::getCwd("SMakefile"));
 }
@@ -111,12 +122,14 @@ foreach my $path (@$paths) {
 
 # -- execute the project
 $repository->openTransaction();
-my $executor = SMake::Executor::Executor->new(0);
+my $executor = SMake::Executor::Executor->new($force);
 my $installarea = SMake::InstallArea::StdArea->new($SMake::Model::Const::SOURCE_RESOURCE);
 my $execcontext = SMake::Executor::Context->new(
     $reporter, $decider, $repository, $visibility, $installarea, $profiles);
-my $execlist = $visibility->createRootList($execcontext, "main", ".*", ".*", "binlink");
-$executor->executeRoots($execcontext, $execlist);
+foreach my $stage (@stages) {
+  my $execlist = $visibility->createRootList($execcontext, "main", ".*", ".*", $stage);
+  $executor->executeRoots($execcontext, $execlist);
+}
 $repository->commitTransaction();
 
 $repository -> destroyRepository();
