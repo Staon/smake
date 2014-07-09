@@ -38,22 +38,29 @@ sub getChildren {
 
 # Create new executor object
 #
-# Usage: new()
+# Usage: new($force)
+#    force ...... force running mode. If the flag is true, smake will not stop
+#                 running if any error occurs.
 sub new {
-  my ($class) = @_;
-  return bless({}, $class);
+  my ($class, $force) = @_;
+  return bless({
+    force => $force,
+    broken => 0,
+  }, $class);
 }
 
 sub appendStageExecutors {
   my ($this, $context, $exlist, $toporder) = @_;
   
-  my $toplist = $toporder->getLeaves();
-  foreach my $address (@$toplist) {
-  	$context->getReporter()->reportf(
-  	    2, "info", $SUBSYSTEM, "enter stage %s", $address->printableString());
-  	    
-    my $stage = SMake::Executor::Stage->new($context, $address);
-    push @$exlist, $stage;
+  if(!$this->{broken} || $this->{force}) {
+    my $toplist = $toporder->getLeaves();
+    foreach my $address (@$toplist) {
+      $context->getReporter()->reportf(
+          2, "info", $SUBSYSTEM, "enter stage %s", $address->printableString());
+        
+      my $stage = SMake::Executor::Stage->new($context, $address);
+      push @$exlist, $stage;
+    }
   }
 }
 
@@ -79,7 +86,8 @@ sub executeRoots {
   	while(@$stagelist) {
   	  my $newlist = [];
   	  foreach my $stage (@$stagelist) {
-  	    if($stage->execute($context)) {
+  	    my ($running, $errflag) = $stage->execute($context);
+  	    if($running) {
   	      # -- some work is still to be done
   	      push @$newlist, $stage;
   	    }
@@ -92,6 +100,11 @@ sub executeRoots {
   	          $SUBSYSTEM,
   	          "leave stage %s",
   	          $stage->getAddress()->printableString());
+  	      
+  	      # -- handle error
+  	      if($errflag) {
+  	        $this->{broken} = 1;
+  	      }
   	    }
   	  }
   	  

@@ -43,36 +43,47 @@ sub new {
   my $this = bless({
     address => $address,
     tasklist => [],
+    broken => 0,
   }, $class);
   $this->{toporder} = SMake::Utils::TopOrder->new(
       sub { return $_[0]; },
       sub { return getChildren($context, $this, $_[0]); });
 
-  # -- compute topological order of tasks inside the stage
   my ($project, $artifact, $stage) = $address->getObjects(
       $context, $SMake::Executor::Executor::SUBSYSTEM);
-  my $tasks = $stage->getTaskNames();
-  my ($info, $cyclelist) = $this->{toporder}->compute($tasks);
-  if(!$info) {
+  if($stage->isBroken()) {
     $context->getReporter()->reportf(
         1,
-        "critical",
+        "error",
         $SMake::Executor::Executor::SUBSYSTEM,
-        "a cycle is detected between task dependencies: ");
-    foreach my $taskid (@$cyclelist) {
-      my $task = $stage->getTask($taskid);
+        "the stage '%s' is broken!",
+        $address->printableString());
+  }
+  else {
+    # -- compute topological order of tasks inside the stage
+    my $tasks = $stage->getTaskNames();
+    my ($info, $cyclelist) = $this->{toporder}->compute($tasks);
+    if(!$info) {
       $context->getReporter()->reportf(
-        1,
-        "critical",
-        $SMake::Executor::Executor::SUBSYSTEM,
-        "    %s.%s",
-        $address->printableString(),
-        $task->printableKey());
+          1,
+          "critical",
+          $SMake::Executor::Executor::SUBSYSTEM,
+          "a cycle is detected between task dependencies: ");
+      foreach my $taskid (@$cyclelist) {
+        my $task = $stage->getTask($taskid);
+        $context->getReporter()->reportf(
+          1,
+          "critical",
+          $SMake::Executor::Executor::SUBSYSTEM,
+          "    %s.%s",
+          $address->printableString(),
+          $task->printableKey());
+      }
+      SMake::Utils::Utils::dieReport(
+          $context->getReporter(),
+          $SMake::Executor::Executor::SUBSYSTEM,
+          "stopped, it's not possible to continue in work");
     }
-    SMake::Utils::Utils::dieReport(
-        $context->getReporter(),
-        $SMake::Executor::Executor::SUBSYSTEM,
-        "stopped, it's not possible to continue in work");
   }
   
   return $this;
@@ -81,25 +92,30 @@ sub new {
 sub appendTaskExecutor {
   my ($this, $context) = @_;
   
-  my $tasks = $this->{toporder}->getLeaves();
-  foreach my $task (@$tasks) {
-  	my $taskaddr = SMake::Data::TaskAddress->new($this->{address}, $task);
-    my $executor = SMake::Executor::Task->new($context, $taskaddr);
-    push @{$this->{tasklist}}, $executor;
-    $context->getReporter()->reportf(
-        2,
-        "info",
-        $SMake::Executor::Executor::SUBSYSTEM,
-        "enter task %s",
-        $taskaddr->printableString(),
-        $task);
+  if(!$this->{broken}) {
+    my $tasks = $this->{toporder}->getLeaves();
+    foreach my $task (@$tasks) {
+      my $taskaddr = SMake::Data::TaskAddress->new($this->{address}, $task);
+      my $executor = SMake::Executor::Task->new($context, $taskaddr);
+      push @{$this->{tasklist}}, $executor;
+      $context->getReporter()->reportf(
+          2,
+          "info",
+          $SMake::Executor::Executor::SUBSYSTEM,
+          "enter task %s",
+          $taskaddr->printableString(),
+          $task);
+    }
   }
 }
 
 # Execute the stage
 #
 # Usage: execute($context)
-# Returns: false if the stage is finished, true if there are other work
+# Returns: ($running, $errflag)
+#     running ..... false if the stage is finished, true if there are other work
+#     errflag ..... true when the task finished with an error (valid only when
+#                   the running flag is false)
 sub execute {
   my ($this, $context) = @_;
 
@@ -107,7 +123,8 @@ sub execute {
   if(@{$this->{tasklist}}) {
     my $newlist = [];
     foreach my $task (@{$this->{tasklist}}) {
-      if($task->execute($context)) {
+      my ($running, $errflag) = $task->execute($context);
+      if($running) {
         push @$newlist, $task;
       }
       else {
@@ -120,6 +137,14 @@ sub execute {
             $SMake::Executor::Executor::SUBSYSTEM,
             "leave task %s",
             $taskaddr->printableString());
+        
+        # -- set broken stage
+        if($errflag) {
+          $this->{broken} = 1;
+          my ($project, $artifact, $stage) = $this->getAddress()->getObjects(
+              $context, $SMake::Executor::Executor::SUBSYSTEM);
+          $stage->breakStage();
+        }
       }
     }
     $this->{tasklist} = $newlist;
@@ -127,10 +152,10 @@ sub execute {
   }
   
   if(@{$this->{tasklist}}) {
-    return 1;  # -- still some work
+    return (1, $this->{broken});  # -- still some work
   }
   else {
-    return 0;  # -- finished stage
+    return (0, $this->{broken});  # -- finished stage
   }
 }
 

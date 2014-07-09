@@ -24,6 +24,7 @@ use SMake::Utils::Abstract;
 $WAIT = "wait";
 $NEXT = "next";
 $STOP = "stop";
+$ERROR = "error";
 
 # Create new instruction
 #

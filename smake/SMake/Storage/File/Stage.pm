@@ -40,6 +40,7 @@ sub new {
   $this->{artifact} = $artifact;
   $this->{name} = $name;
   $this->{tasks} = {};
+  $this->{broken} = 0;
   return $this;
 }
 
@@ -56,6 +57,11 @@ sub destroy {
     $task->destroy();
   }
   $this->{tasks} = undef;
+}
+
+sub update {
+  my ($this) = @_;
+  $this->{broken} = 0;
 }
 
 sub getRepository {
@@ -149,6 +155,16 @@ sub computeDependencies {
   }
   
   return [values %addresses];
+}
+
+sub breakStage {
+  my ($this) = @_;
+  $this->{broken} = 1;
+}
+
+sub isBroken {
+  my ($this) = @_;
+  return $this->{broken};
 }
 
 return 1;

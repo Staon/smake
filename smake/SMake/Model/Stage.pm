@@ -34,6 +34,13 @@ sub new {
   return bless(SMake::Model::Object->new(), $class);
 }
 
+# Update the stage object
+#
+# Note: the method should clear the broken flag
+sub update {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # (static) Create key tuple
 #
 # Usage: createKey($name)
@@ -135,6 +142,16 @@ sub getTasks {
 # Returns: \@list
 #    list of stage addresses
 sub computeDependencies {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Set the stage to be broken
+sub breakStage {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Check if the stage is broken
+sub isBroken {
   SMake::Utils::Abstract::dieAbstract();
 }
 

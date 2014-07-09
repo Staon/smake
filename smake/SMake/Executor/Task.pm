@@ -70,7 +70,10 @@ sub new {
 # Execute the task
 #
 # Usage: execute($context)
-# Returns: false if the task is finished, true if there are other work
+# Returns: ($running, $errflag)
+#    running .... false if the task is finished, true if there are other work
+#    errflag .... true when the task finished with an error (valid only when
+#                 the running flag is false)
 sub execute {
   my ($this, $context) = @_;
   
@@ -78,7 +81,7 @@ sub execute {
     my $status = $this->{instructions}->[0]->execute(
         $context, $this->{taskaddress}, $this->{wdir});
     if($status eq $SMake::Executor::Instruction::Instruction::WAIT) {
-      return 1;
+      return (1, 0);
     }
     if($status eq $SMake::Executor::Instruction::Instruction::STOP) {
       $this->{instructions} = [];
@@ -86,10 +89,12 @@ sub execute {
     if($status eq $SMake::Executor::Instruction::Instruction::NEXT) {
       shift @{$this->{instructions}};
     }
+    if($status eq $SMake::Executor::Instruction::Instruction::ERROR) {
+      return (0, 1);
+    }
   }
   
-  # -- TODO: report finished task
-  return 0;
+  return (0, 0);
 }
 
 # Get task's ID

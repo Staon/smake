@@ -35,6 +35,7 @@ sub new {
   
   my $stage = $artifact->getObject()->getStage($name);
   if(defined($stage)) {
+    $stage->update();
     $this->{tasks} = SMake::Update::Table->new(
         \&SMake::Model::Task::createKey,
         $stage->getTaskKeys());

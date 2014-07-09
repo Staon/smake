@@ -70,7 +70,12 @@ sub execute {
     # -- TODO: report output of the command
     print $status->[1];
     
-    return $SMake::Executor::Instruction::Instruction::NEXT;
+    if($status->[0]) {
+      return $SMake::Executor::Instruction::Instruction::NEXT;
+    }
+    else {
+      return $SMake::Executor::Instruction::Instruction::ERROR;
+    }
   }
 
   # -- execute the command
