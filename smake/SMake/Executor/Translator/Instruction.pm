@@ -34,7 +34,7 @@ sub new {
 }
 
 sub translate {
-  my ($this, $context, $command, $wd) = @_;
+  my ($this, $context, $task, $command, $wd) = @_;
   
   my $i = $this->{instruction}->new(@{$this->{arguments}});
   return [$i];

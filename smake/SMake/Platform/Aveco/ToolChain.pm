@@ -91,7 +91,7 @@ sub new {
           SMake::Executor::Translator::Compositor->new(
               "cc",
               SMake::Executor::Translator::OptionList->new(
-                  "header_dirs", "", "", "-I ", "", " "),
+                  "header_dirs", "", "", "-I", "", " "),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::PRODUCT_GROUP, "-c ", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(

@@ -45,7 +45,7 @@ sub doJob {
   # -- search the node
   my $parent = $command->getNode(
       $context, $SMake::Executor::Executor::SUBSYSTEM, $this->{address}->getDirpath());
-  my $node = $parent->getChild($this->{address}->getBasepath());
+  my $node = $parent->getChild($this->{address}->getBasename());
   
   return $this->modifyNode($context, $command, $task, $this->{address}, $parent, $node);
 }

@@ -60,7 +60,12 @@ sub systemAbsolute {
 sub systemRelative {
   my ($this) = @_;
   # TODO: do some portable solution
-  return $this->asString();
+  if(!$this->isEmpty()) {
+    return $this->asString();
+  }
+  else {
+    return ".";
+  }
 }
 
 # The method creates a filesystem path based on a specified working directory.

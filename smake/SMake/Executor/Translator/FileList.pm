@@ -45,7 +45,7 @@ sub new {
 }
 
 sub translateValue {
-  my ($this, $context, $command, $wd, $value) = @_;
+  my ($this, $context, $task, $command, $wd, $value) = @_;
   
   # -- get list of resource nodes
   my $reslist = $value->getChildren();

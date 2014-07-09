@@ -54,11 +54,10 @@ sub installResolvedResource {
 
   # -- area base path
   my $basepath = $this->getBasePath($project, $module);
-  print "$module " . $basepath->asString() . "\n";
       
   # -- prepare installation directory
   my $dirpath = $basepath->joinPaths($name->getDirpath());
-  my $dirname = $context->getRepository()->getPhysicalLocationString(
+  my $dirname = $project->getRepository()->getPhysicalLocationString(
       $this->{restype}, $dirpath);
   if(! -d $dirname) {
     my $msg = SMake::Utils::Dirutils::makeDirectory($dirname);
@@ -74,7 +73,7 @@ sub installResolvedResource {
       
   # -- install the resource
   my $srcname = $resolved->getPhysicalPathString();
-  my $tgname = $context->getRepository()->getPhysicalLocationString(
+  my $tgname = $project->getRepository()->getPhysicalLocationString(
       $this->{restype}, $dirpath->joinPaths($name->getBasepath()));
   if(!SMake::Utils::Dirutils::linkFile($tgname, $srcname)) {
       SMake::Utils::Utils::dieReport(
@@ -143,7 +142,7 @@ sub cleanArea {
   my ($this, $context, $subsystem, $project) = @_;
 
   my $path = $this->getBasePath($project);
-  $path = $context->getRepository()->getPhysicalLocationString(
+  $path = $project->getRepository()->getPhysicalLocationString(
       $this->{restype}, $path);
   SMake::Utils::Dirutils::removeDirectory($path);
 }

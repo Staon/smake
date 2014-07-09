@@ -45,14 +45,14 @@ sub getAddress {
 }
 
 sub translate {
-  my ($this, $context, $command, $wd) = @_;
+  my ($this, $context, $task, $command, $wd) = @_;
   
   # -- get the value node
   my $value = $command->getNode(
       $context, $SMake::Executor::Executor::SUBSYSTEM, $this->{address});
 
   # -- translate the value
-  my $cmds = $this->translateValue($context, $command, $wd, $value);
+  my $cmds = $this->translateValue($context, $task, $command, $wd, $value);
   my $list = [];
   foreach my $cmd (@$cmds) {
     push @$list, SMake::Executor::Instruction::Shell->new($cmd);
@@ -62,8 +62,9 @@ sub translate {
 
 # Translate value node
 #
-# Usage: translateValue($context, $command, $wd, $value)
+# Usage: translateValue($context, $task, $command, $wd, $value)
 #    context ...... executor context
+#    task ......... the task
 #    command ...... logical command
 #    wd ........... absolute physical path of the task's working directory
 #    value ........ value node of the logical command

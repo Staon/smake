@@ -41,9 +41,13 @@ sub new {
 sub filterResource {
   my ($this, $context, $resource) = @_;
 
+  print "try " . $resource->getName()->asString() . "\n";
+  
   if($resource->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
     my $path = File::Spec->catfile(
-        $this->{location}, $resource->getName()->removePrefix(1)->systemRelative());
+        $this->{location},
+        $resource->getName()->removePrefix(1)->systemRelative());
+    print "try $path\n";
     return 1 if(-f $path);
   }
   return 0;

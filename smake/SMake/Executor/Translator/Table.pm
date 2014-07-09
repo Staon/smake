@@ -52,7 +52,7 @@ sub appendRecords {
 }
 
 sub translate {
-  my ($this, $context, $command, $wd) = @_;
+  my ($this, $context, $task, $command, $wd) = @_;
 
   # -- get translation task  
   my $tasktype = $command->getName();
@@ -66,7 +66,7 @@ sub translate {
   }
   
   # -- execute the translator
-  return $record->translate($context, $command, $wd);
+  return $record->translate($context, $task, $command, $wd);
 }
 
 return 1;

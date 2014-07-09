@@ -46,7 +46,7 @@ sub appendRecords {
 }
 
 sub translate {
-  my ($this, $context, $command, $wd) = @_;
+  my ($this, $context, $task, $command, $wd) = @_;
   
   my @retvals = ();
   foreach my $record (@{$this->{records}}) {
@@ -54,7 +54,7 @@ sub translate {
       push @retvals, $record;
   	}
   	else {
-      my $vals = $record->translate($context, $command, $wd);
+      my $vals = $record->translate($context, $task, $command, $wd);
       foreach my $instr (@$vals) {
         push @retvals, $instr->getCommand();
       }

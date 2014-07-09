@@ -58,7 +58,7 @@ sub new {
     $command = $profstack->modifyCommand($context, $command, $task);
     
     # -- translate the logical command to a sequence of instructions
-  	my $instrs = $translator->translate($context, $command, $wd);
+  	my $instrs = $translator->translate($context, $task, $command, $wd);
     push @$instructions, @$instrs;
   }
   $this->{wdir} = $wd;

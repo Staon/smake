@@ -24,6 +24,7 @@ use SMake::Profile::NodeProfile;
 
 use SMake::Executor::Command::Group;
 use SMake::Executor::Command::Option;
+use SMake::Executor::Executor;
 
 # Create new profile
 #

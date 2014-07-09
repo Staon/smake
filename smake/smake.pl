@@ -29,6 +29,7 @@ use SMake::Parser::Visibility;
 use SMake::Platform::Aveco::ToolChain;
 use SMake::Platform::GCC::ToolChain;
 use SMake::Profile::InstallPaths;
+use SMake::Profile::LocalDirs;
 use SMake::Profile::Profile;
 use SMake::Profile::Stack;
 use SMake::Profile::VarProfile;
@@ -73,6 +74,11 @@ $repository->registerProfile(
 my $profiles = SMake::Profile::Stack->new();
 $profiles->appendProfile(SMake::Profile::InstallPaths->new(
     $SMake::Model::Const::CXX_TASK, "header_dirs", $SMake::Model::Const::HEADER_MODULE));
+$profiles->appendProfile(SMake::Profile::LocalDirs->new(
+    $SMake::Model::Const::CXX_TASK,
+    "header_dirs",
+    "^" . quotemeta($SMake::Model::Const::HEADER_MODULE . "/"),
+    1));
 $profiles->appendProfile(SMake::Profile::InstallPaths->new(
     $SMake::Model::Const::BIN_TASK, "lib_dirs", $SMake::Model::Const::LIB_MODULE));
 

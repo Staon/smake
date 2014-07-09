@@ -28,8 +28,9 @@ sub new {
 
 # Translate command
 #
-# Usage: translate($context, $command, $wd)
+# Usage: translate($context, $task, $command, $wd)
 #    context ...... executor context
+#    task ......... the task object
 #    command ...... logical command tree
 #    wd ........... absolute physical path of the task's working directory
 # Return:

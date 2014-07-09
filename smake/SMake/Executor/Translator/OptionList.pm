@@ -42,7 +42,7 @@ sub new {
 }
 
 sub translateValue {
-  my ($this, $context, $command, $wd, $value) = @_;
+  my ($this, $context, $task, $command, $wd, $value) = @_;
   
   # -- get list of option nodes
   my $optlist = $value->getChildren();

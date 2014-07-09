@@ -20,6 +20,33 @@ package SMake::Utils::Searching;
 
 use SMake::Model::Const;
 
+# Try to resolve an external resource in local project
+#
+# Usage: resolveLocal($context, $subsystem, $resource)
+#    context ...... executor context
+#    subsystem .... logging subsystem
+#    resource ..... the external resources
+# Returns: ($found, $resource)
+#    found ........ true if the resource is resolved
+#    resource ..... resolved resource. The value is valid only if the found
+#                   flag is true. The value can be undef, if the resource shall
+#                   be ignored (e.g. typically system headers)
+sub resolveLocal {
+  my ($context, $subsystem, $resource) = @_;
+
+  my $project = $resource->getProject();
+  my $resolved = $project->searchResource(
+      "^" . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . "|"
+          . quotemeta($SMake::Model::Const::PRODUCT_RESOURCE) . "\$",
+      $resource->getName()->removePrefix(1));
+  if(defined($resolved)) {
+    return 1, $resolved;
+  }
+  else {
+    return 0, undef;
+  }
+}
+
 # Resolve external resource
 #
 # The function searches a resource which matches the external resource
@@ -41,12 +68,8 @@ sub resolveExternal {
   
   # -- search in the local project
   {
-    my $project = $resource->getProject();
-    my $resolved = $project->searchResource(
-        "^" . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . "|"
-            . quotemeta($SMake::Model::Const::PRODUCT_RESOURCE) . "\$",
-        $resource->getName()->removePrefix(1));
-    return (1, $resolved, 1) if(defined($resolved));
+    my ($found, $resolved) =  resolveLocal($context, $subsystem, $resource);
+    return (1, $resolved, 1) if($found);
   }
   
   # -- search table of public resources
