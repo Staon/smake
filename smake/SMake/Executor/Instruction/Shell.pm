@@ -74,6 +74,7 @@ sub execute {
       return $SMake::Executor::Instruction::Instruction::NEXT;
     }
     else {
+      print "error\n";
       return $SMake::Executor::Instruction::Instruction::ERROR;
     }
   }

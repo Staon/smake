@@ -15,13 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# UNIX shell sequential runner - commands are run in one sequencer without any
-# paralelization.
-package SMake::Executor::Runner::Sequential;
+# QNX4 sequential runner
+package SMake::Executor::Runner::QNX;
 
 use SMake::Executor::Runner::SequentialBase;
 
 @ISA = qw(SMake::Executor::Runner::SequentialBase);
+
+use QNX4;
 
 # Create new sequential runner
 sub new {
@@ -39,9 +40,9 @@ sub new {
 #    output ....... command's output
 sub runBlocking {
   my ($this, $context, $command) = @_;
-  
-  delete local $SIG{__WARN__};
-  my $output = `$command 2>&1`;
+
+  my $output = QNX4::backticks_keepalive(
+      "$command 2>&1", 15000, " ========= SMAKE HEARTBEAT ========= \n");
   if(!defined($output)) {
     return -1, "";
   }
