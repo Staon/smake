@@ -131,7 +131,11 @@ sub getPhysicalLocationString {
 # Usage: openTransaction()
 sub openTransaction {
   my ($this) = @_;
+  
   $this->{storage}->openTransaction($this);
+  if(defined($this->{parent})) {
+    $this->{parent}->openTransaction();
+  }
 }
 
 # Close currently opened transaction of the project storage
@@ -139,39 +143,11 @@ sub openTransaction {
 # Usage: commitTransaction();
 sub commitTransaction {
   my ($this) = @_;
-  $this->{storage}->commitTransaction($this); 
-}
-
-# Create new description object
-#
-# Usage: createDescription($parent, $path, $mark)
-#    parent .. parent description object (it can be undef for root objects)
-#    path .... logical path of the description file
-#    mark .... decider's mark of the description file
-sub createDescription {
-  my ($this, $parent, $path, $mark) = @_;
-  return $this->{storage}->createDescription($this, $parent, $path, $mark);
-}
-
-# Remove a description from the storage
-#
-# The method removes whole tree of descriptions which the description belongs to.
-#
-# Usage: removeDescription($description)
-#    description ... a description object. The whole tree is removed!
-sub removeDescription {
-  my ($this, $description) = @_;
-  $this->{storage}->removeDescription($this, $description->getTopParent()->getPath());
-}
-
-# Get description object
-#
-# Usage: getDescription($path)
-#    path .... logical path of the description file
-# Returns: the description object or undef
-sub getDescription {
-  my ($this, $path) = @_;
-  return $this->{storage}->getDescription($this, $path);
+  
+  $this->{storage}->commitTransaction($this);
+  if(defined($this->{parent})) {
+    $this->{parent}->commitTransaction();
+  } 
 }
 
 # Create new project object
@@ -193,7 +169,21 @@ sub createProject {
 #    external .... external flag
 sub getProject {
   my ($this, $name) = @_;
-  return ($this->{storage}->getProject($this, $name), 1);
+  
+  # -- try to find locally
+  my $project = $this->{storage}->getProject($this, $name);
+  if(defined($project)) {
+    return $project, 1;
+  }
+  else {
+    # -- use parent repository
+    if(defined($this->{parent})) {
+      return $this->{parent}->getProject($name);
+    }
+    else {
+      return undef, 1;
+    }
+  }
 }
 
 # Search for a public resource
