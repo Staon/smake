@@ -37,7 +37,7 @@ sub execute {
   my ($project, $artifact, $stage, $task) = $taskaddress->getObjects(
       $context, $SMake::Executor::Executor::SUBSYSTEM);
 
-  # -- update timestamps
+  # -- update resource timestamps
   my $stamps = $task->getSourceTimestamps();
   push @$stamps, @{$task->getTargetTimestamps()};
   foreach my $stamp (@$stamps) {
@@ -53,7 +53,22 @@ sub execute {
     }
     $stamp->updateMark($curr_mark);
   }
-  
+
+  # -- update timestamps of the dependencies
+  my $deps = $task->getDependencies();
+  foreach my $dep (@$deps) {
+    my $curr_mark = $dep->computeCurrentMark(
+        $context, $SMake::Executor::Executor::SUBSYSTEM);
+    if(!defined($curr_mark)) {
+      SMake::Utils::Utils::dieReport(
+          $context->getReporter(),
+          $SMake::Executor::Executor::SUBSYSTEM,
+          "timestamp cannot be computed for dependency '%s'!",
+          $dep->getKey());
+    }
+    $dep->updateMark($curr_mark);
+  }
+
   return $SMake::Executor::Instruction::Instruction::NEXT;
 }
 

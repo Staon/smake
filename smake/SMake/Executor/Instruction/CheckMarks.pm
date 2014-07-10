@@ -58,6 +58,21 @@ sub execute {
     }
   }
   
+  # -- check timestamps of the task dependencies
+  my $deps = $task->getDependencies();
+  foreach my $dep (@$deps) {
+    # -- no stored mark => compile
+    my $stored_mark = $dep->getMark();
+    return $SMake::Executor::Instruction::Instruction::NEXT if(!$stored_mark);
+    
+    # -- get the timestamp
+    my $curr_mark = $dep->computeCurrentMark(
+        $context, $SMake::Executor::Executor::SUBSYSTEM);
+    if(!defined($curr_mark) || $curr_mark ne $stored_mark) {
+      return $SMake::Executor::Instruction::Instruction::NEXT;
+    }
+  }
+  
   # -- nothing changed
   return $SMake::Executor::Instruction::Instruction::STOP;
 }

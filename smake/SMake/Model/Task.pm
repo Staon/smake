@@ -241,13 +241,38 @@ sub getSourceTimestamps {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Append new task dependency object
+# Get list of key tuples of task dependencies
 #
-# Usage: appendDependency($dependency, $instmodule)
-#    dependency ...... the dependency object
-#    instmodule ...... installation module
-# Returns: the dependency object
-sub appendDependency {
+# Usage: getDependencyKeys
+# Returns \@list of key tuples
+sub getDependencyKeys {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Create new task dependency
+#
+# Usage: createDependency($dependency, $instmodule)
+#    dependency ...... the stage dependency object
+#    instmodule ...... installation module of the dependent resource (can be null
+#                      for stage dependencies)
+sub createDependency {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get task dependency for an artifact dependency object
+#
+# Usage: getDependency($depkey)
+#    depkey ....... key tuple of the artifact dependency object
+# Returns: the task dependency or undef
+sub getDependency {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Delete list of task dependencies
+#
+# Usage: deleteDependencies(\@list)
+#    list ...... list of key tuples
+sub deleteDependencies {
   SMake::Utils::Abstract::dieAbstract();
 }
 

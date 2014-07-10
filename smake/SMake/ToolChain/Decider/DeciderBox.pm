@@ -56,37 +56,10 @@ sub getMark {
   foreach my $path (@$paths) {
     my $fspath = $path->systemAbsolute();
   	return undef if(! -f $fspath);
+  	$basestr .= $fspath;
     $basestr .= $this->{decider}->getStamp($fspath);
   }
   return sha1_hex($basestr);
-}
-
-# Check if a file has changed
-#
-# Usage: hasChanged($path, $mark)
-#    repository ... repository which the file belongs to
-#    path ......... absolute path to the file
-#    mark ......... stored decider mark. If the mark is empty or undef, new mark
-#                   is always computed.
-# Returns: undef value if the file is not changed, new decider mark if the file
-#    is changed.
-sub hasChanged {
-  my ($this, $repository, $path, $mark) = @_;
-  
-  # -- get current mark
-  my $phpath = $path->systemAbsolute();
-  my $curr_mark = "";
-  if(-f $phpath) {
-    $curr_mark = sha1_hex($this->{decider}->getStamp($phpath));
-  }
-  
-  # -- compare marks
-  if($mark && $curr_mark eq $mark) {
-    return undef;
-  }
-  else {
-    return $curr_mark;
-  }
 }
 
 return 1;

@@ -38,6 +38,7 @@ sub new {
   $this->{task} = $task;
   $this->{dependency} = $dependency;
   $this->{instmodule} = $instmodule;
+  $this->{mark} = undef;
   
   return $this;
 }
@@ -50,6 +51,12 @@ sub destroy {
   $this->{task} = undef;
   $this->{dependency} = undef;
   $this->{instmodule} = undef;
+  $this->{mark} = undef;
+}
+
+sub update {
+  my ($this, $instmodule) = @_;
+  $this->{instmodule} = $instmodule;
 }
 
 sub getRepository {
@@ -70,6 +77,16 @@ sub getDependency {
 sub getInstallModule {
   my ($this) = @_;
   return $this->{instmodule};
+}
+
+sub updateMark {
+  my ($this, $mark) = @_;
+  $this->{mark} = $mark;
+}
+
+sub getMark {
+  my ($this) = @_;
+  return $this->{mark};
 }
 
 return 1;

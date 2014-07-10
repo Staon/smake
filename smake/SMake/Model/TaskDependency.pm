@@ -23,7 +23,9 @@ use SMake::Model::Object;
 @ISA = qw(SMake::Model::Object);
 
 use SMake::Model::Dependency;
+use SMake::ToolChain::Decider::DeciderList;
 use SMake::Utils::Abstract;
+use SMake::Utils::Searching;
 
 # Create new task dependency
 #
@@ -32,6 +34,13 @@ sub new {
   my ($class) = @_;
   my $this = bless(SMake::Model::Object->new(), $class);
   return $this;
+}
+
+# Update data of the object
+#
+# Usage: update($instmodule)
+sub update {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 # Create key tuple
@@ -125,6 +134,43 @@ sub getDependencyMainResource {
 sub getDependencyStage {
   my ($this) = @_;
   return $this->getDependency()->getDependencyStage();
+}
+
+# Update dependency timestamp and physical file
+#
+# Usage: updateMark($timestamp)
+#    timestamp ....... timestamp mark
+sub updateMark {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get current timestamp mark
+#
+# Usage: getMark()
+# Returns: $timestamp
+sub getMark {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Compute current stamp of the resource
+#
+# Usage: computeCurrentStamp($context, $subsystem)
+#    context ..... parser or executor context
+#    subsystem ... logging subsystem
+# Returns: computed resource stamp
+sub computeCurrentMark {
+  my ($this, $context, $subsystem) = @_;
+
+  # -- get set of resources to compute the mark
+  my $declist = SMake::ToolChain::Decider::DeciderList->new();
+  my $closure = SMake::Utils::Searching::dependencyTransitiveClosure(
+      $context, $subsystem, $this);
+  foreach my $c (@$closure) {
+    $declist->appendPaths($c->getPhysicalPath());
+  }
+    
+  # -- get file timestamp
+  return $context->getDecider()->getMark($context->getRepository(), $declist);
 }
 
 # Get model objects addressed by this dependency object
@@ -235,6 +281,10 @@ sub prettyPrint {
   SMake::Utils::Print::printIndent($indent + 1);
   my $instmodule = $this->getInstallModule();
   print ::HANDLE "instmodule: " . (($instmodule)?$instmodule:"undef") . "\n";
+
+  SMake::Utils::Print::printIndent($indent + 1);
+  my $mark = $this->getMark();
+  print ::HANDLE "mark: " . (($mark)?$mark:"undef") . "\n";
   
   SMake::Utils::Print::printIndent($indent);
   print ::HANDLE "}";

@@ -47,6 +47,9 @@ sub new {
     $this->{sources} = SMake::Update::Table->new(
         \&SMake::Model::Timestamp::createKey,
         $task->getSourceKeys());
+    $this->{dependencies} = SMake::Update::Table->new(
+        \&SMake::Model::TaskDependency::createKey,
+        $task->getDependencyKeys());
   }
   else {
     $task = $stage->getObject()->createTask($name, $type, $wdtype, $wd, $args);
@@ -54,8 +57,9 @@ sub new {
         \&SMake::Model::Timestamp::createKey, []);
     $this->{sources} = SMake::Update::Table->new(
         \&SMake::Model::Timestamp::createKey, []);
+    $this->{dependencies} = SMake::Update::Table->new(
+        \&SMake::Model::TaskDependency::createKey, []);
   }
-  $this->{dependencies} = {};
   $this->{stage} = $stage;
   $this->{task} = $task;
   
@@ -75,6 +79,10 @@ sub update {
   # -- update source resources:
   my ($ts_delete, $ts_changed) = $this->{sources}->update($context);
   $this->{task}->deleteSources($ts_delete);
+  
+  # -- update task dependencies
+  my ($dep_delete, $dep_changed) = $this->{dependencies}->update($context);
+  $this->{task}->deleteDependencies($dep_delete);
 
   $this->{task}->setForceRun($ts_changed || $tg_changed);
   
@@ -173,7 +181,7 @@ sub appendDependency {
   
   my $taskdep = SMake::Update::TaskDependency->new(
       $context, $this, $dep, $instmodule);
-  $this->{dependencies}->{$taskdep->getKey()} = $taskdep;
+  $this->{dependencies}->addItem($taskdep);
 }
 
 # Create and append new task's profile

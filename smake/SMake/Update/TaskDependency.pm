@@ -28,9 +28,15 @@ package SMake::Update::TaskDependency;
 sub new {
   my ($class, $context, $task, $dependency, $instmodule) = @_;
   my $this = bless({}, $class);
-  
-  my $taskdep = $task->getObject()->appendDependency(
-      $dependency->getObject(), $instmodule);
+
+  my $taskdep = $task->getObject()->getDependency($dependency->getKeyTuple());
+  if(defined($taskdep)) {
+    $taskdep->update($instmodule);
+  }
+  else {
+    $taskdep = $task->getObject()->createDependency(
+        $dependency->getObject(), $instmodule);
+  }
   $this->{task} = $task;
   $this->{taskdep} = $taskdep;
   $this->{instmodule} = $instmodule;

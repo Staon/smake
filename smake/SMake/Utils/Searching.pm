@@ -122,10 +122,7 @@ sub externalTransitiveClosure {
 
   my $list = [];
   my @queue = ([$resource, 1]);
-  
-  # -- append the root
   my %extmap = ();
-  
   while($#queue >= 0) {
     my $current = shift(@queue);
     if(!defined($extmap{$current->[0]->getName()->asString()})) {
@@ -157,6 +154,42 @@ sub externalTransitiveClosure {
   }
 
   return $list;  
+}
+
+# Compute transitive closure of a task dependency
+#
+# Usage: dependencyTransitiveClosure($context, $subsystem, $dependency)
+#    context ...... executor context
+#    subsystem .... logging subsystem
+#    dependency ... the task dependency
+# Returns: \@list of resolved resources. The list can be empty if the
+#    dependency is a stage dependency.
+sub dependencyTransitiveClosure {
+  my ($context, $subsystem, $dependency) = @_;
+
+  my $list = [];  
+  my @queue = ($dependency);
+  my %depmap = ();
+  while($#queue >= 0) {
+    my $current = shift(@queue);
+    if(!defined($depmap{$current->getKey()})) {
+      $depmap{$current->getKey()} = 1;
+      if($current->getDependencyKind() eq $SMake::Model::Dependency::RESOURCE_KIND) {
+        my ($project, $artifact, $stage, $resource) = $current->getObjects(
+            $context, $subsystem);
+        push @$list, $resource;
+        
+        # -- get transitive dependencies
+        my $restask = $resource->getTask();
+        my $deplist = $restask->getDependencies();
+        foreach my $dep (@$deplist) {
+          push @queue, $dep;
+        }
+      }
+    }
+  }
+  
+  return $list;
 }
 
 return 1;

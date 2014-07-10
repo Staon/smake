@@ -23,6 +23,7 @@ use SMake::Model::Task;
 @ISA = qw(SMake::Model::Task);
 
 use SMake::Data::Path;
+use SMake::Model::TaskDependency;
 use SMake::Model::Timestamp;
 use SMake::Storage::File::Profile;
 use SMake::Storage::File::TaskDependency;
@@ -80,9 +81,7 @@ sub update {
   $this->{wdtype} = $wdtype;
   $this->{wdir} = (defined($wd))?SMake::Data::Path->new($wd):undef;
   $this->{args} = defined($args)?$args:{};
-
   $this->{profiles} = [];
-  $this->{dependencies} = {};
 }
 
 sub getRepository {
@@ -197,13 +196,38 @@ sub getSourceTimestamps {
   return [values(%{$this->{sources}})];
 }
 
-sub appendDependency {
+sub getDependencyKeys {
+  my ($this) = @_;
+  return [map {$_->getKeyTuple()} values(%{$this->{dependencies}})];
+}
+
+sub createDependency {
   my ($this, $dependency, $instmodule) = @_;
-  
+ 
   my $taskdep = SMake::Storage::File::TaskDependency->new(
           $this->{repository}, $this->{storage}, $this, $dependency, $instmodule);
   $this->{dependencies}->{$taskdep->getKey()} = $taskdep;
+  print "create task dependency: " . $taskdep->getKey() . "\n";
   return $taskdep;
+}
+
+sub getDependency {
+  my ($this, $depkey) = @_;
+  
+  my $key = SMake::Model::TaskDependency::createKey(@$depkey);
+  print "get dependency $key\n";
+  return $this->{dependencies}->{$key};
+}
+
+sub deleteDependencies {
+  my ($this, $list) = @_;
+  
+  foreach my $dep (@$list) {
+    my $key = SMake::Model::TaskDependency::createKey(@$dep);
+    print "dep to delete: $key\n";
+    $this->{dependencies}->{$key}->destroy();
+    delete $this->{dependencies}->{$key};
+  }
 }
 
 sub getDependencies {

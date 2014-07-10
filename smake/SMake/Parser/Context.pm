@@ -68,18 +68,6 @@ sub getDecider {
   return $this->{decider};
 }
 
-# Detect change of a file
-#
-# Usage: getFileMark($path, $mark)
-#    path ..... absolute path of the file (logical path in the repository meaning)
-#    mark ..... a decider mark which is checked with current mark. If it's empty or
-#               undef, new mark is always got.
-# Returns: Undef if the file has not changed. Otherwise, new decider mark.
-sub hasChanged {
-  my ($this, $path, $mark) = @_;
-  return $this->{decider}->hasChanged($this->{repository}, $path, $mark);
-}
-
 # Get the repository
 sub getRepository {
   my ($this) = @_;
