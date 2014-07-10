@@ -27,17 +27,15 @@ package SMake::ToolChain::ToolChain;
 #    builder ...... builder od abstract commands
 #    translator ... a translator of abstract commands to instruction objects
 #                   (for example shell commands)
-#    runner ....... a shell runner (a shell command executor)
 #    scanner ...... source scanner (generator of external resources)
 #    filter ....... filter of external resources
 sub new {
-  my ($class, $constructor, $mangler, $builder, $translator, $runner, $scanner, $filter) = @_;
+  my ($class, $constructor, $mangler, $builder, $translator, $scanner, $filter) = @_;
   return bless({
     constructor => $constructor,
     mangler => $mangler,
     builder => $builder,
     translator => $translator,
-    runner => $runner,
     scanner => $scanner,
     filter => $filter,
   }, $class);
@@ -74,12 +72,6 @@ sub getBuilder {
 sub getTranslator {
   my ($this) = @_;
   return $this->{translator};
-}
-
-# Get shell runner
-sub getRunner {
-  my ($this) = @_;
-  return $this->{runner};
 }
 
 # Get source scanner

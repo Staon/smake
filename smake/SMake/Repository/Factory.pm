@@ -101,17 +101,4 @@ sub createRepositories {
   return $repository;
 }
 
-# Create repositories according to the environment variable
-#
-# Usage: createRepositoriesVar($reporter, $value)
-#    reporter .... logging reporter
-#    value ....... content of the environment variable
-# Returns: the top repository
-sub createRepositoriesVar {
-  my ($reporter, $value) = @_;
-  
-  my @dirs = split(/:/, $value);
-  return createRepositories($reporter, \@dirs);
-}
-
 return 1;

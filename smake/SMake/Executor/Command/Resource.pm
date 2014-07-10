@@ -44,4 +44,39 @@ sub getPath {
   return $this->{path};
 }
 
+# Get value of the node as a system argument
+#
+# Usage: getSystemArgument($context, $wd, $mangler)
+#    context ...... executor context
+#    wd ........... task's working directory (absolute filesystem path). It can be
+#                   null => full resource path is used.
+#    mangler ...... resource name mangler description. It can be null => name is
+#                   not mangled.
+# Returns: the argument string
+sub getSystemArgument {
+  my ($this, $context, $wd, $mangler) = @_;
+  
+  my $path = $this->getPath();
+  my $relpath;
+  if(defined($wd)) {
+    ($relpath, $path) = $path->systemArgument($wd);
+  }
+  else {
+    $relpath = 0;
+  }
+  
+  # -- mangle the filename
+  if(defined($mangler)) {
+    $path = $context->getMangler()->mangleName($context, $mangler, $path);
+  }
+  
+  # -- construct string filesystem path
+  if($relpath) {
+    return $path->systemRelative();
+  }
+  else {
+    return $path->systemAbsolute();
+  }
+}
+
 return 1;

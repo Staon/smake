@@ -35,10 +35,11 @@ use SMake::ToolChain::Scanner::Chain;
 
 # Create new tool chain object
 #
-# Usage: new($runner)
-#    runner ..... shell runner
+# Usage: new($repository, $profiles)
+#    repository ...... the most significant repository
+#    profiles ........ profile stack
 sub new {
-  my ($class, $runner) = @_;
+  my ($class, $repository, $profiles) = @_;
   
   # -- construct objects
   my $constructor = SMake::ToolChain::Constructor::Table->new();
@@ -66,7 +67,6 @@ sub new {
           $mangler,
           $builder,
           $translator,
-          $runner,
           $scanner,
           $resfilter
       ),

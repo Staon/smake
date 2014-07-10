@@ -43,4 +43,16 @@ sub getValue {
   return $this->{value};
 }
 
+# Get value of the node as a system argument
+#
+# Usage: getSystemArgument($context, $wd, $mangler)
+#    context ...... executor context
+#    wd ........... not used
+#    mangler ...... not used
+# Returns: the argument string
+sub getSystemArgument {
+  my ($this, $context, $wd, $mangler) = @_;
+  return $this->{value};
+}
+
 return 1;

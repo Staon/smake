@@ -22,12 +22,13 @@ use SMake::Profile::Stack;
 
 # Create new context
 #
-# Usage: new($reporter, $decider, $repository, $visibility, $installarea, $profiles)
+# Usage: new($reporter, $decider, $runner, $repository, $visibility, $installarea, $profiles)
 sub new {
-  my ($class, $reporter, $decider, $repository, $visibility, $installarea, $profiles) = @_;
+  my ($class, $reporter, $decider, $runner, $repository, $visibility, $installarea, $profiles) = @_;
   return bless({
     reporter => $reporter,
     decider => $decider,
+    runner => $runner,
     repository => $repository,
     visibility => $visibility,
     installarea => $installarea,
@@ -74,7 +75,7 @@ sub getToolChain {
 # Get shell runner
 sub getRunner {
   my ($this) = @_;
-  return $this->{repository}->getToolChain()->getRunner();
+  return $this->{runner};
 }
 
 # Get name mangler

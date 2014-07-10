@@ -42,6 +42,14 @@ sub new {
   }, $class);
 }
 
+# Set decider object
+#
+# Usage: setDecider($decider)
+sub setDecider {
+  my ($this, $decider) = @_;
+  $this->{decider} = $decider;
+}
+
 # Compute timestamp mark
 #
 # Usage: getMark($repository, $declist)

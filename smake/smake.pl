@@ -17,6 +17,7 @@
 
 use Carp;
 use Getopt::Long;
+use SMake::Config::Config;
 use SMake::Data::Address;
 use SMake::Data::Path;
 use SMake::Executor::Context;
@@ -36,7 +37,6 @@ use SMake::Profile::Stack;
 use SMake::Profile::VarProfile;
 use SMake::Reporter::Reporter;
 use SMake::Reporter::TargetConsole;
-use SMake::Repository::Factory;
 use SMake::Storage::File::Storage;
 use SMake::ToolChain::Decider::DeciderBox;
 use SMake::ToolChain::Decider::DeciderTime;
@@ -60,38 +60,10 @@ my @stages = @ARGV;
 my $reporter = SMake::Reporter::Reporter->new();
 $reporter->addTarget(SMake::Reporter::TargetConsole->new(1, 5, ".*"));
 
-# -- create repositories
-my $repository = SMake::Repository::Factory::createRepositoriesVar(
-    $reporter, $ENV{'SMAKE_REPOSITORY'});
-
-# -- file change decider
-my $decider = SMake::ToolChain::Decider::DeciderBox->new(
-    SMake::ToolChain::Decider::DeciderTime->new());
-
-# -- toolchain
-my $runner = SMake::Executor::Runner::Sequential->new();
-my $toolchain = SMake::Platform::Aveco::ToolChain->new($runner);
-#my $toolchain = SMake::Platform::GCC::ToolChain->new($runner);
-$repository->setToolChain($toolchain);
-
-# -- profiles
-$repository->registerProfile("memtest", SMake::Profile::Profile);
-$repository->registerProfile(
-    "header",
-    SMake::Profile::VarProfile,
-    $SMake::Model::Const::VAR_HEADER_DIRECTORY);
-
-# -- configuration profiles
-my $profiles = SMake::Profile::Stack->new();
-$profiles->appendProfile(SMake::Profile::InstallPaths->new(
-    $SMake::Model::Const::CXX_TASK, "header_dirs", $SMake::Model::Const::HEADER_MODULE));
-$profiles->appendProfile(SMake::Profile::LocalDirs->new(
-    $SMake::Model::Const::CXX_TASK,
-    "header_dirs",
-    "^" . quotemeta($SMake::Model::Const::HEADER_MODULE . "/"),
-    1));
-$profiles->appendProfile(SMake::Profile::InstallPaths->new(
-    $SMake::Model::Const::BIN_TASK, "lib_dirs", $SMake::Model::Const::LIB_MODULE));
+# -- create repositories and read configuration
+my ($repository, $decider, $runner, $profiles) 
+    = SMake::Config::Config::constructRepository(
+        $reporter, $ENV{'SMAKE_REPOSITORY'});
 
 # -- get list of SMakefiles to be parsed
 my $paths = [];
@@ -125,7 +97,7 @@ $repository->openTransaction();
 my $executor = SMake::Executor::Executor->new($force);
 my $installarea = SMake::InstallArea::StdArea->new($SMake::Model::Const::SOURCE_RESOURCE);
 my $execcontext = SMake::Executor::Context->new(
-    $reporter, $decider, $repository, $visibility, $installarea, $profiles);
+    $reporter, $decider, $runner, $repository, $visibility, $installarea, $profiles);
 foreach my $stage (@stages) {
   my $execlist = $visibility->createRootList($execcontext, "main", ".*", ".*", $stage);
   $executor->executeRoots($execcontext, $execlist);
@@ -133,9 +105,5 @@ foreach my $stage (@stages) {
 $repository->commitTransaction();
 
 $repository -> destroyRepository();
-
-#my $verparser = SMake::Parser::VersionRequest->new();
-#my $version = $verparser->parse("= 3.6.19 ");
-#print $version->printableString() . "\n"; 
 
 exit 0;

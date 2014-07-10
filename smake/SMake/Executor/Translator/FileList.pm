@@ -47,18 +47,24 @@ sub new {
 sub translateValue {
   my ($this, $context, $task, $command, $wd, $value) = @_;
   
-  # -- get list of resource nodes
+  # -- get list of children nodes
   my $reslist = $value->getChildren();
   
-  # -- sort resources
-  if($this->{sortflag}) {
-    $reslist = [
-        sort {$a->getPath()->getBasename() cmp $b->getPath()->getBasename()} @$reslist];
+  # -- create system argument strings
+  my $arguments = [];
+  foreach my $res (@$reslist) {
+    push @$arguments, $res->getSystemArgument($context, $wd, $this->{mangler});
   }
   
+  # -- sort the arguments
+  if($this->{sortflag}) {
+  	$arguments = [sort {$a cmp $b} @$arguments];
+  }
+
+  # -- create the command string
   my $str = $this->{prefix};
   my $first = 1;
-  foreach my $res (@$reslist) {
+  foreach my $argument (@$arguments) {
   	# -- separator
   	if($first) {
   	  $first = 0;
@@ -67,25 +73,9 @@ sub translateValue {
   	  $str .= $this->{separator};
   	}
   	
-  	# -- item prefix
+    # -- argument
     $str .= $this->{itemprefix};
-    
-    # -- file
-    my $path = $res->getPath();
-    my $relpath;
-    ($relpath, $path) = $path->getDirpath()->systemArgument($wd, $path->getBasename());
-    # -- mangle the filename
-    if(defined($this->{mangler})) {
-      $path = $context->getMangler()->mangleName($context, $this->{mangler}, $path);
-    }
-    if($relpath) {
-      $str .= $path->systemRelative();
-    }
-    else {
-      $str .= $path->systemAbsolute();
-    }
-    
-    # -- item suffix
+    $str .= $argument;
     $str .= $this->{itemsuffix};
   }
   $str .= $this->{suffix};

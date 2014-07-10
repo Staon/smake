@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Constants for the execution model
-package SMake::Executor::Const;
+# Default toolchain object
+package SMake::Config::DefaultToolChain;
 
-$PRODUCT_GROUP = "product";
-$SOURCE_GROUP = "src";
-$LIB_GROUP = "lib";
-$HEADERDIR_GROUP = "header_dirs";
-$LIBDIR_GROUP = "lib_dirs";
-$DEBUG_GROUP = "debug";
+use SMake::Platform::Generic::ToolChain;
+
+sub createDefaultToolChain {
+  my ($repository, $profiles) = @_;
+  return SMake::Platform::Generic::ToolChain->new($repository, $profiles);
+}
 
 return 1;

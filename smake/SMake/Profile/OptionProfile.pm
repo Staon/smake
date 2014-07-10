@@ -15,29 +15,31 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Append installation directories
-package SMake::Profile::InstallPaths;
+# This profile appends/prepends list of options into specified group.
+# Optionaly, it can clean previously set options in the group.
+package SMake::Profile::OptionProfile;
 
 use SMake::Profile::NodeProfile;
 
 @ISA = qw(SMake::Profile::NodeProfile);
 
-use SMake::Executor::Command::Group;
 use SMake::Executor::Command::Option;
 use SMake::Executor::Executor;
 
 # Create new profile
 #
-# Usage: new($cmdmask, $address, $instmodule)
+# Usage: new($cmdmask, $address, \@options, $clean, $prepend)
 #    cmdmask ..... a regular expression of command type
 #    address ..... address of the command node (an SMake::Data::Path object or
 #                  appropriately formatted string)
-#    instmodule .. installation module
-#    prepend ..... if it's true, the path is prepended
+#    options ..... list of option values
+#    clean ....... if it's true, the group is cleaned before the insertion
+#    prepend ..... if it's true, the options are prepended
 sub new {
-  my ($class, $cmdmask, $address, $instmodule, $prepend) = @_;
+  my ($class, $cmdmask, $address, $options, $clean, $prepend) = @_;
   my $this = bless(SMake::Profile::NodeProfile->new($cmdmask, $address), $class);
-  $this->{instmodule} = $instmodule;
+  $this->{options} = $options;
+  $this->{clean} = $clean;
   $this->{prepend} = $prepend;
   return $this;
 }
@@ -48,14 +50,16 @@ sub modifyNode {
   # -- create new group
   $node = $this->createGroupIfNotExists($address, $parent, $node);
   
-  # -- get the path
-  my ($restype, $path) = $context->getInstallArea()->getModulePath(
-      $context,
-      $SMake::Executor::Executor::SUBSYSTEM,
-      $this->{instmodule},
-      $task->getProject());
-  my $fspath = $context->getRepository()->getPhysicalLocationString($restype, $path);
-  $node->addChild(SMake::Executor::Command::Option->new($fspath), $this->{prepend});
+  # -- clean the group
+  if($this->{clean}) {
+    $node->clearGroup();
+  }
+
+  # -- append/prepend the values
+  foreach my $option (@{$this->{options}}) {
+    my $child = SMake::Executor::Command::Option->new($option);
+    $node->addChild($child, $this->{prepend});
+  }
 
   return $command;
 }

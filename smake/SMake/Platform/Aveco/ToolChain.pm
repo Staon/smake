@@ -23,6 +23,7 @@ use SMake::Platform::Generic::ToolChain;
 @ISA = qw(SMake::Platform::Generic::ToolChain);
 
 use SMake::Model::Const;
+use SMake::Executor::Const;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Executor::Translator::Instruction;
@@ -40,6 +41,9 @@ use SMake::Platform::Generic::InstallTranslator;
 use SMake::Platform::Generic::LibResolver;
 use SMake::Platform::Generic::LibResource;
 use SMake::Platform::Generic::LinkResolver;
+use SMake::Profile::InstallPaths;
+use SMake::Profile::LocalDirs;
+use SMake::Profile::VarProfile;
 use SMake::ToolChain::Constructor::Generic;
 use SMake::ToolChain::Resolver::Chain;
 use SMake::ToolChain::ResourceFilter::SysLocation;
@@ -47,11 +51,12 @@ use SMake::ToolChain::Scanner::HdrScanner;
 
 # Create the toolchain
 #
-# Usage: new($runner)
-#    $runner ...... parent tool chain
+# Usage: new($repository, $profiles)
+#    repository ...... the most significant repository
+#    profiles ........ profile stack
 sub new {
-  my ($class, $runner) = @_;
-  my $this = bless(SMake::Platform::Generic::ToolChain->new($runner));
+  my ($class, $repository, $profiles) = @_;
+  my $this = bless(SMake::Platform::Generic::ToolChain->new($repository, $profiles));
 
   # -- artifact constructors (lib and binary)
   my $objsuff = ".o";
@@ -77,11 +82,47 @@ sub new {
     )],
   );
 
+  # -- needed for header publishing (HeaderResolver)
+  $repository->registerProfile(
+      "header",
+      SMake::Profile::VarProfile,
+      $SMake::Model::Const::VAR_HEADER_DIRECTORY);
+  # -- it appends include directories from the installation area
+  $profiles->appendProfile(SMake::Profile::InstallPaths->new(
+      $SMake::Model::Const::CXX_TASK,
+      $SMake::Executor::Const::HEADERDIR_GROUP,
+      $SMake::Model::Const::HEADER_MODULE,
+      1));
+  $profiles->appendProfile(SMake::Profile::InstallPaths->new(
+      $SMake::Model::Const::C_TASK,
+      $SMake::Executor::Const::HEADERDIR_GROUP,
+      $SMake::Model::Const::HEADER_MODULE,
+      1));
+  # -- it appends local include directories
+  $profiles->appendProfile(SMake::Profile::LocalDirs->new(
+      $SMake::Model::Const::CXX_TASK,
+      $SMake::Executor::Const::HEADERDIR_GROUP,
+      "^" . quotemeta($SMake::Model::Const::HEADER_MODULE . "/"),
+      1));
+  $profiles->appendProfile(SMake::Profile::LocalDirs->new(
+      $SMake::Model::Const::C_TASK,
+      $SMake::Executor::Const::HEADERDIR_GROUP,
+      "^" . quotemeta($SMake::Model::Const::HEADER_MODULE . "/"),
+      1));
+  # -- it appends library directories from the installation area
+  $profiles->appendProfile(SMake::Profile::InstallPaths->new(
+      $SMake::Model::Const::BIN_TASK,
+      $SMake::Executor::Const::LIBDIR_GROUP,
+      $SMake::Model::Const::LIB_MODULE,
+      1));
+
   # -- command translators
   $this->getTranslator()->appendRecords(
       [$SMake::Model::Const::C_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "cc",
+              SMake::Executor::Translator::OptionList->new(
+                  $SMake::Executor::Const::HEADERDIR_GROUP, "", "", "-I", "", " "),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::PRODUCT_GROUP, "-c ", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
@@ -91,7 +132,7 @@ sub new {
           SMake::Executor::Translator::Compositor->new(
               "cc",
               SMake::Executor::Translator::OptionList->new(
-                  "header_dirs", "", "", "-I", "", " "),
+                  $SMake::Executor::Const::HEADERDIR_GROUP, "", "", "-I", "", " "),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::PRODUCT_GROUP, "-c ", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
@@ -109,9 +150,9 @@ sub new {
           SMake::Executor::Translator::Compositor->new(
               "cc",
               SMake::Executor::Translator::OptionList->new(
-                  "lib_dirs", "", "", "-L ", "", " "),
+                  $SMake::Executor::Const::LIBDIR_GROUP, "", "", "-L ", "", " "),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::LIB_GROUP, "-liost -lunix3r ", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
+                  $SMake::Executor::Const::LIB_GROUP, "", "", "-l", "", " ", 1, 'Name() . "." . Suffix()'),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(

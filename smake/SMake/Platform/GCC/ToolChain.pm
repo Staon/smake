@@ -46,11 +46,12 @@ use SMake::ToolChain::Scanner::HdrScanner;
 
 # Create the toolchain
 #
-# Usage: new($runner)
-#    $runner ...... parent tool chain
+# Usage: new($repository, $profiles)
+#    repository ...... the most significant repository
+#    profiles ........ profile stack
 sub new {
-  my ($class, $runner) = @_;
-  my $this = bless(SMake::Platform::Generic::ToolChain->new($runner));
+  my ($class, $repository, $profiles) = @_;
+  my $this = bless(SMake::Platform::Generic::ToolChain->new($repository, $profiles));
 
   # -- artifact constructors (lib and binary)
   my $objsuff = ".o";

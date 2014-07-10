@@ -33,8 +33,6 @@ sub new {
   	storage => $storage,
   	variants => {},
   	profilefactory => SMake::Profile::Factory->new(),
-    toolchain => SMake::ToolChain::ToolChain->new(
-        defined($parent)?$parent->getToolChain():undef),
   }, $class);
   
   # -- load storage data
@@ -206,6 +204,32 @@ sub searchPublicResource {
   else {
     return undef;
   }
+}
+
+# Get list of overlapped projects
+#
+# Usage: getOverlappedProjects($name)
+#    name ..... name of the projects
+# Returns: \@list
+#    list ..... list of project objects. First is the most significat, last
+#               is the least significant (from the farest repository)
+sub getOverlappedProjects {
+  my ($this, $name) = @_;
+  
+  # -- get project of mine
+  my $list = [];
+  my $project = $this->{storage}->getProject($this, $name);
+  if(defined($project)) {
+    push @$list, $project;
+  }
+  
+  # -- get project of parent
+  if(defined($this->{parent})) {
+    my $parentlist = $this->{parent}->getOverlappedProjects($name);
+    push @$list, @{$parentlist};
+  }
+  
+  return $list;
 }
 
 return 1;

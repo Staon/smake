@@ -207,7 +207,6 @@ sub createDependency {
   my $taskdep = SMake::Storage::File::TaskDependency->new(
           $this->{repository}, $this->{storage}, $this, $dependency, $instmodule);
   $this->{dependencies}->{$taskdep->getKey()} = $taskdep;
-  print "create task dependency: " . $taskdep->getKey() . "\n";
   return $taskdep;
 }
 
@@ -215,7 +214,6 @@ sub getDependency {
   my ($this, $depkey) = @_;
   
   my $key = SMake::Model::TaskDependency::createKey(@$depkey);
-  print "get dependency $key\n";
   return $this->{dependencies}->{$key};
 }
 
@@ -224,7 +222,6 @@ sub deleteDependencies {
   
   foreach my $dep (@$list) {
     my $key = SMake::Model::TaskDependency::createKey(@$dep);
-    print "dep to delete: $key\n";
     $this->{dependencies}->{$key}->destroy();
     delete $this->{dependencies}->{$key};
   }

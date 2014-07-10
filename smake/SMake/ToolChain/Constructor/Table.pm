@@ -51,7 +51,7 @@ sub appendConstructors {
 }
 
 sub getConstructorObject {
-  my ($this, $type) = @_;
+  my ($this, $context, $type) = @_;
 
   my $child = $this->{constructors}->{$type};
   if(!defined($child)) {
@@ -59,7 +59,7 @@ sub getConstructorObject {
         $context->getReporter(),
         $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
         "type %s of artifact cannot be constructed",
-        $artifact->getType());
+        $type);
   }
   return $child;
 }
@@ -67,28 +67,28 @@ sub getConstructorObject {
 sub constructArtifact {
   my ($this, $context, $artifact) = @_;
 
-  return $this->getConstructorObject($artifact->getType())
+  return $this->getConstructorObject($context, $artifact->getType())
       ->constructArtifact($context, $artifact);
 }
 
 sub resolveResources {
   my ($this, $context, $artifact, $list) = @_;
 
-  return $this->getConstructorObject($artifact->getType())
+  return $this->getConstructorObject($context, $artifact->getType())
       ->resolveResources($context, $artifact, $list);
 }
 
 sub resolveDependencies {
   my ($this, $context, $artifact, $list) = @_;
 
-  return $this->getConstructorObject($artifact->getType())
+  return $this->getConstructorObject($context, $artifact->getType())
       ->resolveDependencies($context, $artifact, $list);
 }
 
 sub finishArtifact {
   my ($this, $context, $artifact) = @_;
 
-  return $this->getConstructorObject($artifact->getType())
+  return $this->getConstructorObject($context, $artifact->getType())
       ->finishArtifact($context, $artifact);
 }
 

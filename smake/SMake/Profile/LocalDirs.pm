@@ -80,12 +80,7 @@ sub modifyNode {
     
     # -- append/prepend the option
     my $option = SMake::Executor::Command::Option->new($path);
-    if($this->{prepend}) {
-      $node->prependChild($option);
-    }
-    else {
-      $node->appendChild($option);
-    }
+    $node->addChild($option, $this->{prepend});
   }
 
   return $command;

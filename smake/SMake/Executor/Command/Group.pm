@@ -55,6 +55,21 @@ sub prependChild {
   unshift @{$this->{children}}, $child;
 }
 
+# Add child
+#
+# Usage: addChild($child, $prepend)
+#    child ..... the child
+#    prepend ... if it's true, the child is prepended
+sub addChild {
+  my ($this, $child, $prepend) = @_;
+  if($prepend) {
+    $this->prependChild($child);
+  }
+  else {
+    $this->appendChild($child);
+  }
+}
+
 # Remove all children nodes
 sub clearGroup {
   my ($this) = @_;
