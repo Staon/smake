@@ -98,10 +98,18 @@ my $executor = SMake::Executor::Executor->new($force);
 my $installarea = SMake::InstallArea::StdArea->new($SMake::Model::Const::SOURCE_RESOURCE);
 my $execcontext = SMake::Executor::Context->new(
     $reporter, $decider, $runner, $repository, $visibility, $installarea, $profiles);
+my $rootlist = [];
 foreach my $stage (@stages) {
-  my $execlist = $visibility->createRootList($execcontext, "main", ".*", ".*", $stage);
-  $executor->executeRoots($execcontext, $execlist);
+  if($stage eq "/") {
+    $executor->executeRoots($execcontext, $rootlist);
+    $rootlist = [];
+  }
+  else {
+    my $execlist = $visibility->createRootList($execcontext, "main", ".*", ".*", $stage);
+    push @$rootlist, @$execlist;
+  }
 }
+$executor->executeRoots($execcontext, $rootlist);
 $repository->commitTransaction();
 
 $repository -> destroyRepository();
