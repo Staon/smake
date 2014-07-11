@@ -118,7 +118,7 @@ sub profile {
   my ($this, $parser, $context, $name, @args) = @_;
 
   $context->getReporter()->report(
-      5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "Profile($name, @args)");
+      5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "Profile($name)");
   
   my $profile = $context->getRepository()->createProfile($name, @args);
   $context->getProfiles()->appendProfile($profile);

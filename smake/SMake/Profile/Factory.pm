@@ -46,7 +46,7 @@ sub createProfile {
   my ($this, $name, @args) = @_;
   my $record = $this->{records}->{$name};
   if(defined($record)) {
-  	return $record->[0]->new($name, @{$record->[1]}, @args);
+  	return $record->[0]->new(@{$record->[1]}, @args);
   }
   else {
   	return undef;

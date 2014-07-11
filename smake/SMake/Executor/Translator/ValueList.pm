@@ -15,41 +15,57 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# List of options from a command group
-package SMake::Executor::Translator::OptionList;
+# List of named values
+package SMake::Executor::Translator::ValueList;
 
 use SMake::Executor::Translator::Value;
 
 @ISA = qw(SMake::Executor::Translator::Value);
 
 use SMake::Executor::Executor;
+use SMake::Utils::Utils;
 
 # Create new file list translator
 #
 # The translator expects as the value a container of resources
 #
-# Usage: new($address, $optional, $prefix, $suffix, $itemprefix, $itemsuffix, $separator)
+# Usage: new($address, $prefix, $suffix, $itemprefix, $itemseparator, $itemsuffix, $separator, $sort)
 #    address ..... address of the container
 sub new {
-  my ($class, $address, $optinal, $prefix, $suffix, $itemprefix, $itemsuffix, $separator) = @_;
-  my $this = bless(SMake::Executor::Translator::Value->new($address, $optional), $class);
+  my ($class, $address, $optional, $prefix, $suffix, $itemprefix, $itemsuffix, $itemseparator, $separator, $sort) = @_;
+  my $this = bless(SMake::Executor::Translator::Value->new(
+      $address, $optional), $class);
   $this->{prefix} = $prefix;
   $this->{suffix} = $suffix;
   $this->{itemprefix} = $itemprefix;
   $this->{itemsuffix} = $itemsuffix;
+  $this->{itemseparator} = $itemseparator;
   $this->{separator} = $separator;
+  $this->{sortflag} = $sort;
   return $this;
 }
 
 sub translateValue {
   my ($this, $context, $task, $command, $wd, $value) = @_;
   
-  # -- get list of option nodes
-  my $optlist = $value->getChildren();
+  # -- get list of children nodes
+  my $children = $value->getChildren();
   
+  # -- create system argument strings
+  my $arguments = [];
+  foreach my $child (@$children) {
+    push @$arguments, $child->getValueArgument($context, $this->{itemseparator});
+  }
+  
+  # -- sort the arguments
+  if($this->{sortflag}) {
+    $arguments = [sort {$a cmp $b} @$arguments];
+  }
+
+  # -- create the command string
   my $str = $this->{prefix};
   my $first = 1;
-  foreach my $option (@$optlist) {
+  foreach my $argument (@$arguments) {
     # -- separator
     if($first) {
       $first = 0;
@@ -58,13 +74,9 @@ sub translateValue {
       $str .= $this->{separator};
     }
     
-    # -- item prefix
+    # -- argument
     $str .= $this->{itemprefix};
-    
-    # -- option value
-    $str .= $option->getValue();
-    
-    # -- item suffix
+    $str .= $argument;
     $str .= $this->{itemsuffix};
   }
   $str .= $this->{suffix};

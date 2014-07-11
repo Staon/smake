@@ -122,43 +122,43 @@ sub new {
           SMake::Executor::Translator::Compositor->new(
               "gcc",
               SMake::Executor::Translator::OptionList->new(
-                  $SMake::Executor::Const::HEADERDIR_GROUP, "", "", "-I", "", " "),
+                  $SMake::Executor::Const::HEADERDIR_GROUP, 1, "", "", "-I", "", " "),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, "-c ", "", "-o ", "", "", 0),
+                  $SMake::Executor::Const::PRODUCT_GROUP, 0, "-c ", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1)),
+                  $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
       )],
       [$SMake::Model::Const::CXX_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "g++",
               SMake::Executor::Translator::OptionList->new(
-                  $SMake::Executor::Const::HEADERDIR_GROUP, "", "", "-I", "", " "),
+                  $SMake::Executor::Const::HEADERDIR_GROUP, 1, "", "", "-I", "", " "),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, "-c ", "", "-o ", "", "", 0),
+                  $SMake::Executor::Const::PRODUCT_GROUP, 0, "-c ", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1)),
+                  $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
       )],
       [$SMake::Model::Const::LIB_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "ar rs",
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, "", "", "", "", "", 0),
+                  $SMake::Executor::Const::PRODUCT_GROUP, 0, "", "", "", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                   $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1)),
+                   $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
       )],
       [$SMake::Model::Const::BIN_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "g++",
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, "", "", "-o ", "", "", 0),
+                  $SMake::Executor::Const::PRODUCT_GROUP, 0, "", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::SOURCE_GROUP, "", "", "", "", " ", 1),
+                  $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1),
               SMake::Executor::Translator::OptionList->new(
-                  $SMake::Executor::Const::LIBDIR_GROUP, "", "", "-L", "", " "),
+                  $SMake::Executor::Const::LIBDIR_GROUP, 1, "", "", "-L", "", " "),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::LIB_GROUP, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
+                  $SMake::Executor::Const::LIB_GROUP, 1, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::LIB_GROUP, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
+                  $SMake::Executor::Const::LIB_GROUP, 1, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
           ),
       )],
       [$SMake::Model::Const::EXTERNAL_TASK,

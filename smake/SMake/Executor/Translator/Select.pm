@@ -33,8 +33,9 @@ use SMake::Utils::Utils;
 #    value .... a regular expression which describes the value of the logical node
 #    cmdstr ... string which is added into the shell command
 sub new {
-  my ($class, $dflt) = splice(@_, 0, 2);
-  my $this = bless(SMake::Executor::Translator::Value->new($address), $class);
+  my ($class, $address, $optional, $dflt) = splice(@_, 0, 4);
+  my $this = bless(SMake::Executor::Translator::Value->new(
+      $address, $optional), $class);
   $this->{dflt} = $dflt;
   $this->{records} = [@_];
   return $this;

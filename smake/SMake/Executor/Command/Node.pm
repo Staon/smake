@@ -40,7 +40,7 @@ sub getName {
 #    context ..... parser/executor context
 #    subsystem ... logging subsystem
 #    address ..... address of the node (an SMake::Data::Path object)
-# Return: the node
+# Return: the node or undef
 sub getNode {
   my ($this, $context, $subsystem, $address) = @_;
 
@@ -50,13 +50,7 @@ sub getNode {
   foreach my $i (0 .. ($len - 1)) {
     my $part = $address->getPart($i);
     $value = $value->getChild($part);
-    if(!defined($value)) {
-      SMake::Utils::Utils::dieReport(
-          $context->getReporter(),
-          $subsystem,
-          "command doesn't contain value '%s'!",
-          $address->asString());
-    }
+    return undef if(!defined($value));
   }
   return $value;
 }

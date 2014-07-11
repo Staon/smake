@@ -24,9 +24,9 @@ use SMake::Profile::Profile;
 
 # Create new variable profile
 #
-# Usage: new($profname, $name, $value)
+# Usage: new($name, $value)
 sub new {
-  my ($class, $profname, $name, $value) = @_;
+  my ($class, $name, $value) = @_;
   
   my $this = bless(SMake::Profile::Profile->new(), $class);
   $this->{name} = $name;

@@ -24,5 +24,6 @@ $LIB_GROUP = "lib";
 $HEADERDIR_GROUP = "header_dirs";
 $LIBDIR_GROUP = "lib_dirs";
 $DEBUG_GROUP = "debug";
+$PREPROC_GROUP = "preproc";
 
 return 1;

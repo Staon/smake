@@ -26,15 +26,17 @@ use SMake::Data::Path;
 use SMake::Executor::Executor;
 use SMake::Executor::Instruction::Shell;
 use SMake::Utils::Abstract;
+use SMake::Utils::Utils;
 
 # Create new value translator
 #
-# Usage: new($address)
+# Usage: new($address, $optional)
 #    address .... addres of the value (path or appropriately formatted string)
 sub new {
-  my ($class, $address) = @_;
+  my ($class, $address, $optional) = @_;
   my $this = bless(SMake::Executor::Translator::Translator->new(), $class);
   $this->{address} = SMake::Data::Path->new($address);
+  $this->{optional} = $optional;
   return $this;
 }
 
@@ -50,12 +52,21 @@ sub translate {
   # -- get the value node
   my $value = $command->getNode(
       $context, $SMake::Executor::Executor::SUBSYSTEM, $this->{address});
+  if(!defined($value) && !$this->{optional}) {
+    SMake::Utils::Utils::dieReport(
+        $context->getReporter(),
+        $subsystem,
+        "command doesn't contain value '%s'!",
+        $this->{address}->asString());
+  }
 
   # -- translate the value
-  my $cmds = $this->translateValue($context, $task, $command, $wd, $value);
   my $list = [];
-  foreach my $cmd (@$cmds) {
-    push @$list, SMake::Executor::Instruction::Shell->new($cmd);
+  if(defined($value)) {
+    my $cmds = $this->translateValue($context, $task, $command, $wd, $value);
+    foreach my $cmd (@$cmds) {
+      push @$list, SMake::Executor::Instruction::Shell->new($cmd);
+    }
   }
   return $list; 
 }

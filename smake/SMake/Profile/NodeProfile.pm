@@ -23,8 +23,11 @@ use SMake::Profile::CommandProfile;
 @ISA = qw(SMake::Profile::CommandProfile);
 
 use SMake::Data::Path;
+use SMake::Executor::Command::Group;
+use SMake::Executor::Command::Set;
 use SMake::Executor::Executor;
 use SMake::Utils::Abstract;
+use SMake::Utils::Utils;
 
 # Create new node profile
 #
@@ -45,6 +48,13 @@ sub doJob {
   # -- search the node
   my $parent = $command->getNode(
       $context, $SMake::Executor::Executor::SUBSYSTEM, $this->{address}->getDirpath());
+  if(!defined($parent)) {
+    SMake::Utils::Utils::dieReport(
+        $context->getReporter(),
+        $subsystem,
+        "command doesn't contain value '%s'!",
+        $this->{address}->asString());
+  }
   my $node = $parent->getChild($this->{address}->getBasename());
   
   return $this->modifyNode($context, $command, $task, $this->{address}, $parent, $node);
@@ -77,6 +87,24 @@ sub createGroupIfNotExists {
   # -- create new group
   if(!defined($node)) {
     $node = SMake::Executor::Command::Group->new($address->getBasename());
+    $parent->putChild($node);
+  }
+  return $node;
+}
+
+# Create new option set if it hasn't existed yet
+#
+# Usage: createNodeIfNotExists($address, $parent, $node)
+#    address .... address of the node
+#    parent ..... parent node
+#    node ....... the node or undef, if the node doesn't exist
+# Returns: the node
+sub createSetIfNotExists {
+  my ($this, $address, $parent, $node) = @_;
+  
+  # -- create new group
+  if(!defined($node)) {
+    $node = SMake::Executor::Command::Set->new($address->getBasename());
     $parent->putChild($node);
   }
   return $node;

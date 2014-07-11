@@ -15,21 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Set of command nodes (unique command names)
-package SMake::Executor::Command::Set;
+# Named command value
+package SMake::Executor::Command::Value;
 
 use SMake::Executor::Command::Node;
 
 @ISA = qw(SMake::Executor::Command::Node);
 
-# Create new set node
+# Create new value node
 #
-# Usage: new($name)
+# Usage: new($name, $value)
 sub new {
-  my ($class, $name) = @_;
+  my ($class, $name, $value) = @_;
   my $this = bless(SMake::Executor::Command::Node->new(), $class);
   $this->{name} = $name;
-  $this->{children} = {};
+  $this->{value} = $value;
   return $this;
 }
 
@@ -38,33 +38,27 @@ sub getName {
   return $this->{name};
 }
 
-# Add or rewrite a child node
-#
-# Usage: putChild($child)
-sub putChild {
-  my ($this, $child) = @_;
-  $this->{children}->{$child->getName()} = $child;
-}
-
-# Clear all children
-sub clearSet {
+# Get the value
+sub getValue {
   my ($this) = @_;
-  $this->{children} = {};
+  return $this->{value};
 }
 
-# Get child of a name
+# Get value of the node as a system argument
 #
-# Usage: getChild($name)
-# Returns: the child or undef
-sub getChild {
-  my ($this, $name) = @_;
-  return $this->{children}->{$name};
-}
-
-# Get list of children nodes
-sub getChildren {
-  my ($this) = @_;
-  return [values(%{$this->{children}})];
+# Usage: getValueArgument($context, $separator)
+#    context ...... executor context
+#    separator .... separator of name and value
+# Returns: the argument string
+sub getValueArgument {
+  my ($this, $context, $separator) = @_;
+  
+  my $str = $this->{name};
+  if(defined($this->{value})) {
+    $str .= $separator;
+    $str .= '"' . quotemeta($this->{value}) . '"';
+  }
+  return $str;
 }
 
 return 1;
