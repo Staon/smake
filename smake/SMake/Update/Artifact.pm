@@ -81,8 +81,9 @@ sub update {
   $this->{artifact}->deleteStages($stage_delete);
 
   # -- update main resources (must be before update of the resources)
+  my $main = $this->{main};
   $this->{artifact}->setMainResources(
-      $this->{main}->getObject(),
+      (defined($main))?$main->getObject():undef,
       {map {$_ => $this->{main_resources}->{$_}->getObject()}
           keys(%{$this->{main_resources}})});
   
@@ -252,6 +253,12 @@ sub createStage {
 sub getStage {
   my ($this, $name) = @_;
   return $this->{stages}->getItemByKey(SMake::Model::Stage::createKey($name));
+}
+
+# Get list of stages
+sub getStages {
+  my ($this) = @_;
+  return $this->{stages}->getItems();
 }
 
 # Create resource dependency

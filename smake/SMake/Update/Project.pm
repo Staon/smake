@@ -81,6 +81,12 @@ sub getName {
   return $this->{project}->getName();
 }
 
+# Get path of the project. The path has a meaning in the context of the repository
+sub getPath {
+  my ($this) = @_;
+  return $this->{project}->getPath();
+}
+
 # Create new artifact
 #
 # Usage: createArtifact($context, $path, $name, $type, \%args)
@@ -98,6 +104,16 @@ sub createArtifact {
   $this->{artifacts}->addItem($artifact);
   
   return $artifact;
+}
+
+# Get artifact
+#
+# Usage: getArtifact($name)
+# Returns: the artifact or undef
+sub getArtifact {
+  my ($this, $name) = @_;
+  return $this->{artifacts}->getItemByKey(
+      SMake::Model::Artifact::createKey($name));
 }
 
 return 1;

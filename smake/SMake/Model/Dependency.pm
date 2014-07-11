@@ -40,7 +40,7 @@ sub new {
 
 # Create key tuple
 #
-# Usage: createKey($kind, $type, $project, $artifact, ($main, $instmodule)|$stage)
+# Usage: createKey($kind, $type, $project, $artifact, $main|$stage)
 #    kind ........ kind of the dependency
 #    type ........ type of the dependency
 #    project ..... name of the project

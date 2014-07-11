@@ -40,6 +40,7 @@ use SMake::Platform::Generic::HeaderResolver;
 use SMake::Platform::Generic::InstallTranslator;
 use SMake::Platform::Generic::LibResolver;
 use SMake::Platform::Generic::LibResource;
+use SMake::Platform::Generic::ServiceTranslator;
 use SMake::Profile::InstallPaths;
 use SMake::Profile::LocalDirs;
 use SMake::Profile::VarProfile;
@@ -165,6 +166,9 @@ sub new {
       ],
       [$SMake::Model::Const::CLEAN_TASK,
           SMake::Platform::Generic::CleanTranslator->new(),
+      ],
+      [$SMake::Model::Const::SERVICE_TASK,
+          SMake::Platform::Generic::ServiceTranslator->new(),
       ],
   );
   

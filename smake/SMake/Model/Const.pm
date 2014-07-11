@@ -75,4 +75,11 @@ $VAR_HEADER_DIRECTORY = "HEADER_DIR";
 $CLEAN_STAGE = "clean";
 $CLEAN_TASK = "clean";
 
+# -- service stage and task
+$SERVICE_ARTIFACT = "smake_service";
+$SERVICE_DEPENDENCY = "smake_service";
+$SERVICE_STAGE = "smake_service";
+$SERVICE_TASK = "smake_service";
+$SERVICE_DEP_TASK = "smake_dep_service";
+
 return 1;

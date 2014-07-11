@@ -115,6 +115,45 @@ sub finishArtifact {
       undef,
       undef,
       undef);
+      
+  # -- create the service artifact, stage and task
+  my $project = $artifact->getProject();
+  my $service = $project->getArtifact($SMake::Model::Const::SERVICE_ARTIFACT);
+  if(!defined($service)) {
+    $service = $project->createArtifact(
+        $context,
+        $project->getPath(),
+        $SMake::Model::Const::SERVICE_ARTIFACT,
+        $SMake::Model::Const::SERVICE_ARTIFACT,
+        undef);
+    $service->createTaskInStage(
+        $context,
+        $SMake::Model::Const::SERVICE_STAGE,
+        $SMake::Model::Const::SERVICE_STAGE,
+        $SMake::Model::Const::SERVICE_TASK,
+        undef,
+        undef,
+        undef);
+  }
+  
+  # -- make all stages dependent
+  my $servicedep = $artifact->createStageDependency(
+      $context,
+      $SMake::Model::Const::SERVICE_DEPENDENCY,
+      $project->getName(),
+      $SMake::Model::Const::SERVICE_ARTIFACT,
+      $SMake::Model::Const::SERVICE_STAGE);
+  my $stages = $artifact->getStages();
+  foreach my $stage (@$stages) {
+    my $taskdep = $stage->createTask(
+        $context,
+        $SMake::Model::Const::SERVICE_DEP_TASK,
+        $SMake::Model::Const::SERVICE_DEP_TASK,
+        undef,
+        undef,
+        undef);
+    $taskdep->appendDependency($context, $servicedep, undef);
+  }
 }
 
 return 1;

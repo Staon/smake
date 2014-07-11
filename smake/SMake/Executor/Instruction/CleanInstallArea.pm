@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Clean all product resources in active artifact
-package SMake::Executor::Instruction::Clean;
+# Clean installation area before compilation
+package SMake::Executor::Instruction::CleanInstallArea;
 
 use SMake::Executor::Instruction::Instruction;
 
@@ -40,21 +40,11 @@ sub execute {
   # -- get model objects
   my ($project, $artifact, $stage, $task) = $taskaddress->getObjects(
       $context, $SMake::Executor::Executor::SUBSYSTEM);
-  
-  # -- get all product resources
-  my $list = $artifact->getResources();
-  my @paths = ();
-  foreach my $resource (@$list) {
-    if($resource->getType() eq $SMake::Model::Const::PRODUCT_RESOURCE) {
-      push @paths, $resource->getPhysicalPathString();
-    }
-  }
-  
-  # -- remove the files/directories
-  foreach my $path (@paths) {
-    SMake::Utils::Dirutils::removeDirectory($path);
-  }
 
+  # -- clean the installation area
+  $context->getInstallArea()->cleanArea(
+      $context, $SMake::Executor::Executor::SUBSYSTEM, $project);
+    
   return $SMake::Executor::Instruction::Instruction::NEXT;
 }
 

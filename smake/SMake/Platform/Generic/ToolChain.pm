@@ -55,6 +55,8 @@ sub new {
     [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Builder::Compile->new(
         "addTargetResources")],
     [$SMake::Model::Const::CLEAN_TASK, SMake::Executor::Builder::Compile->new()],
+    [$SMake::Model::Const::SERVICE_DEP_TASK, SMake::Executor::Builder::Empty->new()],
+    [$SMake::Model::Const::SERVICE_TASK, SMake::Executor::Builder::Compile->new()],
   );
   my $translator = SMake::Executor::Translator::Table->new();
   my $scanner = SMake::ToolChain::Scanner::Chain->new();
