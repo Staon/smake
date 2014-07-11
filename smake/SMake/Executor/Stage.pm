@@ -92,12 +92,14 @@ sub new {
 sub appendTaskExecutor {
   my ($this, $context) = @_;
   
+  my $some_new = 0;
   if(!$this->{broken}) {
     my $tasks = $this->{toporder}->getLeaves();
     foreach my $task (@$tasks) {
       my $taskaddr = SMake::Data::TaskAddress->new($this->{address}, $task);
       my $executor = SMake::Executor::Task->new($context, $taskaddr);
       push @{$this->{tasklist}}, $executor;
+      $some_new = 1;
       $context->getReporter()->reportf(
           2,
           "info",
@@ -107,6 +109,7 @@ sub appendTaskExecutor {
           $task);
     }
   }
+  return $some_new;
 }
 
 # Execute the stage
@@ -120,7 +123,7 @@ sub execute {
   my ($this, $context) = @_;
 
   $this->appendTaskExecutor($context);
-  if(@{$this->{tasklist}}) {
+  while(@{$this->{tasklist}}) {
     my $newlist = [];
     foreach my $task (@{$this->{tasklist}}) {
       my ($running, $errflag) = $task->execute($context);
@@ -148,7 +151,7 @@ sub execute {
       }
     }
     $this->{tasklist} = $newlist;
-    $this->appendTaskExecutor($context);
+    last if(!$this->appendTaskExecutor($context));
   }
   
   if(@{$this->{tasklist}}) {
