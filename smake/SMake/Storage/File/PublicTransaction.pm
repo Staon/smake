@@ -31,7 +31,8 @@ sub new {
   $this->{table} = SMake::Storage::File::TransTable->new(
       sub { return $origin->{table}->{$_[0]}; },
       sub { $origin->{table}->{$_[0]} = $_[1]; },
-      sub { delete $origin->{table}->{$_[0]}; });
+      sub { delete $origin->{table}->{$_[0]}; },
+      sub { });
   return $this;
 }
 

@@ -40,24 +40,29 @@ sub new {
 sub insertProject {
   my ($this, $project) = @_;
   
-  my $index;
-  if($this->{size} < $this->{capacity}) {
-  	# -- there is free space
-    $index = scalar @{$this->{data}};
-    ++$this->{size};
-  }
-  else {
-    # -- search a project to be removed
-    while($this->{refs}->[$this->{clockhand}]) {
-      $this->{refs}->[$this->{clockhand}] = 0;
-      $this->{clockhand} = ($this->{clockhand} + 1) % $this->{capacity};
+  my $index = $this->{projects}->{$project->getKey()};
+  if(!defined($index)) {
+    if($this->{size} < $this->{capacity}) {
+      # -- there is free space
+      $index = scalar @{$this->{data}};
+      ++$this->{size};
     }
-    $index = $this->{clockhand};
-    delete $this->{projects}->{$this->{data}->[$index]->getKey()};
-    $this->{data}->[$index]->destroy();
+    else {
+      # -- search a project to be removed
+      while($this->{refs}->[$this->{clockhand}]) {
+        $this->{refs}->[$this->{clockhand}] = 0;
+        $this->{clockhand} = ($this->{clockhand} + 1) % $this->{capacity};
+      }
+      $index = $this->{clockhand};
+      delete $this->{projects}->{$this->{data}->[$index]->getKey()};
+      $this->{data}->[$index]->destroy();
+    }
   }
 
   # -- insert new project
+  if(defined($this->{data}->[$index]) && $this->{data}->[$index] != $project) {
+    $this->{data}->[$index]->destroy();
+  }
   $this->{data}->[$index] = $project;
   $this->{refs}->[$index] = 1;
   $this->{projects}->{$project->getKey()} = $index;
@@ -68,11 +73,12 @@ sub insertProject {
 # Usage: removeProject($key)
 sub removeProject {
   my ($this, $key) = @_;
-  
+
   my $index = $this->{projects}->{$key};
   if(defined($index)) {
     $this->{refs}->[$index] = 0;
     $this->{data}->[$index]->destroy();
+    $this->{data}->[$index] = undef;
     delete $this->{projects}->{$key};
   }
 }

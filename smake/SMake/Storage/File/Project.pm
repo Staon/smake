@@ -41,6 +41,8 @@ sub new {
   $this->{descriptions} = {};
   $this->{artifacts} = {};
   $this->{publics} = {};
+  $this->{locked} = 0;
+  
   return $this;
 }
 
@@ -49,10 +51,13 @@ sub new {
 # Usage: destroy()
 sub destroy {
   my ($this) = @_;
-  $this->{repository} = undef;
-  $this->{storage} = undef;
-  foreach my $artifact (@{$this->{artifacts}}) {
-    $artifact->destroy();
+  
+  if(!$this->{locked}) {
+    foreach my $artifact (values %{$this->{artifacts}}) {
+      $artifact->destroy();
+    }
+    $this->{repository} = undef;
+    $this->{storage} = undef;
   }
 }
 
@@ -66,6 +71,11 @@ sub update {
   foreach my $resource (values %{$this->{publics}}) {
     $this->{storage}->unregisterPublicResource($resource, $prjkey);
   }
+}
+
+sub lock {
+  my ($this, $locked) = @_;
+  $this->{locked} = $locked;
 }
 
 sub getRepository {

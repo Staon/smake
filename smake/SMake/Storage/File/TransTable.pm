@@ -20,9 +20,9 @@ package SMake::Storage::File::TransTable;
 
 # Create new table
 #
-# Usage: new($getfce, $insertfce, $deletefce)
+# Usage: new($getfce, $insertfce, $deletefce, $lockfce)
 sub new {
-  my ($class, $getfce, $insertfce, $deletefce) = @_;
+  my ($class, $getfce, $insertfce, $deletefce, $lockfce) = @_;
   return bless({
     base => $base,
     inserted => {},
@@ -30,6 +30,7 @@ sub new {
     getfce => $getfce,
     insertfce => $insertfce,
     deletefce => $deletefce,
+    lockfce => $lockfce,
   }, $class);
 }
 
@@ -40,6 +41,7 @@ sub insert {
   my ($this, $key, $value) = @_;
   delete $this->{deleted}->{$key};
   $this->{inserted}->{$key} = $value;
+  &{$this->{lockfce}}($value, 1);
 }
 
 # Remove an item
@@ -48,8 +50,10 @@ sub insert {
 # Returns: the value
 sub remove {
   my ($this, $key) = @_;
+  
   my $value = delete $this->{inserted}->{$key};
   $this->{deleted}->{$key} = 1;
+  &{$this->{lockfce}}($value, 0);
   return $value;
 }
 
@@ -69,7 +73,10 @@ sub get {
   
   # -- not changed item
   $value = &{$this->{getfce}}($key, @_);
-  $this->{inserted}->{$key} = $value if(defined($value));
+  if(defined($value)) {
+    $this->{inserted}->{$key} = $value;
+    &{$this->{lockfce}}($value, 1);
+  }
   return $value;
 }
 
@@ -86,6 +93,7 @@ sub commit {
   
   # -- inserted items
   foreach my $item (keys %{$this->{inserted}}) {
+  	&{$this->{lockfce}}($this->{inserted}->{$item}, 0);
     &{$this->{insertfce}}($item, $this->{inserted}->{$item}, @_);
   }
 }

@@ -33,7 +33,8 @@ sub new {
     projects => SMake::Storage::File::TransTable->new(
         sub { return $storage->loadProject($_[1], $_[0]); },
         sub { $storage->storeProject($_[2], $_[0], $_[1]); },
-        sub { $storage->deleteProject($_[1], $_[0]); }),
+        sub { $storage->deleteProject($_[1], $_[0]); },
+        sub { $_[0]->lock($_[1]); }),
     publics => SMake::Storage::File::PublicTransaction->new($storage->{publics}),
   }, $class);
 }

@@ -67,11 +67,11 @@ sub destroy {
   $this->{repository} = undef;
   $this->{storage} = undef;
   $this->{project} = undef;
-  foreach my $resource (@{$this->{resources}}) {
+  foreach my $resource (values %{$this->{resources}}) {
     $resource->destroy();
   }
   $this->{resources} = undef;
-  foreach my $stage (@{$this->{stages}}) {
+  foreach my $stage (values %{$this->{stages}}) {
     $stage->destroy();
   }
   $this->{stages} = undef;
