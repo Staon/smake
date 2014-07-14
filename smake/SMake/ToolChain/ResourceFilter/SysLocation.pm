@@ -28,13 +28,15 @@ use SMake::Model::Const;
 
 # Create new system location filter
 #
-# Usage: new($location)
+# Usage: new($location, $transtable)
 #    location ..... system path (a string) where the filter tries
 #                   to find resources
+#    transtable ... optional translation table
 sub new {
-  my ($class, $location) = @_;
+  my ($class, $location, $transtable) = @_;
   my $this = bless(SMake::ToolChain::ResourceFilter::Filter->new(), $class);
   $this->{location} = $location;
+  $this->{transtable} = ($transtable)?$transtable:{};
   return $this;
 }
 
@@ -42,10 +44,20 @@ sub filterResource {
   my ($this, $context, $resource) = @_;
 
   if($resource->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
-    my $path = File::Spec->catfile(
-        $this->{location},
-        $resource->getName()->removePrefix(1)->systemRelative());
-    return 1 if(-f $path);
+    # -- translate resource name
+    my $name = $resource->getName()->removePrefix(1)->systemRelative();
+    if(defined($this->{transtable}->{$name})) {
+      $name = $this->{transtable}->{$name};
+    }
+    
+    # -- check existence of the resource
+    if($name ne "") {
+      my $path = File::Spec->catfile($this->{location}, $name);
+      return 1 if(-f $path);
+    }
+    else {
+      return 1;  # -- ignored resource
+    }
   }
   return 0;
 }

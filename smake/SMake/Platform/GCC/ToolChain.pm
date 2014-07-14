@@ -43,6 +43,7 @@ use SMake::Platform::Generic::LibResource;
 use SMake::Platform::Generic::ServiceTranslator;
 use SMake::Profile::InstallPaths;
 use SMake::Profile::LocalDirs;
+use SMake::Profile::ValueProfile;
 use SMake::Profile::VarProfile;
 use SMake::ToolChain::Constructor::Generic;
 use SMake::ToolChain::Resolver::Chain;
@@ -115,6 +116,13 @@ sub new {
       $SMake::Executor::Const::LIBDIR_GROUP,
       $SMake::Model::Const::LIB_MODULE,
       1));
+  # -- generic preprocessor profile
+  $repository->registerProfile(
+      "preproc",
+      SMake::Profile::ValueProfile,
+      $SMake::Model::Const::C_TASK . "|" . $SMake::Model::Const::CXX_TASK,
+      $SMake::Executor::Const::PREPROC_GROUP,
+      0);
 
   # -- command translators
   $this->getTranslator()->appendRecords(
@@ -178,9 +186,14 @@ sub new {
   );
   
   # -- resource filters
+  my $ttable = {
+      "algorith" => "algorithm",
+      "stddef.h" => "",
+  };
   $this->getResourceFilter()->appendFilters(
-      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include"),
-      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include/c++/4.6.3"),
+      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include", $ttable),
+      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include/c++/4.7.3", $ttable),
+      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include/c++/4.7.3/tr1", $ttable),
   );
   
   return $this;
