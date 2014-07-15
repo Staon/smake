@@ -15,29 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic header resolver
-package SMake::Platform::Generic::HeaderResolver;
+# Generic header scanner
+package SMake::Platform::Generic::HeaderScanner;
 
-use SMake::ToolChain::Resolver::Publish;
+use SMake::ToolChain::Scanner::HdrScanner;
 
-@ISA = qw(SMake::ToolChain::Resolver::Publish);
+sub register {
+  my ($class, $toolchain, $constructor, $resmask) = @_;
 
-use SMake::Data::Path;
-use SMake::Model::Const;
+}
 
-# Create new header resolver
-#
-# Usage: new()
-sub new {
-  my ($class) = @_;
-  my $this = bless(
-      SMake::ToolChain::Resolver::Publish->new(
-          '.*',
-          '[.]h$',
-          $SMake::Model::Const::HEADER_MODULE,
-          $SMake::Model::Const::VAR_HEADER_DIRECTORY),
-      $class);
-  return $this;
+sub staticRegister {
+  my ($class, $toolchain, $constructor, $resmask) = @_;
+
+  $toolchain->getScanner()->appendScanners(
+      SMake::ToolChain::Scanner::HdrScanner->new(
+          '.*', '.*', $resmask));
 }
 
 return 1;

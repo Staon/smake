@@ -57,9 +57,9 @@ sub constructPerlInclude {
 
 # Search for a toolchain
 #
-# Usage: constructToolChain($reporter, $repository, $profiles, $cfgprjs)
+# Usage: constructToolChain($reporter, $repository, $cfgprjs)
 sub constructToolChain {
-  my ($reporter, $repository, $profiles, $cfgprjs) = @_;
+  my ($reporter, $repository, $cfgprjs) = @_;
   
   # -- construct list of possible toolchain files
   my $tcpaths = [];
@@ -76,8 +76,6 @@ sub constructToolChain {
       my $toolchain = undef;
       my $context = {
         reporter => $reporter,
-        repository => $repository,
-        profiles => $profiles,
         ToolChain => sub {
             $toolchain = $_[1];
         }
@@ -145,7 +143,7 @@ sub readConfiguration {
       shift;
       my $profile;
       if(ref($_[0]) eq "SCALAR") {
-        $profile = $repository->createProfile(@_);
+        $profile = $repository->getToolChain()->createProfile(@_);
       }
       else {
         $profile = $_[0];
@@ -153,7 +151,7 @@ sub readConfiguration {
       $profiles->appendProfile($profile);
     },
     RegisterProfile => sub {
-      $repository->registerProfile(@_);
+      $repository->getToolChain()->registerProfile(@_);
     }
   };
   foreach my $rcfile (@$rcpaths) {
@@ -197,11 +195,14 @@ sub constructRepository {
   
   # -- construct the toolchain
   my $profiles = SMake::Profile::Stack->new();
-  my $toolchain = constructToolChain($reporter, $repository, $profiles, $cfgprjs);
+  my $toolchain = constructToolChain($reporter, $repository, $cfgprjs);
   
   # -- read smake configuration
   my ($decider, $runner) = readConfiguration(
       $reporter, $repository, $profiles, $cfgprjs);
+      
+  # -- append toolchain's profiles
+  $toolchain->appendToolChainProfiles($profiles);
   
   $repository->commitTransaction();
 

@@ -15,27 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic compile translator - it checks timestamps before the action
-# and it stores timestamps after the action
-package SMake::Platform::Generic::InstallTranslator;
+# Standard set of compilers
+package SMake::Platform::Aveco::Compilers;
 
-use SMake::Executor::Translator::Sequence;
+use SMake::Platform::Aveco::CCompiler;
+use SMake::Platform::Aveco::CXXCompiler;
 
-@ISA = qw(SMake::Executor::Translator::Sequence);
+sub register {
+  my ($class, $toolchain, $constructor) = @_;
+  
+  $toolchain->registerFeature(SMake::Platform::Aveco::CCompiler);
+  $toolchain->registerFeature(SMake::Platform::Aveco::CXXCompiler);
+}
 
-use SMake::Executor::Instruction::Install;
-use SMake::Executor::Translator::Instruction;
-
-# Create new install translator
-#
-# Usage: new($module)
-sub new {
-  my ($class) = @_;
-  my $this = bless(SMake::Executor::Translator::Sequence->new(
-      SMake::Executor::Translator::Instruction->new(
-          SMake::Executor::Instruction::Install),
-  ), $class);
-  return $this;
+sub staticRegister {
+  # -- nothing to do
 }
 
 return 1;

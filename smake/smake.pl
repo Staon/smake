@@ -28,18 +28,9 @@ use SMake::Parser::Parser;
 use SMake::Parser::Version;
 use SMake::Parser::VersionRequest;
 use SMake::Parser::Visibility;
-use SMake::Platform::Aveco::ToolChain;
-use SMake::Platform::GCC::ToolChain;
-use SMake::Profile::InstallPaths;
-use SMake::Profile::LocalDirs;
-use SMake::Profile::Profile;
-use SMake::Profile::Stack;
-use SMake::Profile::VarProfile;
 use SMake::Reporter::Reporter;
 use SMake::Reporter::TargetConsole;
 use SMake::Storage::File::Storage;
-use SMake::ToolChain::Decider::DeciderBox;
-use SMake::ToolChain::Decider::DeciderTime;
 use SMake::Utils::Dirutils;
 use SMake::Utils::Searcher;
 

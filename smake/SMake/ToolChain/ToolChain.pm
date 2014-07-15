@@ -19,6 +19,9 @@
 # build system (compilers, code generators, etc.)
 package SMake::ToolChain::ToolChain;
 
+use SMake::Profile::Factory;
+use SMake::Profile::List;
+
 # Create new empty tool chain
 #
 # Usage: new($constructor, $mangler, $builder, $translator, $runner, $scanner, $filter)
@@ -38,6 +41,8 @@ sub new {
     translator => $translator,
     scanner => $scanner,
     filter => $filter,
+    profilefactory => SMake::Profile::Factory->new(),
+    profiles => SMake::Profile::List->new(),
   }, $class);
 }
 
@@ -84,6 +89,52 @@ sub getScanner {
 sub getResourceFilter {
   my ($this) = @_;
   return $this->{filter};
+}
+
+# Create instance of a named profile. If the profile is not found, the parent
+# repository is tried.
+#
+# Usage: createProfile($name, ...)
+# Return: the profile
+# Exception: it dies if the profile is not known
+sub createProfile {
+  my ($this, $name, @args) = @_;
+  
+  my $profile = $this->{profilefactory}->createProfile($name, @args);
+  if(!defined($profile)) {
+    if(defined($this->{parent})) {
+      $profile = $this->{parent}->createProfile($name, @args);
+    }
+    else {
+      die "unknown profile '$name'!";
+    }
+  }
+  return $profile;
+}
+
+# Register named profile
+#
+# Usage: registerProfile($name, $module, ...)
+#     name ...... name of the profile
+#     module .... name of the profile's module
+#     ... and other arguments
+sub registerProfile {
+  my ($this, $name, $module, @args) = @_;
+  $this->{profilefactory}->registerRecord($name, $module, @args);
+}
+
+# Append a compilation profile
+#
+# Usage: appendProfile($profile)
+#    profile ..... the compilation profile
+sub appendProfile {
+  my ($this, $profile) = @_;
+  $this->{profiles}->appendProfile($profile);
+}
+
+sub appendToolChainProfiles {
+  my ($this, $profiles) = @_;
+  $profiles->appendProfile($this->{profiles});
 }
 
 return 1;

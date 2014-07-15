@@ -40,6 +40,21 @@ sub new {
   return $this;
 }
 
+# Append new main resource record
+#
+# Usage: appendMainResource($resource)
+sub appendMainResource {
+  my ($this, $resource) = @_;
+  push @{$this->{resources}}, $resource;
+}
+
+# Append new resolve. The method expects that the resolver of mine is a container
+# resolver.
+sub appendResolver {
+  my ($this, $resolver) = @_;
+  $this->{resolver}->appendResolver($resolver);
+}
+
 sub constructArtifact {
   my ($this, $context, $artifact) = @_;
   

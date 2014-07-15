@@ -15,25 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic clean translator
-package SMake::Platform::Generic::CleanTranslator;
+# Standard set of compilers
+package SMake::Platform::GCC::Compilers;
 
-use SMake::Executor::Translator::Sequence;
+use SMake::Platform::GCC::CCompiler;
+use SMake::Platform::GCC::CXXCompiler;
 
-@ISA = qw(SMake::Executor::Translator::Sequence);
+sub register {
+  my ($class, $toolchain, $constructor) = @_;
+  
+  $toolchain->registerFeature(SMake::Platform::GCC::CCompiler);
+  $toolchain->registerFeature(SMake::Platform::GCC::CXXCompiler);
+}
 
-use SMake::Executor::Instruction::Clean;
-use SMake::Executor::Translator::Instruction;
-
-# Create new compile instruction
-#
-# Usage: new()
-sub new {
-  my ($class) = @_;
-  my $this = bless(SMake::Executor::Translator::Sequence->new(
-      SMake::Executor::Translator::Instruction->new(
-          SMake::Executor::Instruction::Clean),
-  ), $class);
+sub staticRegister {
+  # -- nothing to do
 }
 
 return 1;

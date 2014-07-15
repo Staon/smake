@@ -18,9 +18,6 @@
 # Generic repository interface
 package SMake::Repository::Repository;
 
-use SMake::Profile::Factory;
-use SMake::ToolChain::ToolChain;
-
 # Create new repository
 #
 # Usage: new($parent, $storage)
@@ -32,7 +29,6 @@ sub new {
   	parent => $parent,
   	storage => $storage,
   	variants => {},
-  	profilefactory => SMake::Profile::Factory->new(),
   }, $class);
   
   # -- load storage data
@@ -61,37 +57,6 @@ sub getToolChain {
 sub setToolChain {
   my ($this, $toolchain) = @_;
   $this->{toolchain} = $toolchain;
-}
-
-# Create instance of a named profile. If the profile is not found, the parent
-# repository is tried.
-#
-# Usage: createProfile($name, ...)
-# Return: the profile
-# Exception: it dies if the profile is not known
-sub createProfile {
-  my ($this, $name, @args) = @_;
-  my $profile = $this->{profilefactory}->createProfile($name, @args);
-  if(!defined($profile)) {
-    if(defined($this->{parent})) {
-      $profile = $this->{parent}->createProfile($name, @args);
-    }
-    else {
-      die "unknown profile '$name'!";
-    }
-  }
-  return $profile;
-}
-
-# Register named profile
-#
-# Usage: registerProfile($name, $module, ...)
-#     name ...... name of the profile
-#     module .... name of the profile's module
-#     ... and other arguments
-sub registerProfile {
-  my ($this, $name, $module, @args) = @_;
-  $this->{profilefactory}->registerRecord($name, $module, @args);
 }
 
 # Append a variant object (used from configuration files)
