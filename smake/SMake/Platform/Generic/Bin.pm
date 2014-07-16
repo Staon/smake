@@ -39,7 +39,7 @@ sub register {
       {});
   $constructor->appendMainResource($mres);
   
-  # -- register the library resolver
+  # -- register the linker resolver
   my $resolver = SMake::ToolChain::Resolver::Link->new(
       '.*',
       $objectmask,
@@ -50,11 +50,13 @@ sub register {
   $resolver = SMake::ToolChain::Resolver::Multi->new(
       SMake::ToolChain::Resolver::DepResource->new(
           '^' . $SMake::Model::Const::LINK_DEPENDENCY . '$',
-          $SMake::Model::Const::BIN_MAIN_TYPE),
+          [[$SMake::Model::Const::BIN_MAIN_TYPE_LINKER,
+            $SMake::Model::Const::BIN_MAIN_TYPE]]),
       SMake::ToolChain::Resolver::DepInstall->new(
           '^' . $SMake::Model::Const::LINK_DEPENDENCY . '$',
           $SMake::Model::Const::LIB_INSTALL_STAGE,
-          $SMake::Model::Const::BIN_MAIN_TYPE,
+          [[$SMake::Model::Const::BIN_MAIN_TYPE_LINKER,
+            $SMake::Model::Const::BIN_MAIN_TYPE]],
           $SMake::Model::Const::LIB_MODULE));
   $constructor->appendResolver($resolver);
 }

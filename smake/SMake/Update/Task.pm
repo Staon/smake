@@ -138,6 +138,12 @@ sub getStage {
   return $this->{stage};
 }
 
+# Get type of the working directory resource
+sub getWDType {
+  my ($this) = @_;
+  return $this->{task}->getWDType();
+}
+
 # Get working path of the task
 #
 # The path has meaning in the context of the repository

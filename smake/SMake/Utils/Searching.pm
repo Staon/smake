@@ -192,4 +192,23 @@ sub dependencyTransitiveClosure {
   return $list;
 }
 
+# Get first existing main resource from a list
+#
+# Usage: resolveMainResource($artifact, \@list)
+#    artifact .. the searching artifact
+#    list ...... list of resources
+# Returns: the resource or undef
+sub resolveMainResource {
+  my ($artifact, $list) = @_;
+  
+  if(ref($list) ne "ARRAY") {
+    $list = [$list];
+  }
+  foreach my $res (@$list) {
+    my $resource = $artifact->getMainResource($res);
+    return $resource if(defined($resource));
+  }
+  return undef;
+}
+
 return 1;

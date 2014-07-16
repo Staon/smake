@@ -23,6 +23,7 @@ use SMake::ToolChain::Resolver::Dependency;
 @ISA = qw(SMake::ToolChain::Resolver::Dependency);
 
 use SMake::ToolChain::Constructor::Constructor;
+use SMake::Utils::Searching;
 
 # Create new dependency resolver
 #
@@ -48,7 +49,7 @@ sub doJob {
   # -- attach the dependency to the main resources
   my $artifact = $context->getArtifact();
   foreach my $mainr (@{$this->{mainres}}) {
-    my $mainres = $artifact->getMainResource($mainr);
+    my $mainres = SMake::Utils::Searching::resolveMainResource($artifact, $mainr);
     if(!defined($mainres)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),

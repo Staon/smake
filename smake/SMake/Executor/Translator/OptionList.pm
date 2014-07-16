@@ -31,7 +31,7 @@ use SMake::Executor::Executor;
 # Usage: new($address, $optional, $prefix, $suffix, $itemprefix, $itemsuffix, $separator)
 #    address ..... address of the container
 sub new {
-  my ($class, $address, $optinal, $prefix, $suffix, $itemprefix, $itemsuffix, $separator) = @_;
+  my ($class, $address, $optional, $prefix, $suffix, $itemprefix, $itemsuffix, $separator) = @_;
   my $this = bless(SMake::Executor::Translator::Value->new($address, $optional), $class);
   $this->{prefix} = $prefix;
   $this->{suffix} = $suffix;

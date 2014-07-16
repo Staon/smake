@@ -20,6 +20,7 @@
 package SMake::Executor::Instruction::Instruction;
 
 use SMake::Utils::Abstract;
+use SMake::Utils::Chdir;
 
 $WAIT = "wait";
 $NEXT = "next";
@@ -50,6 +51,36 @@ sub new {
 #             the command finished and the task should be finished too
 sub execute {
   SMake::Utils::Abstract::dieAbstract();
+}
+
+# Helper method - store current working directory and set new
+#
+# Usage: pushWD($context, $subsystem, $wd)
+# Returns: a dirkeeper
+sub pushWD {
+  my ($this, $context, $subsystem, $wd) = @_;
+  
+  my $dirkeeper = SMake::Utils::Chdir->new();
+  if(defined($wd)) {
+    $dirkeeper->pushDir(
+        $wd->systemAbsolute(),
+        $context->getReporter(),
+        $subsystem);
+  }
+  return $dirkeeper;
+}
+
+# Helper method - get back the working directory
+#
+# Usage: pushWD($context, $subsystem, $wd, $dirkeeper)
+sub popWD {
+  my ($this, $context, $subsystem, $wd, $dirkeeper) = @_;
+
+  if(defined($wd)) {
+    $dirkeeper->popDir(
+        $context->getReporter(),
+        $subsystem);
+  }
 }
 
 return 1;

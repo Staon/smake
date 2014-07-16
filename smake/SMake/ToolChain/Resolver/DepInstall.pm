@@ -23,6 +23,7 @@ use SMake::ToolChain::Resolver::Dependency;
 @ISA = qw(SMake::ToolChain::Resolver::Dependency);
 
 use SMake::Model::Const;
+use SMake::Utils::Searching;
 
 # Create new dependency installation resolver
 #
@@ -89,7 +90,8 @@ sub doJob {
     
   # -- create stage dependency for main resources
   foreach my $mainr (@{$this->{mainres}}) {
-    my $mainres = $artifact->getMainResource($mainr);
+  	my $mainres = SMake::Utils::Searching::resolveMainResource(
+  	    $artifact, $mainr);
     if(!defined($mainres)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),

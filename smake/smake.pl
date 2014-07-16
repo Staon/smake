@@ -43,7 +43,7 @@ my $force = '';
 if(!GetOptions(
     'search' => \$search,
     'force' => \$force)) {
-  die "invalid command line optione.";
+  die "invalid command line option.";
 }
 my @stages = @ARGV;
 

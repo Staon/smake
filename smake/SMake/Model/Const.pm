@@ -47,6 +47,7 @@ $DLL_TASK = "dll";
 
 # -- executable binaries
 $BIN_MAIN_TYPE = "binary";
+$BIN_MAIN_TYPE_LINKER = "binary_linker";
 $BIN_STAGE = "binlink";
 $BIN_TASK = "bin";
 
