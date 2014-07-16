@@ -23,12 +23,14 @@ use SMake::Executor::Translator::Value;
 @ISA = qw(SMake::Executor::Translator::Value);
 
 use SMake::Executor::Executor;
+use SMake::Executor::Instruction::Shell;
 use SMake::Utils::Utils;
 
 # Create new select translator
 #
-# Usage: new($address, $dflt, [$value, $cmdstr]*)
+# Usage: new($address, $optional, $dflt, [$value, $cmdstr]*)
 #    address .. address of the value
+#    optional . a flag if the value is optional
 #    dflt ..... default command string (can be nil, default value is not allowed)
 #    value .... a regular expression which describes the value of the logical node
 #    cmdstr ... string which is added into the shell command

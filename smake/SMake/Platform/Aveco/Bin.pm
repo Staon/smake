@@ -24,6 +24,7 @@ use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileCompositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Executor::Translator::OptionList;
+use SMake::Executor::Translator::Select;
 use SMake::Model::Const;
 use SMake::Platform::Aveco::Compilers;
 use SMake::Platform::Aveco::StackSize;
@@ -78,6 +79,11 @@ sub staticRegister {
               "FORM qnx flat",
               "OPTION c",
               "OPTION priv=3",
+              SMake::Executor::Translator::Select->new(
+                  $SMake::Executor::Const::DEBUG_GROUP . "/type", 1, "",
+                  ["full", "DEBUG dwarf"],
+                  ["profiler", "DEBUG all"],
+                  ["no", ""]),
               SMake::Platform::Aveco::StackSize->new($SMake::Executor::Const::LIBDIR_GROUP),
               SMake::Executor::Translator::OptionList->new(
                   $SMake::Executor::Const::LIBDIR_GROUP, 1, "", "", "LIBPATH ", "", "\n"),

@@ -31,7 +31,7 @@ sub register {
 
   # -- generic parts
   $toolchain->registerFeature(
-      SMake::Platform::Generic::Lib, 'Dir() . Name() . ".lib"', '.o$');
+      SMake::Platform::Generic::Lib, 'Dir() . Name() . ".a"', '.o$');
 
   # -- register standard compilers
   $toolchain->registerFeature(SMake::Platform::GCC::Compilers);

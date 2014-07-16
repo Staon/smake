@@ -18,20 +18,27 @@
 # List of profiles
 package SMake::Profile::List;
 
+use SMake::Profile::Profile;
+
+@ISA = qw(SMake::Profile::Profile);
+
 # Create new profile list
 #
-# Usage: new()
+# Usage: new($profile*)
 sub new {
-  my ($class) = @_;
-  return bless([], $class);
+  my ($class, @profiles) = @_;
+  my $this = bless(SMake::Profile::Profile->new(), $class);
+  $this->{profiles} = [];
+  $this->appendProfile(@profiles);
+  return $this;
 }
 
 # Append a profile into the list
 #
-# Usage: appendProfile($profile)
+# Usage: appendProfile($profile*)
 sub appendProfile {
-  my ($this, $profile) = @_;
-  push @$this, $profile;
+  my ($this, @profiles) = @_;
+  push @{$this->{profiles}}, @profiles;
 }
 
 # Create model objects of profile data
@@ -42,7 +49,7 @@ sub appendProfile {
 sub constructProfiles {
   my ($this, $context, $task) = @_;
 
-  foreach my $profile (@$this) {
+  foreach my $profile (@{$this->{profiles}}) {
     my $dumpstring = $profile->dumpContent();
     $task->appendProfile($context, $dumpstring);
   }
@@ -51,7 +58,7 @@ sub constructProfiles {
 sub iterateItems {
   my ($this, $func) = @_;
   
-  foreach my $item (@$this) {
+  foreach my $item (@{$this->{profiles}}) {
     &$func($item);
   }
 }

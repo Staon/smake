@@ -22,6 +22,7 @@ use SMake::Executor::Const;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Executor::Translator::OptionList;
+use SMake::Executor::Translator::Select;
 use SMake::Executor::Translator::ValueList;
 use SMake::Model::Const;
 use SMake::Platform::Generic::CCompiler;
@@ -43,6 +44,11 @@ sub staticRegister {
       [$SMake::Model::Const::C_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "cc",
+              SMake::Executor::Translator::Select->new(
+                  $SMake::Executor::Const::DEBUG_GROUP . "/type", 1, "",
+                  ["full", "-g2d"],
+                  ["profiler", "-g1"],
+                  ["no", ""]),
               SMake::Executor::Translator::OptionList->new(
                   $SMake::Executor::Const::HEADERDIR_GROUP, 1, "", "", "-I", "", " "),
               SMake::Executor::Translator::ValueList->new(

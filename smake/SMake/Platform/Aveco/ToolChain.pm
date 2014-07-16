@@ -25,6 +25,7 @@ use SMake::Platform::Generic::ToolChain;
 use SMake::Executor::Const;
 use SMake::Model::Const;
 use SMake::Platform::Aveco::Bin;
+use SMake::Platform::Aveco::Debug;
 use SMake::Platform::Aveco::Lib;
 use SMake::Platform::Generic::ToolChain;
 use SMake::Profile::ValueProfile;
@@ -59,6 +60,9 @@ sub new {
   $this->getResourceFilter()->appendFilters(
       SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include"),
   );
+  
+  # -- debug options
+  $this->registerFeature(SMake::Platform::Aveco::Debug);
   
   return $this;
 }
