@@ -34,7 +34,11 @@ sub register {
       SMake::Platform::Generic::Lib, 'Dir() . Name() . ".a"', '.a.o$');
 
   # -- register standard compilers
-  $toolchain->registerFeature(SMake::Platform::GCC::Compilers, '.a.o', "static");
+  $toolchain->registerFeature(
+      SMake::Platform::GCC::Compilers,
+      $SMake::Model::Const::LIB_COMPILE_STAGE,
+      '.a.o',
+      "static");
 }
 
 sub staticRegister {

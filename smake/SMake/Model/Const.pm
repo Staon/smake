@@ -31,23 +31,25 @@ $SOURCE_TASK = "src";
 $PRODUCT_RESOURCE = "product";
 
 # -- compiling
-$COMPILE_STAGE = "compile";
 $C_TASK = "c";
 $CXX_TASK = "cxx";
 
 # -- static libraries
-$LIB_MAIN_TYPE = "static_lib";
+$LIB_MAIN_TYPE = "staticlib";
+$LIB_COMPILE_STAGE = "libcompile";
 $LIB_STAGE = "liblink";
 $LIB_TASK = "lib";
 
 # -- dynamic libraries
-$DLL_MAIN_TYPE = "dynamic_lib";
+$DLL_MAIN_TYPE = "dynamiclib";
+$DLL_COMPILE_STAGE = "dllcompile";
 $DLL_STAGE = "dlllink";
 $DLL_TASK = "dll";
 
 # -- executable binaries
 $BIN_MAIN_TYPE = "binary";
 $BIN_MAIN_TYPE_LINKER = "binary_linker";
+$BIN_COMPILE_STAGE = "bincompile";
 $BIN_STAGE = "binlink";
 $BIN_TASK = "bin";
 

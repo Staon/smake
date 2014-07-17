@@ -29,11 +29,11 @@ use SMake::Platform::Generic::CXXCompiler;
 use SMake::Platform::Generic::CompileTranslator;
 
 sub register {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain, $constructor, $stage) = @_;
   
   # -- register generic parts
   my $mangler = 'Dir() . Name() . ".o"';
-  $toolchain->registerFeature(SMake::Platform::Generic::CXXCompiler, $mangler, "no");
+  $toolchain->registerFeature(SMake::Platform::Generic::CXXCompiler, $stage, $mangler, "no");
 }
 
 sub staticRegister {

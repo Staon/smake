@@ -29,14 +29,14 @@ use SMake::Profile::ValueProfile;
 use SMake::ToolChain::Resolver::Compile;
 use SMake::ToolChain::Resolver::Multi;
 
-# Usage: register($toolchain, $construct, $mangler, $libtype)
+# Usage: register($toolchain, $construct, $stage, $mangler, $libtype)
 #    toolchain ...... the platform toolchain
-#    construct ...... current constructor
 #    constructor .... current constructor
+#    stage .......... compilation stage
 #    mangler ........ mangler description
 #    libtype ........ "no", "static", "dll"
 sub register {
-  my ($class, $toolchain, $constructor, $mangler, $libtype) = @_;
+  my ($class, $toolchain, $constructor, $stage, $mangler, $libtype) = @_;
   
   # -- resolver
   my $multi = $toolchain->createObject(
@@ -47,7 +47,7 @@ sub register {
       '.*',
       '[.]cpp$',
       $mangler,
-      $SMake::Model::Const::COMPILE_STAGE,
+      $stage,
       $SMake::Model::Const::CXX_TASK);
   $multi->appendResolver($resolver);
 

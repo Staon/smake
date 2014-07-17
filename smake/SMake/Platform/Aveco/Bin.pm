@@ -51,7 +51,8 @@ sub register {
   $constructor->appendResolver($resolver);
 
   # -- register standard compilers
-  $toolchain->registerFeature(SMake::Platform::Aveco::Compilers);
+  $toolchain->registerFeature(
+      SMake::Platform::Aveco::Compilers, $SMake::Model::Const::BIN_COMPILE_STAGE);
 }
 
 sub staticRegister {

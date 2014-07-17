@@ -29,11 +29,12 @@ use SMake::Platform::Generic::CCompiler;
 use SMake::Platform::Generic::CompileTranslator;
 
 sub register {
-  my ($class, $toolchain, $constructor, $objsuffix, $libtype) = @_;
+  my ($class, $toolchain, $constructor, $stage, $objsuffix, $libtype) = @_;
   
   # -- register generic parts
   my $mangler = 'Dir() . Name() . "' . $objsuffix .'"';
-  $toolchain->registerFeature(SMake::Platform::Generic::CCompiler, $mangler, $libtype);
+  $toolchain->registerFeature(
+      SMake::Platform::Generic::CCompiler, $stage, $mangler, $libtype);
 }
 
 sub staticRegister {

@@ -34,7 +34,11 @@ sub register {
       SMake::Platform::Generic::Dll, 'Dir() . Name() . ".so"', '.so.o$');
 
   # -- register standard compilers
-  $toolchain->registerFeature(SMake::Platform::GCC::Compilers, '.so.o', "dll");
+  $toolchain->registerFeature(
+      SMake::Platform::GCC::Compilers,
+      $SMake::Model::Const::DLL_COMPILE_STAGE,
+      '.so.o',
+      "dll");
 }
 
 sub staticRegister {

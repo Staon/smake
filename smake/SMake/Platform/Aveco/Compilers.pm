@@ -22,10 +22,10 @@ use SMake::Platform::Aveco::CCompiler;
 use SMake::Platform::Aveco::CXXCompiler;
 
 sub register {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain, $constructor, $stage) = @_;
   
-  $toolchain->registerFeature(SMake::Platform::Aveco::CCompiler);
-  $toolchain->registerFeature(SMake::Platform::Aveco::CXXCompiler);
+  $toolchain->registerFeature(SMake::Platform::Aveco::CCompiler, $stage);
+  $toolchain->registerFeature(SMake::Platform::Aveco::CXXCompiler, $stage);
 }
 
 sub staticRegister {

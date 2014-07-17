@@ -34,7 +34,8 @@ sub register {
       SMake::Platform::Generic::Lib, 'Dir() . Name() . ".lib"', '.o$');
 
   # -- register standard compilers
-  $toolchain->registerFeature(SMake::Platform::Aveco::Compilers);
+  $toolchain->registerFeature(
+      SMake::Platform::Aveco::Compilers, $SMake::Model::Const::LIB_COMPILE_STAGE);
 }
 
 sub staticRegister {
