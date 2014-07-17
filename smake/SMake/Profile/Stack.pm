@@ -75,7 +75,7 @@ sub popList {
 sub constructProfiles {
   my ($this, $context, $task) = @_;
   
-  for(my $index = 1; $index <= $#$this; ++$index) {
+  for(my $index = 0; $index <= $#$this; ++$index) {
     $this->[$index]->constructProfiles($context, $task);
   }
 }

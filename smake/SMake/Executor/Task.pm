@@ -42,7 +42,7 @@ sub new {
   my $commands = $builder->build($context, $task);
   
   # -- construct stack of compilation profiles
-  my $profstack = SMake::Profile::Stack->new($context->getProfiles());
+  my $profstack = SMake::Profile::Stack->new();
   my $profdumps = $task->getProfiles();
   foreach my $profdump (@$profdumps) {
     $profstack->appendProfile(

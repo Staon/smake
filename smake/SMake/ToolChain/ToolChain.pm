@@ -132,6 +132,10 @@ sub appendProfile {
   $this->{profiles}->appendProfile($profile);
 }
 
+# Append all toolchain's compilation profiles into a profile stack
+#
+# Usage: appendToolChainProfiles($profiles)
+#    profiles ..... the profile stack
 sub appendToolChainProfiles {
   my ($this, $profiles) = @_;
   $profiles->appendProfile($this->{profiles});

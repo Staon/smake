@@ -172,13 +172,40 @@ sub readConfiguration {
   return $decider, $runner;
 }
 
+# Parse specification of command line profiles
+sub parseCmdLineProfiles {
+  my ($reporter, $toolchain, $profiles, $profspecs) = @_;
+  
+  foreach my $profspec (@$profspecs) {
+  	print "$profspec\n";
+    if($profspec =~ /^([^\s\(\)]+)(\((.*)\))?$/) {
+      my ($name, $argspec) = ($1, $3);
+      my @args;
+      if(defined($argspec)) {
+        @args = split(/[\s]*[,][\s]*/, $argspec);
+      }
+      else {
+        @args = ();
+      }
+      
+      print "$name @args\n";
+      
+      # -- create the profile
+      my $profile = $toolchain->createProfile($name, @args);
+      $profiles->appendProfile($profile);
+    }
+  }
+}
+
 # Construct repository according to the configuration
 #
-# Usage: constructRepository($reporter, $repvar)
+# Usage: constructRepository($reporter, $repvar, \@profspecs)
+#    reporter ... reporter object
 #    repvar ..... content of the SMAKE_REPOSITORY environment variable
+#    profspecs .. list of command line profile specifications
 # Returns: $repository, $decider, $runner, $profiles
 sub constructRepository {
-  my ($reporter, $repvar) = @_;
+  my ($reporter, $repvar, $profspecs) = @_;
 
   # -- create the repositories
   my @repdirs = getRepositoryPaths($repvar);
@@ -203,6 +230,9 @@ sub constructRepository {
       
   # -- append toolchain's profiles
   $toolchain->appendToolChainProfiles($profiles);
+  
+  # -- append command line profiles
+  parseCmdLineProfiles($reporter, $toolchain, $profiles, $profspecs);
   
   $repository->commitTransaction();
 

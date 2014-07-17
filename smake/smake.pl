@@ -40,9 +40,11 @@ local $SIG{__WARN__} = sub { die @_ };
 # Parse command line options
 my $search = '';
 my $force = '';
+my @compile_profiles = ();
 if(!GetOptions(
     'search' => \$search,
-    'force' => \$force)) {
+    'force' => \$force,
+    'profile=s' => \@compile_profiles)) {
   die "invalid command line option.";
 }
 my @stages = @ARGV;
@@ -54,7 +56,7 @@ $reporter->addTarget(SMake::Reporter::TargetConsole->new(1, 5, ".*"));
 # -- create repositories and read configuration
 my ($repository, $decider, $runner, $profiles) 
     = SMake::Config::Config::constructRepository(
-        $reporter, $ENV{'SMAKE_REPOSITORY'});
+        $reporter, $ENV{'SMAKE_REPOSITORY'}, \@compile_profiles);
 
 # -- get list of SMakefiles to be parsed
 my $paths = [];
@@ -88,7 +90,7 @@ $repository->openTransaction();
 my $executor = SMake::Executor::Executor->new($force);
 my $installarea = SMake::InstallArea::StdArea->new($SMake::Model::Const::SOURCE_RESOURCE);
 my $execcontext = SMake::Executor::Context->new(
-    $reporter, $decider, $runner, $repository, $visibility, $installarea, $profiles);
+    $reporter, $decider, $runner, $repository, $visibility, $installarea);
 my $rootlist = [];
 foreach my $stage (@stages) {
   if($stage eq "/") {
