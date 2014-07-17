@@ -33,6 +33,7 @@ sub dumpContent {
   my $dumper = Data::Dumper->new([$this], [qw(profile)]);
   $dumper->Indent(0);  # -- one line
   $dumper->Purity(1);
+  $dumper->Sortkeys(1); # -- sorting of hash keys
   return $dumper->Dump();
 }
 

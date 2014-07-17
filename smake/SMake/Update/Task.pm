@@ -62,6 +62,7 @@ sub new {
   }
   $this->{stage} = $stage;
   $this->{task} = $task;
+  $this->{profiles} = [];
   
   return $this;
 }
@@ -83,8 +84,24 @@ sub update {
   # -- update task dependencies
   my ($dep_delete, $dep_changed) = $this->{dependencies}->update($context);
   $this->{task}->deleteDependencies($dep_delete);
+  
+  # -- update profiles
+  my $old_profiles = $this->{task}->getProfiles();
+  my $prof_changed = 0;
+  if($#$old_profiles != $#{$this->{profiles}}) {
+    $prof_changed = 1;
+  }
+  else {
+    for(my $i = 0; $i <= $#$old_profiles; ++$i) {
+      if($old_profiles->[$i] ne $this->{profiles}->[$i]) {
+        $prof_changed = 1;
+        last;
+      }
+    }
+  }
+  $this->{task}->setProfiles($this->{profiles});
 
-  $this->{task}->setForceRun($ts_changed || $tg_changed);
+  $this->{task}->setForceRun($ts_changed || $tg_changed || $prof_changed);
   
   $this->{sources} = undef;
   $this->{targets} = undef;
@@ -197,7 +214,7 @@ sub appendDependency {
 #    dump ..... profile's dump string
 sub appendProfile {
   my ($this, $context, $dump) = @_;
-  $this->{task}->appendProfile($dump);
+  push @{$this->{profiles}}, $dump;
 }
 
 return 1;

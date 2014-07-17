@@ -43,10 +43,10 @@ sub new {
   
   # -- construct stack of compilation profiles
   my $profstack = SMake::Profile::Stack->new($context->getProfiles());
-  my $profobjects = $task->getProfiles();
-  foreach my $profobject (@$profobjects) {
+  my $profdumps = $task->getProfiles();
+  foreach my $profdump (@$profdumps) {
     $profstack->appendProfile(
-        SMake::Profile::Profile::ressurect($profobject->getDumpString()));
+        SMake::Profile::Profile::ressurect($profdump));
   }
   
   # -- translate command to a shell commands

@@ -35,8 +35,6 @@ sub new {
 
 # Update data of the task
 #
-# The method should clear the list of compilation profiles
-#
 # Usage: update($type, $wdtype, $wd, $args)
 sub update {
   SMake::Utils::Abstract::dieAbstract();
@@ -285,16 +283,16 @@ sub getDependencies {
 
 # Create and append new profile object
 #
-# Usage: appendProfile($dump)
-#    dump ...... profile's dump string
-sub appendProfile {
+# Usage: appendProfile(\@dumps)
+#    dumps ...... list of dump strings
+sub setProfiles {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Get profile objects
 #
 # Usage: getProfiles()
-# Returns: \@list
+# Returns: \@list list of profile dump strings
 sub getProfiles {
   SMake::Utils::Abstract::dieAbstract();
 }
@@ -390,8 +388,7 @@ sub prettyPrint {
   my $profs = $this->getProfiles();
   foreach my $prof (@$profs) {
     SMake::Utils::Print::printIndent($indent + 2);
-    $prof->prettyPrint($indent + 2);
-    print ::HANDLE "\n";
+    print ::HANDLE "$prof\n";
   }
   SMake::Utils::Print::printIndent($indent + 1);
   print ::HANDLE "}\n";

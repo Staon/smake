@@ -25,7 +25,6 @@ use SMake::Model::Task;
 use SMake::Data::Path;
 use SMake::Model::TaskDependency;
 use SMake::Model::Timestamp;
-use SMake::Storage::File::Profile;
 use SMake::Storage::File::TaskDependency;
 use SMake::Storage::File::Timestamp;
 
@@ -81,7 +80,6 @@ sub update {
   $this->{wdtype} = $wdtype;
   $this->{wdir} = (defined($wd))?SMake::Data::Path->new($wd):undef;
   $this->{args} = defined($args)?$args:{};
-  $this->{profiles} = [];
 }
 
 sub getRepository {
@@ -232,12 +230,9 @@ sub getDependencies {
   return [values %{$this->{dependencies}}];
 }
 
-sub appendProfile {
-  my ($this, $dump) = @_;
-  
-  my $profile = SMake::Storage::File::Profile->new(
-      $this->{repository}, $this->{storage}, $this, $dump);
-  push @{$this->{profiles}}, $profile;
+sub setProfiles {
+  my ($this, $dumps) = @_;
+  $this->{profiles} = [@$dumps];
 }
 
 sub getProfiles {
