@@ -33,7 +33,7 @@ sub register {
   
   # -- register generic parts
   my $mangler = 'Dir() . Name() . ".o"';
-  $toolchain->registerFeature(SMake::Platform::Generic::CXXCompiler, $mangler);
+  $toolchain->registerFeature(SMake::Platform::Generic::CXXCompiler, $mangler, "no");
 }
 
 sub staticRegister {

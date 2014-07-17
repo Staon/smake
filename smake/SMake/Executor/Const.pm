@@ -25,5 +25,7 @@ $HEADERDIR_GROUP = "header_dirs";
 $LIBDIR_GROUP = "lib_dirs";
 $DEBUG_GROUP = "debug";
 $PREPROC_GROUP = "preproc";
+$DLL_GROUP = "dll_opts";
+$LIB_TYPE_OPTION = "libtype";
 
 return 1;

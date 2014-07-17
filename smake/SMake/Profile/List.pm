@@ -50,8 +50,7 @@ sub constructProfiles {
   my ($this, $context, $task) = @_;
 
   foreach my $profile (@{$this->{profiles}}) {
-    my $dumpstring = $profile->dumpContent();
-    $task->appendProfile($context, $dumpstring);
+    $profile->constructProfiles($context, $task);
   }
 }
 

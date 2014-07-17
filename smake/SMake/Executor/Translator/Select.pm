@@ -36,6 +36,7 @@ use SMake::Utils::Utils;
 #    cmdstr ... string which is added into the shell command
 sub new {
   my ($class, $address, $optional, $dflt) = splice(@_, 0, 4);
+  
   my $this = bless(SMake::Executor::Translator::Value->new(
       $address, $optional), $class);
   $this->{dflt} = $dflt;

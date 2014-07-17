@@ -35,7 +35,7 @@ sub register {
       SMake::Platform::Generic::Bin, 'Dir() . Name()', '.o$');
 
   # -- register standard compilers
-  $toolchain->registerFeature(SMake::Platform::GCC::Compilers);
+  $toolchain->registerFeature(SMake::Platform::GCC::Compilers, '.o', "no");
 }
 
 sub staticRegister {

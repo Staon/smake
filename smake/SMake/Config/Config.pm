@@ -177,7 +177,6 @@ sub parseCmdLineProfiles {
   my ($reporter, $toolchain, $profiles, $profspecs) = @_;
   
   foreach my $profspec (@$profspecs) {
-  	print "$profspec\n";
     if($profspec =~ /^([^\s\(\)]+)(\((.*)\))?$/) {
       my ($name, $argspec) = ($1, $3);
       my @args;
@@ -187,8 +186,6 @@ sub parseCmdLineProfiles {
       else {
         @args = ();
       }
-      
-      print "$name @args\n";
       
       # -- create the profile
       my $profile = $toolchain->createProfile($name, @args);

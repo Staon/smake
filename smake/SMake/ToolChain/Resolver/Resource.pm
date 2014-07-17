@@ -37,7 +37,7 @@ sub new {
   return $this;
 }
 
-sub resolveResource {
+sub doResolveResource {
   my ($this, $context, $queue, $resource) = @_;
 
   if(($resource->getType() =~ /$this->{typemask}/)
@@ -50,7 +50,7 @@ sub resolveResource {
   }
 }
 
-sub resolveDependency {
+sub doResolveDependency {
   return 0;
 }
 

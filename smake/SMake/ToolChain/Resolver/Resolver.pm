@@ -18,6 +18,7 @@
 # Generic resolver interface
 package SMake::ToolChain::Resolver::Resolver;
 
+use SMake::Profile::List;
 use SMake::Utils::Abstract;
 
 # Create new resolver class
@@ -25,7 +26,17 @@ use SMake::Utils::Abstract;
 # Usage: new()
 sub new {
   my ($class) = @_;
-  return bless({}, $class);
+  return bless({
+    profiles => SMake::Profile::List->new(),
+  }, $class);
+}
+
+# Append a profile to the resolver
+#
+# Usage: appendProfile($profile)
+sub appendProfile {
+  my ($this, $profile) = @_;
+  $this->{profiles}->appendProfile($profile);
 }
 
 # Resolve a resource
@@ -36,6 +47,29 @@ sub new {
 #    resource .... resolved resource
 # Returns: true if the resource is handled
 sub resolveResource {
+  my ($this, $context, $queue, $resource) = @_;
+  
+  # -- push resolver's profiles
+  $context->getProfiles()->pushList();
+  $context->getProfiles()->appendProfile($this->{profiles});
+  
+  # -- do the job
+  my $retval = $this->doResolveResource($context, $queue, $resource);
+  
+  # -- pop the profiles
+  $context->getProfiles()->popList();
+  
+  return $retval;
+}
+
+# Resolve a resource
+#
+# Usage: resolveResource($context, $queue, $resource)
+#    context ..... parser context, project and artifact are valid
+#    queue ....... resource queue
+#    resource .... resolved resource
+# Returns: true if the resource is handled
+sub doResolveResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -46,6 +80,28 @@ sub resolveResource {
 #    dependency .. the dependency object
 # Returns: true if the dependency is handled
 sub resolveDependency {
+  my ($this, $context, $dependency) = @_;
+  
+  # -- push resolver's profiles
+  $context->getProfiles()->pushList();
+  $context->getProfiles()->appendProfile($this->{profiles});
+  
+  # -- do the job
+  my $retval = $this->doResolveDependency($context, $dependency);
+  
+  # -- pop the profiles
+  $context->getProfiles()->popList();
+  
+  return $retval;
+}
+
+# Resolve a dependency record
+#
+# Usage: resolveDependency($context, $dependency)
+#    context ..... parser context, project and artifact are valid
+#    dependency .. the dependency object
+# Returns: true if the dependency is handled
+sub doResolveDependency {
   SMake::Utils::Abstract::dieAbstract();
 }
 

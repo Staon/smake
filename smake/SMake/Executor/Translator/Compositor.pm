@@ -56,7 +56,10 @@ sub translate {
   	else {
       my $vals = $record->translate($context, $task, $command, $wd);
       foreach my $instr (@$vals) {
-        push @retvals, $instr->getCommand();
+        my $str = $instr->getCommand();
+        if($str) {
+          push @retvals, $instr->getCommand();
+        }
       }
   	}
   }

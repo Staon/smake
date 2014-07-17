@@ -22,10 +22,10 @@ use SMake::Platform::GCC::CCompiler;
 use SMake::Platform::GCC::CXXCompiler;
 
 sub register {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain, $constructor, $objsuffix, $libtype) = @_;
   
-  $toolchain->registerFeature(SMake::Platform::GCC::CCompiler);
-  $toolchain->registerFeature(SMake::Platform::GCC::CXXCompiler);
+  $toolchain->registerFeature(SMake::Platform::GCC::CCompiler, $objsuffix, $libtype);
+  $toolchain->registerFeature(SMake::Platform::GCC::CXXCompiler, $objsuffix, $libtype);
 }
 
 sub staticRegister {

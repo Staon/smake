@@ -36,11 +36,11 @@ sub new {
   return $this;
 }
 
-sub resolveResource {
+sub doResolveResource {
   return 0;
 }
 
-sub resolveDependency {
+sub doResolveDependency {
   my ($this, $context, $dependency) = @_;
   
   if($dependency->getDependencyType() =~ /$this->{mask}/) {

@@ -25,16 +25,18 @@ use SMake::Platform::Generic::CHeader;
 use SMake::Platform::Generic::HeaderScanner;
 use SMake::Profile::InstallPaths;
 use SMake::Profile::LocalDirs;
+use SMake::Profile::ValueProfile;
 use SMake::ToolChain::Resolver::Compile;
 use SMake::ToolChain::Resolver::Multi;
 
-# Usage: register($toolchain, $construct, $mangler)
+# Usage: register($toolchain, $construct, $mangler, $libtype)
 #    toolchain ...... the platform toolchain
 #    construct ...... current constructor
 #    constructor .... current constructor
 #    mangler ........ mangler description
+#    libtype ........ "no", "static", "dll"
 sub register {
-  my ($class, $toolchain, $constructor, $mangler) = @_;
+  my ($class, $toolchain, $constructor, $mangler, $libtype) = @_;
   
   # -- resolver
   my $multi = $toolchain->createObject(
@@ -48,6 +50,14 @@ sub register {
       $SMake::Model::Const::COMPILE_STAGE,
       $SMake::Model::Const::CXX_TASK);
   $multi->appendResolver($resolver);
+
+  # -- type of library
+  my $profile = SMake::Profile::ValueProfile->new(
+      '^' . quotemeta($SMake::Model::Const::CXX_TASK) . '$',
+      $SMake::Executor::Const::DLL_GROUP,
+      0,
+      $SMake::Executor::Const::LIB_TYPE_OPTION, $libtype);
+  $resolver->appendProfile($profile);
   
   # -- C headers
   $toolchain->registerFeature([SMake::Platform::Generic::HeaderScanner, '[.]cpp$']);

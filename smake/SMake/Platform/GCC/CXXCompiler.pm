@@ -22,17 +22,18 @@ use SMake::Executor::Const;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Executor::Translator::OptionList;
+use SMake::Executor::Translator::Select;
 use SMake::Executor::Translator::ValueList;
 use SMake::Model::Const;
 use SMake::Platform::Generic::CXXCompiler;
 use SMake::Platform::Generic::CompileTranslator;
 
 sub register {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain, $constructor, $objsuffix, $libtype) = @_;
   
   # -- register generic parts
-  my $mangler = 'Dir() . Name() . ".o"';
-  $toolchain->registerFeature(SMake::Platform::Generic::CXXCompiler, $mangler);
+  my $mangler = 'Dir() . Name() . "' . $objsuffix .'"';
+  $toolchain->registerFeature(SMake::Platform::Generic::CXXCompiler, $mangler, $libtype);
 }
 
 sub staticRegister {
@@ -43,6 +44,13 @@ sub staticRegister {
       [$SMake::Model::Const::CXX_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "g++",
+              SMake::Executor::Translator::Select->new(
+                  $SMake::Executor::Const::DLL_GROUP . "/" . $SMake::Executor::Const::LIB_TYPE_OPTION,
+                  1,
+                  "",
+                  ["no", ""],
+                  ["static", ""],
+                  ["dll", "-fpic"]),
               SMake::Executor::Translator::OptionList->new(
                   $SMake::Executor::Const::HEADERDIR_GROUP, 1, "", "", "-I", "", " "),
               SMake::Executor::Translator::ValueList->new(

@@ -25,6 +25,7 @@ use SMake::Platform::Generic::ToolChain;
 use SMake::Executor::Const;
 use SMake::Model::Const;
 use SMake::Platform::GCC::Bin;
+use SMake::Platform::GCC::Dll;
 use SMake::Platform::GCC::Lib;
 use SMake::Platform::Generic::ToolChain;
 use SMake::Profile::ValueProfile;
@@ -39,6 +40,7 @@ sub new {
 
   # -- library artifact
   $this->registerConstructor($SMake::Model::Const::LIB_ARTIFACT);
+  $this->registerFeature(SMake::Platform::GCC::Dll);
   $this->registerFeature(SMake::Platform::GCC::Lib);
 
   # -- binary artifact

@@ -66,9 +66,6 @@ sub destroy {
     $timestamp->destroy();
   }
   $this->{sources} = undef;
-  foreach my $profile (@{$this->{profiles}}) {
-    $profile->destroy();
-  }
   $this->{profiles} = undef;
   $this->{dependencies} = undef;
 }

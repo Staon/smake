@@ -42,7 +42,7 @@ sub appendResolver {
   push @{$this->{list}}, @_;
 }
 
-sub resolveResource {
+sub doResolveResource {
   my ($this, $context, $queue, $resource) = @_;
   
   my $status = 0;
@@ -55,7 +55,7 @@ sub resolveResource {
   return $status;
 }
 
-sub resolveDependency {
+sub doResolveDependency {
   my ($this, $context, $dependency) = @_;
   
   my $status = 0;

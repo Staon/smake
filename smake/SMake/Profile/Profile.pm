@@ -53,6 +53,18 @@ sub ressurect {
   return $profile;
 }
 
+# Create model objects of profile data
+#
+# Usage: constructProfiles($context, $task)
+#    context ..... parser context
+#    task ........ a task which the profiles are created for
+sub constructProfiles {
+  my ($this, $context, $task) = @_;
+  
+  my $dumpstring = $this->dumpContent();
+  $task->appendProfile($context, $dumpstring);
+}
+
 # Begining of construction of a project
 #
 # Usage: projectBegin($context, $subsystem, $project)
