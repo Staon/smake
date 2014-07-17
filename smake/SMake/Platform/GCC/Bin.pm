@@ -42,6 +42,15 @@ sub register {
 sub staticRegister {
   my ($class, $toolchain, $constructor) = @_;
   
+  # -- rpath profile (compilation of paths of dlls)
+  $toolchain->registerProfile(
+      "rpath",
+      SMake::Profile::InstallPaths,
+      $SMake::Model::Const::BIN_TASK,
+      $SMake::Executor::Const::RPATH_GROUP,
+      $SMake::Model::Const::LIB_MODULE,
+      1);
+
   # -- register command translator
   $toolchain->getTranslator()->appendRecords(
       [$SMake::Model::Const::BIN_TASK, SMake::Platform::Generic::CompileTranslator->new(
@@ -51,6 +60,8 @@ sub staticRegister {
                   $SMake::Executor::Const::PRODUCT_GROUP, 0, "", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1),
+              SMake::Executor::Translator::OptionList->new(
+                  $SMake::Executor::Const::RPATH_GROUP, 1, "", "", "-Wl,-rpath=", "", " "),
               SMake::Executor::Translator::OptionList->new(
                   $SMake::Executor::Const::LIBDIR_GROUP, 1, "", "", "-L", "", " "),
               SMake::Executor::Translator::FileList->new(

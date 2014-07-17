@@ -77,7 +77,11 @@ sub constructToolChain {
       my $context = {
         reporter => $reporter,
         ToolChain => sub {
-            $toolchain = $_[1];
+          $toolchain = $_[1];
+        },
+        RegisterProfile => sub {
+          shift;
+          $toolchain->registerProfile(@_);
         }
       };
       my $msg = SMake::Utils::Evaluate::evaluateSpecFile($tcfile, $context);
@@ -142,7 +146,7 @@ sub readConfiguration {
     Profile => sub {
       shift;
       my $profile;
-      if(ref($_[0]) eq "SCALAR") {
+      if(!ref($_[0])) {
         $profile = $repository->getToolChain()->createProfile(@_);
       }
       else {
@@ -150,9 +154,6 @@ sub readConfiguration {
       }
       $profiles->appendProfile($profile);
     },
-    RegisterProfile => sub {
-      $repository->getToolChain()->registerProfile(@_);
-    }
   };
   foreach my $rcfile (@$rcpaths) {
     if(-f $rcfile) {

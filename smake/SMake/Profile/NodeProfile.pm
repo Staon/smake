@@ -51,7 +51,7 @@ sub doJob {
   if(!defined($parent)) {
     SMake::Utils::Utils::dieReport(
         $context->getReporter(),
-        $subsystem,
+        $SMake::Executor::Executor::SUBSYSTEM,
         "command doesn't contain value '%s'!",
         $this->{address}->asString());
   }
