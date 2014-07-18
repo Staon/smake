@@ -127,6 +127,69 @@ sub searchResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Install a resource into the installation area
+#
+# Usage: installResource($context, $subsystem, $resource)
+#    context ...... executor context
+#    subsystem .... logging subsystem
+#    resource ..... the installed resource
+sub installResource {
+  my ($this, $context, $subsystem, $resource) = @_;
+
+  $this->getRepository()->getInstallArea()->installResource(
+      $context,
+      $subsystem,
+      $this,
+      $resource);
+}
+
+# Install a dependency into the installation area
+#
+# Usage: installDependency($context, $subsystem, $dep)
+#    context ...... executor context
+#    subsystem .... logging subsystem
+#    dep .......... the installed dependency
+sub installDependency {
+  my ($this, $context, $subsystem, $dep) = @_;
+  
+  $this->getRepository()->getInstallArea()->installDependency(
+      $context,
+      $subsystem,
+      $this,
+      $dep);
+}  
+
+# Get physical location of an installation module
+#
+# Usage: getModulePath($context, $subsystem, $module)
+#    context ..... executor context
+#    subsystem ... logging subsystem
+#    module ...... installation module
+# Returns: ($restype, $path)
+#    restype ..... resource type of the path
+#    path ........ the path (Data)
+sub getModulePath {
+  my ($this, $context, $subsystem, $module) = @_;
+
+  return $this->getRepository()->getInstallArea()->getModulePath(
+      $context,
+      $subsystem,
+      $module,
+      $this);
+}
+
+# Clean project's installation area
+#
+# Usage: cleanInstallArea($context, $subsystem)
+#    context ..... executor context
+#    subsystem ... logging subsystem
+sub cleanInstallArea {
+  my ($this, $context, $subsystem) = @_;
+  
+  $this->getRepository()->getInstallArea()->cleanArea(
+      $context, $subsystem, $this);
+}
+
 # Print content of the project
 #
 # Usage: prettyPrint($indent)

@@ -26,6 +26,14 @@ sub new {
   return bless({}, $class);
 }
 
+# Get physical location of an external resource
+#
+# Usage: getPhysicalLocation($project, $resource)
+# Returns: a path object with an absolute physical path
+sub getPhysicalLocation {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Install an external resource
 #
 # Usage: installResource($context, $subsystem, $project, $resource)

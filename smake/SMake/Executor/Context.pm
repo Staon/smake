@@ -20,16 +20,15 @@ package SMake::Executor::Context;
 
 # Create new context
 #
-# Usage: new($reporter, $decider, $runner, $repository, $visibility, $installarea)
+# Usage: new($reporter, $decider, $runner, $repository, $visibility)
 sub new {
-  my ($class, $reporter, $decider, $runner, $repository, $visibility, $installarea) = @_;
+  my ($class, $reporter, $decider, $runner, $repository, $visibility) = @_;
   return bless({
     reporter => $reporter,
     decider => $decider,
     runner => $runner,
     repository => $repository,
     visibility => $visibility,
-    installarea => $installarea,
   }, $class);
 }
 
@@ -73,12 +72,6 @@ sub getRunner {
 sub getMangler {
   my ($this) = @_;
   return $this->{repository}->getToolChain()->getMangler();
-}
-
-# Get installation area object
-sub getInstallArea {
-  my ($this) = @_;
-  return $this->{installarea};
 }
 
 return 1;

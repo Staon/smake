@@ -42,8 +42,7 @@ sub execute {
       $context, $SMake::Executor::Executor::SUBSYSTEM);
 
   # -- clean the installation area
-  $context->getInstallArea()->cleanArea(
-      $context, $SMake::Executor::Executor::SUBSYSTEM, $project);
+  $project->cleanInstallArea($context, $SMake::Executor::Executor::SUBSYSTEM);
     
   return $SMake::Executor::Instruction::Instruction::NEXT;
 }

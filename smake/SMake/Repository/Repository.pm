@@ -21,13 +21,15 @@ package SMake::Repository::Repository;
 # Create new repository
 #
 # Usage: new($parent, $storage)
-#   parent .... Parent repository. Null if the repository is not chained.
-#   storage ... Storage of project data
+#   parent ....... Parent repository. Null if the repository is not chained.
+#   storage ...... Storage of project data
+#   installarea .. Installation area object
 sub new {
-  my ($class, $parent, $storage) = @_;
+  my ($class, $parent, $storage, $installarea) = @_;
   my $this = bless({
   	parent => $parent,
   	storage => $storage,
+  	installarea => $installarea,
   	variants => {},
   }, $class);
   
@@ -59,6 +61,12 @@ sub setToolChain {
   $this->{toolchain} = $toolchain;
 }
 
+# Get the installation area
+sub getInstallArea {
+  my ($this) = @_;
+  return $this->{installarea};
+}
+
 # Append a variant object (used from configuration files)
 #
 # Usage: appendVariant($variant)
@@ -75,7 +83,7 @@ sub appendVariant {
 # Returns: a path object with absolute filesystem path
 sub getPhysicalLocation {
   my ($this, $restype, $respath) = @_;
-  return $this->{storage}->getPhysicalLocation($respath);
+  return $this->{storage}->getPhysicalLocation($restype, $respath);
 }
 
 # Get physical location of a resource
@@ -87,6 +95,17 @@ sub getPhysicalLocation {
 sub getPhysicalLocationString {
   my ($this, $restype, $respath) = @_;
   return $this->getPhysicalLocation($restype, $respath)->systemAbsolute();
+}
+
+# Convert a physical aboslute location to repository location
+#
+# Usage: getRepositoryLocation($restype, $respath)
+#    restype ....... resource type
+#    respath ....... a physical location (a path object)
+# Returns: a path object with the repository location
+sub getRepositoryLocation {
+  my ($this, $restype, $respath) = @_;
+  return $this->{storage}->getRepositoryLocation($restype, $respath);
 }
 
 # Open transaction of the project storage

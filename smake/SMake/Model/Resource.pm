@@ -96,8 +96,15 @@ sub getPath {
 # Returns: a path object with absolute filesystem path
 sub getPhysicalPath {
   my ($this) = @_;
-  return $this->getRepository()->getPhysicalLocation(
-      $this->getType(), $this->getPath());
+  
+  if($this->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
+    return $this->getRepository()->getInstallArea()->getPhysicalLocation(
+        $this->getProject(), $this);
+  }
+  else {
+    return $this->getRepository()->getPhysicalLocation(
+        $this->getType(), $this->getPath());
+  }
 }
 
 # Get physical path of the resource

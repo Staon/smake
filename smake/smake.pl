@@ -81,7 +81,8 @@ my $context = SMake::Parser::Context->new(
     $reporter, $decider, $repository, $visibility, $profiles);
 foreach my $path (@$paths) {
   $repository->openTransaction();
-  $parser -> parse($context, $path);
+  $parser -> parse($context, $context->getRepository()->getRepositoryLocation(
+      $SMake::Model::Const::SOURCE_RESOURCE, $path));
   $repository->commitTransaction();
 }
 

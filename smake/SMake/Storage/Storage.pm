@@ -83,10 +83,21 @@ sub searchPublicResource {
 
 # Get physical (filesystem) location
 #
-# Usage: getPhysicalLocation($path)
+# Usage: getPhysicalLocation($restype, $path)
+#    restype ..... type of the resource
 #    path ..... a path object in the storage meaning
 # Returns: a path object with absolute filesystem path
 sub getPhysicalLocation {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Convert a physical location to repository path
+#
+# Usage: getRepositoryLocation($restype, $path)
+#    restype ..... type of the resource
+#    path ........ the physical path
+# Returns: a path object with repository location
+sub getRepositoryLocation {
   SMake::Utils::Abstract::dieAbstract();
 }
 

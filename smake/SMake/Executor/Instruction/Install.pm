@@ -43,20 +43,18 @@ sub execute {
   # -- install the resources
   my $resources = $task->getTargets();
   foreach my $resource (@$resources) {
-    $context->getInstallArea()->installResource(
+    $project->installResource(
         $context,
         $SMake::Executor::Executor::SUBSYSTEM,
-        $project,
         $resource);
   }
   
   # -- install dependencies
   my $deps = $task->getDependencies();
   foreach my $dep (@$deps) {
-    $context->getInstallArea()->installDependency(
+    $project->installDependency(
         $context,
         $SMake::Executor::Executor::SUBSYSTEM,
-        $project,
         $dep);
   }
   

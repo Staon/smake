@@ -247,6 +247,20 @@ sub removePrefix {
   return bless($retval, ref($this)); 
 }
 
+# Check if this object is a parent of $path
+#
+# Usage: isParentOf($path)
+# Returns: true/false
+sub isParentOf {
+  my ($this, $path) = @_;
+  
+  return 0 if($#$this >= $#$path);
+  foreach my $i (0 .. $#$this) {
+    return 0 if($this->[$i] ne $path->[$i]);
+  }
+  return 1;
+}
+
 sub printableString {
   my ($this) = @_;
   return $this->asString();

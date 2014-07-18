@@ -27,6 +27,7 @@ use SMake::Storage::Storage;
 use Data::Dumper;
 use File::Spec;
 use SMake::Data::Path;
+use SMake::Model::Const;
 use SMake::Storage::File::Cache;
 use SMake::Storage::File::PublicTable;
 use SMake::Storage::File::Transaction;
@@ -45,14 +46,37 @@ $PUBLIC_TABLE_FILE = "publics";
 
 # Create new file storage
 #
-# Usage: new($path)
-#    path .... file system location (a directory) of the storage
+# Usage: new($path, $srcbase, $tgbase)
+#    path ...... file system location (a directory) of the storage (filesystem path
+#                string)
+#    srcbase ... base source directory (all sources must be located under this path).
+#                If it's not defined, parent path of the storage location is used.
+#    tgbase .... base product directory (all products will be located under this path).
+#                If the value is undef, the $srcbase is used.
 sub new {
-  my ($class, $path) = @_;
+  my ($class, $path, $srcbase, $tgbase) = @_;
   my $this = bless(SMake::Storage::Storage->new(), $class);
   $this->{path} = $path;
   $this->{projects} = SMake::Storage::File::Cache->new(10);
   $this->{publics} = SMake::Storage::File::PublicTable->new();
+
+  # -- base source directory  
+  if(!defined($srcbase)) {
+    # -- use the cannonical path
+    $this->{srcbase} = SMake::Data::Path->fromSystem(
+        SMake::Utils::Dirutils::getCwd($path))->getDirpath();
+  }
+  else {
+    $this->{srcbase} = SMake::Data::Path->fromSystem($srcbase);
+  }
+
+  # -- base product directory  
+  if(defined($tgbase)) {
+    $this->{tgbase} = SMake::Data::Path->fromSystem($tgbase); 
+  }
+  else {
+    $this->{tgbase} = $this->{srcbase};
+  }
   
   return $this;
 }
@@ -233,8 +257,37 @@ sub searchPublicResource {
 }
 
 sub getPhysicalLocation {
-  my ($this, $path) = @_;
-  return SMake::Data::Path->new($path);
+  my ($this, $restype, $path) = @_;
+  
+  if($restype eq $SMake::Model::Const::SOURCE_RESOURCE) {
+    return SMake::Data::Path->new($this->{srcbase}, $path);
+  }
+  elsif($restype eq $SMake::Model::Const::PRODUCT_RESOURCE) {
+    return SMake::Data::Path->new($this->{tgbase}, $path);
+  }
+  else {
+    die "cannot get physical location for resource '$restype\@" . $path->asString() . "'!";
+  }
+}
+
+sub getRepositoryLocation {
+  my ($this, $restype, $path) = @_;
+
+  my $base;
+  if($restype eq $SMake::Model::Const::SOURCE_RESOURCE) {
+    $base =  $this->{srcbase};
+  }
+  elsif($restype eq $SMake::Model::Const::PRODUCT_RESOURCE) {
+    $base =  $this->{tgbase};
+  }
+  else {
+    die "cannot get repository location for resource type '$restype'!";
+  }
+  
+  if(!$base->isParentOf($path)) {
+    die "the path '" . $path->asString() . "' is not located inside the file storage!";
+  }
+  return $path->removePrefix($base->getSize());
 }
 
 # Register a public resource

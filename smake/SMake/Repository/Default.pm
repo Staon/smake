@@ -18,6 +18,8 @@
 # Default repository - file storage
 package SMake::Repository::Default;
 
+use SMake::InstallArea::StdArea;
+use SMake::Model::Const;
 use SMake::Repository::Repository;
 use SMake::Storage::File::Storage;
 
@@ -31,7 +33,10 @@ sub create {
   my ($parent, $dir) = @_;
   
   my $storage = SMake::Storage::File::Storage->new($dir);
-  my $repository = SMake::Repository::Repository->new($parent, $storage);
+  my $installarea = SMake::InstallArea::StdArea->new(
+      $SMake::Model::Const::SOURCE_RESOURCE);
+  my $repository = SMake::Repository::Repository->new(
+      $parent, $storage, $installarea);
   return $repository;
 }
 
