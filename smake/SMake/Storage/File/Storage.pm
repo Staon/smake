@@ -67,15 +67,19 @@ sub new {
         SMake::Utils::Dirutils::getCwd($path))->getDirpath();
   }
   else {
-    $this->{srcbase} = SMake::Data::Path->fromSystem($srcbase);
+    $this->{srcbase} = SMake::Data::Path->fromSystem(
+        SMake::Utils::Dirutils::getCwd($srcbase));
   }
 
   # -- base product directory  
   if(defined($tgbase)) {
-    $this->{tgbase} = SMake::Data::Path->fromSystem($tgbase); 
+    $this->{tgbase} = SMake::Data::Path->fromSystem(
+        SMake::Utils::Dirutils::getCwd($tgbase));
+    $this->{basesep} = 1; 
   }
   else {
     $this->{tgbase} = $this->{srcbase};
+    $this->{basesep} = 0;
   }
   
   return $this;
@@ -256,13 +260,19 @@ sub searchPublicResource {
   }
 }
 
+sub isBuildTreeSeparated {
+  my ($this) = @_;
+  return $this->{basesep};
+}
+
 sub getPhysicalLocation {
   my ($this, $restype, $path) = @_;
   
   if($restype eq $SMake::Model::Const::SOURCE_RESOURCE) {
     return SMake::Data::Path->new($this->{srcbase}, $path);
   }
-  elsif($restype eq $SMake::Model::Const::PRODUCT_RESOURCE) {
+  elsif($restype eq $SMake::Model::Const::PRODUCT_RESOURCE
+        || $restype eq $SMake::Model::Const::BUILD_TREE_RESOURCE) {
     return SMake::Data::Path->new($this->{tgbase}, $path);
   }
   else {

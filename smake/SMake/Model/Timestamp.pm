@@ -126,6 +126,9 @@ sub computeCurrentMark {
       $declist->appendPaths($c->[1]->getPhysicalPath());
     }
   }
+  elsif($resource->getType() eq $SMake::Model::Const::BUILD_TREE_RESOURCE) {
+    # -- the mark is not computed for directories
+  }
   else {
     SMake::Utils::Utils::dieReport(
         $context->getReporter(),

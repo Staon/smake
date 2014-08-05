@@ -60,7 +60,7 @@ sub doJob {
       $artifact->getPath(),
       undef);
   $task->appendSource($context, $resource);
-  my $tgres = $artifact->createResource(
+  my $tgres = $artifact->createProductResource(
       $context, $tgpath, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
   $queue->pushResource($tgres);
   

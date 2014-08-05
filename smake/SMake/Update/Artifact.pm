@@ -168,6 +168,70 @@ sub createResource {
   return $resource;
 }
 
+# Create a product directory resource
+#
+# Usage: createProductResource($context, $path)
+#    context ... parser context
+#    name ...... name of the resource (relative path based on the artifact)
+#    parentres . parent directory resource. It can be null.
+# Returns: the resource
+sub createProductDirResource {
+  my ($this, $context, $name, $parentres) = @_;
+
+  # -- check if the resource already exists
+  my $resource = $this->getResource($SMake::Model::Const::PRODUCT_RESOURCE, $name);
+  if(!defined($resource)) {
+    # -- it doesn't -> create new
+    my $dirtask = $this->createTaskInStage(
+        $context,
+        $SMake::Model::Const::BUILD_TREE_STAGE,
+        $SMake::Model::Const::BUILD_TREE_TASK . ":" . $name->asString(),
+        $SMake::Model::Const::BUILD_TREE_TASK,
+        undef,
+        undef,
+        undef);
+    $resource = $this->createResource(
+        $context, $name, $SMake::Model::Const::BUILD_TREE_RESOURCE, $dirtask);
+    if(defined($parentres)) {
+      $dirtask->appendSource($context, $parentres);
+    }
+  }
+  
+  return $resource;
+}
+
+# Create a product resource - if the build directory is differs the source directory,
+# target directories are created too.
+#
+# Usage: createProductResource($context, $path, $type, $task)
+#    context ... parser context
+#    name ...... name of the resource (relative path based on the artifact)
+#    type ...... type of the resource
+#    task ...... a task which generates this resource
+sub createProductResource {
+  my ($this, $context, $name, $type, $task) = @_;
+
+  # -- create the resource
+  my $resource = $this->createResource($context, $name, $type, $task);
+
+  # -- create the directory resources
+  my $parentres;
+  if($context->getRepository()->isBuildTreeSeparated()) {
+    my $path = $name->getDirpath();
+    while(1) {
+      my $dirres = $this->createProductDirResource($context, $path, $parentres);
+      $parentres = $dirres;
+      last if($path->isEmpty());
+      $path = $path->getDirpath();
+    }
+  }
+  if(defined($parentres)) {
+    $task->appendSource($context, $parentres);
+  }
+  
+  return $resource;
+}
+
 # Get resource object
 #
 # Usage: getResource($type, $name)

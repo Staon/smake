@@ -81,6 +81,13 @@ sub searchPublicResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Check if the source and the product trees are separated. If this method is
+# true target (product) directories are created and cleaned with the product
+# resources too.
+sub isBuildTreeSeparated {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get physical (filesystem) location
 #
 # Usage: getPhysicalLocation($restype, $path)

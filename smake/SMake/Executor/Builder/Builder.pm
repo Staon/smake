@@ -70,8 +70,6 @@ sub createResourceNode {
 sub addTargetResources {
   my ($this, $context, $task, $command) = @_;
   
-  print "task: " . $task->getName() . "\n";
-  
   # -- target resources
   my $production = SMake::Executor::Command::Group->new(
       $SMake::Executor::Const::PRODUCT_GROUP);

@@ -63,8 +63,8 @@ sub getMark {
   my $paths = $declist->getOrderedList();
   foreach my $path (@$paths) {
     my $fspath = $path->systemAbsolute();
-  	return undef if(! -f $fspath);
-  	$basestr .= $fspath;
+    return undef if(! -f $fspath);
+    $basestr .= $fspath;
     $basestr .= $this->{decider}->getStamp($fspath);
   }
   return sha1_hex($basestr);

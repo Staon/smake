@@ -85,4 +85,9 @@ $SERVICE_STAGE = "smake_service";
 $SERVICE_TASK = "smake_service";
 $SERVICE_DEP_TASK = "smake_dep_service";
 
+# -- construction of building tree
+$BUILD_TREE_STAGE = "smake_build_tree";
+$BUILD_TREE_TASK = "smake_build_tree";
+$BUILD_TREE_RESOURCE = "smake_build_tree";
+
 return 1;

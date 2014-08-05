@@ -76,7 +76,7 @@ sub doJob {
           $main_resource->getTask()->getWDType(),
           $main_resource->getTask()->getWDPath(),
           undef);
-      $resource = $artifact->createResource(
+      $resource = $artifact->createProductResource(
           $context, $path, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
       $artifact->appendMainResource($context, $this->{newmain}, $resource);
       $queue->pushResource($resource);

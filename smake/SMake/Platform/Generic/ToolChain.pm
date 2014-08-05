@@ -28,6 +28,7 @@ use SMake::Executor::Builder::Empty;
 use SMake::Executor::Builder::Group;
 use SMake::Executor::Instruction::Clean;
 use SMake::Executor::Instruction::CleanInstallArea;
+use SMake::Executor::Instruction::CreateDirectory;
 use SMake::Executor::Instruction::Install;
 use SMake::Executor::Translator::Instruction;
 use SMake::Executor::Translator::Table;
@@ -60,6 +61,7 @@ sub new {
     [$SMake::Model::Const::CLEAN_TASK, SMake::Executor::Builder::Compile->new()],
     [$SMake::Model::Const::SERVICE_DEP_TASK, SMake::Executor::Builder::Empty->new()],
     [$SMake::Model::Const::SERVICE_TASK, SMake::Executor::Builder::Compile->new()],
+    [$SMake::Model::Const::BUILD_TREE_TASK, SMake::Executor::Builder::Compile->new()],
   );
   
   # -- command translators
@@ -75,6 +77,10 @@ sub new {
       [$SMake::Model::Const::SERVICE_TASK,
        SMake::Executor::Translator::Instruction->new(
            SMake::Executor::Instruction::CleanInstallArea),
+      ],
+      [$SMake::Model::Const::BUILD_TREE_TASK,
+       SMake::Executor::Translator::Instruction->new(
+           SMake::Executor::Instruction::CreateDirectory),
     ]);
   
   # -- source scanners

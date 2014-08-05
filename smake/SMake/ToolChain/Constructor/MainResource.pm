@@ -61,7 +61,7 @@ sub createMainResource {
       $this->{args});
   
   # -- create the resource
-  my $resource = $artifact->createResource(
+  my $resource = $artifact->createProductResource(
       $context, $name, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
   
   # -- append the main resource

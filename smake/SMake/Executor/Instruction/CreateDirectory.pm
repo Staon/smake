@@ -16,7 +16,7 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Clean all product resources in active artifact
-package SMake::Executor::Instruction::Clean;
+package SMake::Executor::Instruction::CreateDirectory;
 
 use SMake::Executor::Instruction::Instruction;
 
@@ -42,20 +42,20 @@ sub execute {
       $context, $SMake::Executor::Executor::SUBSYSTEM);
   
   # -- get all product resources
-  my $list = $artifact->getResources();
-  my @paths = ();
+  my $list = $task->getTargets();
   foreach my $resource (@$list) {
-    if($resource->getType() eq $SMake::Model::Const::PRODUCT_RESOURCE) {
-      push @paths, $resource->getPhysicalPathString();
+    my $dirname = $resource->getPhysicalPathString();
+    if(! -d $dirname) {
+      my $msg = SMake::Utils::Dirutils::makeDirectory($dirname);
+      if($msg) {
+        SMake::Utils::Utils::dieReport(
+            $context->getReporter(),
+            $SMake::Executor::Executor::SUBSYSTEM,
+            "cannot create product directory '%s': %s!",
+            $dirname,
+            $msg);
+      }
     }
-    elsif($resource->getType() eq $SMake::Model::Const::BUILD_TREE_RESOURCE) {
-      push @paths, $resource->getPhysicalPathString();
-    }
-  }
-  
-  # -- remove the files/directories
-  foreach my $path (@paths) {
-    SMake::Utils::Dirutils::removeDirectory($path);
   }
 
   return $SMake::Executor::Instruction::Instruction::NEXT;
