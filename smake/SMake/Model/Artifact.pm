@@ -97,21 +97,12 @@ sub getProject {
 
 # Create new resource
 #
-# Usage: createResource($name, $type, $task)
+# Usage: createResource($type, $name, $location, $task)
 #    name ...... name of the resource (relative path based on the artifact)
 #    type ...... type of the resource
+#    location .. resource location type
 #    task ...... a task which generates this resource
 sub createResource {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
-# Create new resource and register it as public
-#
-# Usage: createResource($name, $type, $task)
-#    name ...... name of the resource (relative path based on the artifact)
-#    type ...... type of the resource
-#    task ...... a task which generates this resource
-sub createPublicResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 

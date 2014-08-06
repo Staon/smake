@@ -18,7 +18,6 @@
 # C compiler feature
 package SMake::Platform::Aveco::CCompiler;
 
-use SMake::Executor::Const;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Executor::Translator::OptionList;
@@ -27,6 +26,7 @@ use SMake::Executor::Translator::ValueList;
 use SMake::Model::Const;
 use SMake::Platform::Generic::CCompiler;
 use SMake::Platform::Generic::CompileTranslator;
+use SMake::Platform::Generic::Const;
 
 sub register {
   my ($class, $toolchain, $constructor, $stage) = @_;
@@ -41,23 +41,23 @@ sub staticRegister {
   
   # -- create command translator
   $toolchain->getTranslator()->appendRecords(
-      [$SMake::Model::Const::C_TASK, SMake::Platform::Generic::CompileTranslator->new(
+      [$SMake::Platform::Generic::Const::C_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "cc",
               SMake::Executor::Translator::Select->new(
-                  $SMake::Executor::Const::DEBUG_GROUP . "/type", 1, "",
+                  $SMake::Platform::Generic::Const::DEBUG_GROUP . "/type", 1, "",
                   ["full", "-g2d"],
                   ["profiler", "-g1"],
                   ["no", ""]),
               SMake::Executor::Translator::OptionList->new(
-                  $SMake::Executor::Const::HEADERDIR_GROUP, 1, "", "", "-I", "", " "),
+                  $SMake::Platform::Generic::Const::HEADERDIR_GROUP, 1, "", "", "-I", "", " "),
               SMake::Executor::Translator::ValueList->new(
-                  $SMake::Executor::Const::PREPROC_GROUP, 1, "", "", "-D", "", "=", " "),
+                  $SMake::Platform::Generic::Const::PREPROC_GROUP, 1, "", "", "-D", "", "=", " "),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, 0, "-c ", "", "-o ", "", "", 0),
+                  $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "-c ", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
-      )]
+                  $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
+      )],
   );
 }
 

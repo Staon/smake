@@ -124,15 +124,16 @@ sub getProject {
 }
 
 sub createResource {
-  my ($this, $name, $type, $task) = @_;
+  my ($this, $type, $name, $location, $task) = @_;
 
   my $resource = SMake::Storage::File::Resource->new(
       $this->{repository},
       $this->{storage},
       $this,
       $this->{path},
-      $name,
       $type,
+      $name,
+      $location,
       $task);
   $this->{resources}->{$resource->getKey()} = $resource;
   return $resource;

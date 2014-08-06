@@ -43,7 +43,7 @@ sub getProjectPath {
 
   my $prjpath = $project->getPath();
   return $project->getRepository()->getPhysicalLocationString(
-      $SMake::Model::Const::SOURCE_RESOURCE, $prjpath);
+      $SMake::Model::Const::SOURCE_LOCATION, $prjpath);
 }
 
 # Prepend repository directories into the perl's include directory list

@@ -19,6 +19,7 @@
 package SMake::Platform::Generic::CHeader;
 
 use SMake::Model::Const;
+use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::HeaderScanner;
 use SMake::Profile::VarProfile;
 use SMake::ToolChain::Resolver::Publish;
@@ -39,8 +40,8 @@ sub register {
       },
       '.*',
       '[.]h$',
-      $SMake::Model::Const::HEADER_MODULE,
-      $SMake::Model::Const::VAR_HEADER_DIRECTORY);
+      $SMake::Platform::Generic::Const::HEADER_MODULE,
+      $SMake::Platform::Generic::Const::VAR_HEADER_DIRECTORY);
 }
 
 sub staticRegister {
@@ -50,7 +51,7 @@ sub staticRegister {
   $toolchain->registerProfile(
       "header",
       SMake::Profile::VarProfile,
-      $SMake::Model::Const::VAR_HEADER_DIRECTORY);
+      $SMake::Platform::Generic::Const::VAR_HEADER_DIRECTORY);
 }
 
 return 1;

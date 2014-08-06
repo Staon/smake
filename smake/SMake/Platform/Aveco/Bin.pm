@@ -19,7 +19,8 @@
 package SMake::Platform::Aveco::Bin;
 
 use SMake::Executor::Builder::Compile;
-use SMake::Executor::Const;
+use SMake::Executor::Builder::Dependencies;
+use SMake::Executor::Builder::Resources;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileCompositor;
 use SMake::Executor::Translator::FileList;
@@ -30,8 +31,11 @@ use SMake::Platform::Aveco::Compilers;
 use SMake::Platform::Aveco::StackSize;
 use SMake::Platform::Generic::Bin;
 use SMake::Platform::Generic::CompileTranslator;
+use SMake::Platform::Generic::Const;
 use SMake::Profile::InstallPaths;
 use SMake::ToolChain::Resolver::Link;
+
+$AVECO_LINK = "aveco_linker";
 
 sub register {
   my ($class, $toolchain, $constructor) = @_;
@@ -44,15 +48,15 @@ sub register {
   my $resolver = SMake::ToolChain::Resolver::Link->new(
       '.*',
       '[.]o$',
-      $SMake::Model::Const::BIN_MAIN_TYPE,
+      $SMake::Platform::Generic::Const::BIN_MAIN_TYPE,
       'Dir() . Name() . ".lnk"',
-      "aveco_linker",
-      $SMake::Model::Const::BIN_MAIN_TYPE_LINKER);
+      $AVECO_LINK,
+      $SMake::Platform::Generic::Const::BIN_MAIN_TYPE_LINKER);
   $constructor->appendResolver($resolver);
 
   # -- register standard compilers
   $toolchain->registerFeature(
-      SMake::Platform::Aveco::Compilers, $SMake::Model::Const::BIN_COMPILE_STAGE);
+      SMake::Platform::Aveco::Compilers, $SMake::Platform::Generic::Const::BIN_COMPILE_STAGE);
 }
 
 sub staticRegister {
@@ -60,46 +64,57 @@ sub staticRegister {
 
   # -- it appends library directories from the installation area
   $toolchain->appendProfile(SMake::Profile::InstallPaths->new(
-      "aveco_linker",
-      $SMake::Executor::Const::LIBDIR_GROUP,
-      $SMake::Model::Const::LIB_MODULE,
+      $AVECO_LINK,
+      $SMake::Platform::Generic::Const::LIBDIR_GROUP,
+      $SMake::Platform::Generic::Const::LIB_MODULE,
       0));
   
   # -- aveco linker builder
   $toolchain->getBuilder()->appendBuilders(
-    ["aveco_linker", SMake::Executor::Builder::Compile->new(
-        "addResources", "addLibraries")]);
+    [$AVECO_LINK, SMake::Executor::Builder::Compile->new(
+        SMake::Executor::Builder::Resources::sourceResources(
+            $SMake::Platform::Generic::Const::SOURCE_GROUP,
+            $SMake::Platform::Generic::Const::OBJ_RESOURCE),
+        SMake::Executor::Builder::Resources::targetResources(
+            $SMake::Platform::Generic::Const::PRODUCT_GROUP,
+            $SMake::Platform::Generic::Const::BIN_RESOURCE),
+        SMake::Executor::Builder::Dependencies::simpleRecord(
+            $SMake::Platform::Generic::Const::LIB_GROUP,
+            $SMake::Platform::Generic::Const::LINK_DEPENDENCY),
+    )],
+  );
   
   # -- register command translator
   $toolchain->getTranslator()->appendRecords(
-      ["aveco_linker", SMake::Platform::Generic::CompileTranslator->new(
+      [$AVECO_LINK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::FileCompositor->new(
               "\n",
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, 0, "", "", "", "", "", 0),
+                  $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "", "", "", "", "", 0),
               "FORM qnx flat",
               "OPTION c",
               "OPTION priv=3",
               SMake::Executor::Translator::Select->new(
-                  $SMake::Executor::Const::DEBUG_GROUP . "/type", 1, "",
+                  $SMake::Platform::Generic::Const::DEBUG_GROUP . "/type", 1, "",
                   ["full", "DEBUG dwarf"],
                   ["profiler", "DEBUG all"],
                   ["no", ""]),
-              SMake::Platform::Aveco::StackSize->new($SMake::Executor::Const::LIBDIR_GROUP),
+              SMake::Platform::Aveco::StackSize->new(
+                  $SMake::Platform::Generic::Const::LIBDIR_GROUP),
               SMake::Executor::Translator::OptionList->new(
-                  $SMake::Executor::Const::LIBDIR_GROUP, 1, "", "", "LIBPATH ", "", "\n"),
+                  $SMake::Platform::Generic::Const::LIBDIR_GROUP, 1, "", "", "LIBPATH ", "", "\n"),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::LIB_GROUP, 1, "", "", "LIB ", "", "\n", 1, 'Name() . "." . Suffix()'),
+                  $SMake::Platform::Generic::Const::LIB_GROUP, 1, "", "", "LIB ", "", "\n", 1, 'Name() . "." . Suffix()'),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "FILE ", "", "\n", 1))
+                  $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "FILE ", "", "\n", 1))
       )],
-      [$SMake::Model::Const::BIN_TASK, SMake::Platform::Generic::CompileTranslator->new(
+      [$SMake::Platform::Generic::Const::BIN_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "wlink op q",
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, 0, "", "", "name ", "", "", 0),
+                  $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "", "", "name ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "@", "", " ", 1))
+                  $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "@", "", " ", 1))
       )]
   );
 }

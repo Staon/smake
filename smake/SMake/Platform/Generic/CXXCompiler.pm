@@ -19,9 +19,10 @@
 package SMake::Platform::Generic::CXXCompiler;
 
 use SMake::Executor::Builder::Compile;
-use SMake::Executor::Const;
+use SMake::Executor::Builder::Resources;
 use SMake::Model::Const;
 use SMake::Platform::Generic::CHeader;
+use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::HeaderScanner;
 use SMake::Profile::InstallPaths;
 use SMake::Profile::LocalDirs;
@@ -48,15 +49,16 @@ sub register {
       '[.]cpp$',
       $mangler,
       $stage,
-      $SMake::Model::Const::CXX_TASK);
+      $SMake::Platform::Generic::Const::CXX_TASK);
   $multi->appendResolver($resolver);
 
   # -- type of library
   my $profile = SMake::Profile::ValueProfile->new(
-      '^' . quotemeta($SMake::Model::Const::CXX_TASK) . '$',
-      $SMake::Executor::Const::DLL_GROUP,
+      '^' . quotemeta($SMake::Platform::Generic::Const::CXX_TASK) . '$',
+      $SMake::Platform::Generic::Const::DLL_GROUP,
       0,
-      $SMake::Executor::Const::LIB_TYPE_OPTION, $libtype);
+      $SMake::Platfrom::Generic::Const::LIB_TYPE_OPTION,
+      $libtype);
   $resolver->appendProfile($profile);
   
   # -- C headers
@@ -69,20 +71,30 @@ sub staticRegister {
 
   # -- include directories from the installation area
   $toolchain->appendProfile(SMake::Profile::InstallPaths->new(
-      $SMake::Model::Const::CXX_TASK,
-      $SMake::Executor::Const::HEADERDIR_GROUP,
-      $SMake::Model::Const::HEADER_MODULE,
-      1));
+      $SMake::Platform::Generic::Const::CXX_TASK,
+      $SMake::Platform::Generic::Const::HEADERDIR_GROUP,
+      $SMake::Platform::Generic::Const::HEADER_MODULE,
+      1),
+  );
   # -- local include directories
   $toolchain->appendProfile(SMake::Profile::LocalDirs->new(
-      $SMake::Model::Const::CXX_TASK,
-      $SMake::Executor::Const::HEADERDIR_GROUP,
-      "^" . quotemeta($SMake::Model::Const::HEADER_MODULE . "/"),
-      1));
+      $SMake::Platform::Generic::Const::CXX_TASK,
+      $SMake::Platform::Generic::Const::HEADERDIR_GROUP,
+      "^" . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE . "/"),
+      1),
+  );
 
   # -- command builder
   $toolchain->getBuilder()->appendBuilders(
-    [$SMake::Model::Const::CXX_TASK, SMake::Executor::Builder::Compile->new()]);
+    [$SMake::Platform::Generic::Const::CXX_TASK, SMake::Executor::Builder::Compile->new(
+        SMake::Executor::Builder::Resources::sourceResources(
+            $SMake::Platform::Generic::Const::SOURCE_GROUP,
+            $SMake::Platform::Generic::Const::CXX_RESOURCE),
+        SMake::Executor::Builder::Resources::targetResources(
+            $SMake::Platform::Generic::Const::PRODUCT_GROUP,
+            $SMake::Platform::Generic::Const::OBJ_RESOURCE),
+    )],
+  );
 }
 
 return 1;

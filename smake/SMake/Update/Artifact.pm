@@ -153,16 +153,17 @@ sub getProject {
 
 # Create resource or use already created
 #
-# Usage: createResource($context, $path, $type, $task)
+# Usage: createResource($context, $type, $name, $location, $task)
 #    context ... parser context
-#    name ...... name of the resource (relative path based on the artifact)
 #    type ...... type of the resource
+#    name ...... name of the resource (relative path based on the artifact)
+#    location .. location type
 #    task ...... a task which generates this resource
 sub createResource {
-  my ($this, $context, $name, $type, $task) = @_;
+  my ($this, $context, $type, $name, $location, $task) = @_;
 
   my $resource = SMake::Update::Resource->new(
-      $context, $this, $name, $type, $task);
+      $context, $this, $type, $name, $location, $task);
   $this->{resources}->addItem($resource);
   $task->appendTarget($context, $resource);
   return $resource;
@@ -179,7 +180,8 @@ sub createProductDirResource {
   my ($this, $context, $name, $parentres) = @_;
 
   # -- check if the resource already exists
-  my $resource = $this->getResource($SMake::Model::Const::PRODUCT_RESOURCE, $name);
+  my $resource = $this->getResource(
+      $SMake::Model::Const::BUILD_TREE_RESOURCE, $name);
   if(!defined($resource)) {
     # -- it doesn't -> create new
     my $dirtask = $this->createTaskInStage(
@@ -191,7 +193,11 @@ sub createProductDirResource {
         undef,
         undef);
     $resource = $this->createResource(
-        $context, $name, $SMake::Model::Const::BUILD_TREE_RESOURCE, $dirtask);
+        $context,
+        $SMake::Model::Const::BUILD_TREE_RESOURCE,
+        $name,
+        $SMake::Model::Const::PRODUCT_LOCATION,
+        $dirtask);
     if(defined($parentres)) {
       $dirtask->appendSource($context, $parentres);
     }
@@ -200,7 +206,7 @@ sub createProductDirResource {
   return $resource;
 }
 
-# Create a product resource - if the build directory is differs the source directory,
+# Create a product resource - if the build directory differs the source directory,
 # target directories are created too.
 #
 # Usage: createProductResource($context, $path, $type, $task)
@@ -209,10 +215,11 @@ sub createProductDirResource {
 #    type ...... type of the resource
 #    task ...... a task which generates this resource
 sub createProductResource {
-  my ($this, $context, $name, $type, $task) = @_;
+  my ($this, $context, $type, $name, $task) = @_;
 
   # -- create the resource
-  my $resource = $this->createResource($context, $name, $type, $task);
+  my $resource = $this->createResource(
+      $context, $type, $name, $SMake::Model::Const::PRODUCT_LOCATION, $task);
 
   # -- create the directory resources
   my $parentres;
@@ -411,7 +418,7 @@ sub getDependencyRecords {
 #    stage ....... name of the stage
 #    task ........ name of the task
 #    type ........ type of the task
-#    wdtype ...... resource type of the working directory
+#    wdtype ...... resource location type of the working directory
 #    wd .......... task's working directory (a path object with repository meaning)
 #    args ........ optional task arguments
 sub createTaskInStage {
@@ -460,8 +467,9 @@ sub appendSourceResources {
     # -- create resource
     my $resource = $this->createResource(
         $context,
-        $prefix->joinPaths($name),
         $SMake::Model::Const::SOURCE_RESOURCE,
+        $prefix->joinPaths($name),
+        $SMake::Model::Const::SOURCE_LOCATION,
         $task);
     push @$reslist, $resource;
   }

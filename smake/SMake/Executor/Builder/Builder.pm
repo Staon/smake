@@ -18,10 +18,6 @@
 # Generic interface of command builders
 package SMake::Executor::Builder::Builder;
 
-use SMake::Executor::Command::Resource;
-use SMake::Executor::Const;
-use SMake::Executor::Executor;
-use SMake::Model::Const;
 use SMake::Utils::Abstract;
 
 # Create new command builder
@@ -40,25 +36,6 @@ sub new {
 # Returns: \@commands ... list of constructed abstract commands
 sub build {
   SMake::Utils::Abstract::dieAbstract();
-}
-
-# A helper method - get physical path of a resource
-#
-# Usage: getResourcePath($context, $resource)
-# Returns: the physical path
-sub getResourcePath {
-  my ($this, $context, $resource) = @_;
-  return $resource->getPhysicalPath();
-}
-
-# A helper method - create resource node of a resource
-#
-# Usage: createResourceNode($context, $resource)
-# Returns: the node
-sub createResourceNode {
-  my ($this, $context, $resource) = @_;
-  return SMake::Executor::Command::Resource->new(
-      $this->getResourcePath($context, $resource));
 }
 
 # A builder function - add target resources into a logical command

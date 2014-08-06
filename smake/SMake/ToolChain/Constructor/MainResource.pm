@@ -22,15 +22,17 @@ use SMake::Model::Const;
 
 # Create new record
 #
-# Usage: new($maintype, $mangler, $stage, $task, \%args)
-#    maintype ... type of the main resource
+# Usage: new($restype, $maintype, $mangler, $stage, $task, \%args)
+#    restype .... type of the created resource
+#    maintype ... type of the main resource (when it's searched from a dependency)
 #    mangler .... mangler description for the main resource
 #    stage ...... name of the stage which the resource is created in
 #    task ....... type of the task which creates the resource
 #    args ....... arguments of the task
 sub new {
-  my ($class, $maintype, $mangler, $stage, $task, $args) = @_;
+  my ($class, $restype, $maintype, $mangler, $stage, $task, $args) = @_;
   return bless({
+    restype => $restype,
   	maintype => $maintype,
     mangler => $mangler,
     stage => $stage,
@@ -56,13 +58,13 @@ sub createMainResource {
       $this->{stage},
       $name->asString(),
       $this->{task},
-      $SMake::Model::Const::PRODUCT_RESOURCE,
-      $artifact->getPath(),
+      $SMake::Model::Const::PRODUCT_LOCATION,
+      $artifact->getPath()->joinPaths($name->getDirpath()),
       $this->{args});
   
   # -- create the resource
   my $resource = $artifact->createProductResource(
-      $context, $name, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
+      $context, $this->{restype}, $name, $task);
   
   # -- append the main resource
   $artifact->appendMainResource($context, $this->{maintype}, $resource);

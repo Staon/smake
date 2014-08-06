@@ -18,6 +18,7 @@
 # Register generic debug profile
 package SMake::Platform::Aveco::Debug;
 
+use SMake::Platform::Generic::Const;
 use SMake::Profile::ValueProfile;
 
 sub register {
@@ -33,10 +34,11 @@ sub staticRegister {
       "debug",
       SMake::Profile::ValueProfile,
       '^aveco_linker|' 
-          . quotemeta($SMake::Model::Const::CXX_TASK)
-          . '|'
-          . quotemeta($SMake::Model::Const::C_TASK) . '$',
-      $SMake::Executor::Const::DEBUG_GROUP,
+          . quotemeta($SMake::Platform::Generic::Const::CXX_TASK)
+          . '|' . quotemeta($SMake::Platform::Generic::Const::C_TASK)
+          . '|' . quotemeta($SMake::Platform::Generic::Const::BIN_TASK)
+          . '$',
+      $SMake::Platform::Generic::Const::DEBUG_GROUP,
       1,
       "type");
 }

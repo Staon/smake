@@ -266,32 +266,31 @@ sub isBuildTreeSeparated {
 }
 
 sub getPhysicalLocation {
-  my ($this, $restype, $path) = @_;
+  my ($this, $location, $path) = @_;
   
-  if($restype eq $SMake::Model::Const::SOURCE_RESOURCE) {
+  if($location eq $SMake::Model::Const::SOURCE_LOCATION) {
     return SMake::Data::Path->new($this->{srcbase}, $path);
   }
-  elsif($restype eq $SMake::Model::Const::PRODUCT_RESOURCE
-        || $restype eq $SMake::Model::Const::BUILD_TREE_RESOURCE) {
+  elsif($location eq $SMake::Model::Const::PRODUCT_LOCATION) {
     return SMake::Data::Path->new($this->{tgbase}, $path);
   }
   else {
-    die "cannot get physical location for resource '$restype\@" . $path->asString() . "'!";
+    die "cannot get physical location for resource '$location\@" . $path->asString() . "'!";
   }
 }
 
 sub getRepositoryLocation {
-  my ($this, $restype, $path) = @_;
+  my ($this, $location, $path) = @_;
 
   my $base;
-  if($restype eq $SMake::Model::Const::SOURCE_RESOURCE) {
+  if($location eq $SMake::Model::Const::SOURCE_LOCATION) {
     $base =  $this->{srcbase};
   }
-  elsif($restype eq $SMake::Model::Const::PRODUCT_RESOURCE) {
+  elsif($location eq $SMake::Model::Const::PRODUCT_LOCATION) {
     $base =  $this->{tgbase};
   }
   else {
-    die "cannot get repository location for resource type '$restype'!";
+    die "cannot get repository location for resource type '$location'!";
   }
   
   if(!$base->isParentOf($path)) {

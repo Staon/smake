@@ -19,8 +19,9 @@
 package SMake::Platform::Generic::Bin;
 
 use SMake::Executor::Builder::Compile;
-use SMake::Executor::Const;
-use SMake::Model::Const;
+use SMake::Executor::Builder::Dependencies;
+use SMake::Executor::Builder::Resources;
+use SMake::Platform::Generic::Const;
 use SMake::Profile::InstallPaths;
 use SMake::ToolChain::Constructor::MainResource;
 use SMake::ToolChain::Resolver::DepInstall;
@@ -32,10 +33,11 @@ sub register {
   
   # -- register main resource
   my $mres = SMake::ToolChain::Constructor::MainResource->new(
-      $SMake::Model::Const::BIN_MAIN_TYPE,
+      $SMake::Platform::Generic::Const::BIN_RESOURCE,
+      $SMake::Platform::Generic::Const::BIN_MAIN_TYPE,
       $mangler,
-      $SMake::Model::Const::BIN_STAGE,
-      $SMake::Model::Const::BIN_TASK,
+      $SMake::Platform::Generic::Const::BIN_STAGE,
+      $SMake::Platform::Generic::Const::BIN_TASK,
       {});
   $constructor->appendMainResource($mres);
   
@@ -43,21 +45,22 @@ sub register {
   my $resolver = SMake::ToolChain::Resolver::Link->new(
       '.*',
       $objectmask,
-      $SMake::Model::Const::BIN_MAIN_TYPE);
+      $SMake::Platform::Generic::Const::BIN_MAIN_TYPE);
   $constructor->appendResolver($resolver);
 
   # -- linking dependencies
   $resolver = SMake::ToolChain::Resolver::Multi->new(
       SMake::ToolChain::Resolver::DepResource->new(
-          '^' . $SMake::Model::Const::LINK_DEPENDENCY . '$',
-          [[$SMake::Model::Const::BIN_MAIN_TYPE_LINKER,
-            $SMake::Model::Const::BIN_MAIN_TYPE]]),
+          '^' . $SMake::Platform::Generic::Const::LINK_DEPENDENCY . '$',
+          [[$SMake::Platform::Generic::Const::MAIN_TYPE_LINKER, 
+            $SMake::Platform::Generic::Const::BIN_MAIN_TYPE]],
+      ),
       SMake::ToolChain::Resolver::DepInstall->new(
-          '^' . $SMake::Model::Const::LINK_DEPENDENCY . '$',
-          $SMake::Model::Const::LIB_INSTALL_STAGE,
-          [[$SMake::Model::Const::BIN_MAIN_TYPE_LINKER,
-            $SMake::Model::Const::BIN_MAIN_TYPE]],
-          $SMake::Model::Const::LIB_MODULE));
+          '^' . $SMake::Platform::Generic::Const::LINK_DEPENDENCY . '$',
+          $SMake::Platform::Generic::Const::LIB_INSTALL_STAGE,
+          [[$SMake::Platform::Generic::Const::BIN_MAIN_TYPE_LINKER,
+            $SMake::Platform::Generic::Const::BIN_MAIN_TYPE]],
+          $SMake::Platform::Generic::Const::LIB_MODULE));
   $constructor->appendResolver($resolver);
 }
 
@@ -66,15 +69,26 @@ sub staticRegister {
 
   # -- it appends library directories from the installation area
   $toolchain->appendProfile(SMake::Profile::InstallPaths->new(
-      $SMake::Model::Const::BIN_TASK,
-      $SMake::Executor::Const::LIBDIR_GROUP,
-      $SMake::Model::Const::LIB_MODULE,
-      1));
+      $SMake::Platform::Generic::Const::BIN_TASK,
+      $SMake::Platform::Generic::Const::LIBDIR_GROUP,
+      $SMake::Platform::Generic::Const::LIB_MODULE,
+      1)
+  );
 
   # -- command builder
   $toolchain->getBuilder()->appendBuilders(
-    [$SMake::Model::Const::BIN_TASK, SMake::Executor::Builder::Compile->new(
-        "addResources", "addLibraries")]);
+    [$SMake::Platform::Generic::Const::BIN_TASK, SMake::Executor::Builder::Compile->new(
+        SMake::Executor::Builder::Resources::sourceResources(
+            $SMake::Platform::Generic::Const::SOURCE_GROUP,
+            $SMake::Platform::Generic::Const::OBJ_RESOURCE),
+        SMake::Executor::Builder::Resources::targetResources(
+            $SMake::Platform::Generic::Const::PRODUCT_GROUP,
+            $SMake::Platform::Generic::Const::BIN_RESOURCE),
+        SMake::Executor::Builder::Dependencies::simpleRecord(
+            $SMake::Platform::Generic::Const::LIB_GROUP,
+            $SMake::Platform::Generic::Const::LINK_DEPENDENCY),
+    )],
+  );
 }
 
 return 1;

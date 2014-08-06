@@ -19,9 +19,10 @@
 package SMake::Platform::Generic::CCompiler;
 
 use SMake::Executor::Builder::Compile;
-use SMake::Executor::Const;
+use SMake::Executor::Builder::Resources;
 use SMake::Model::Const;
 use SMake::Platform::Generic::CHeader;
+use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::HeaderScanner;
 use SMake::Profile::InstallPaths;
 use SMake::Profile::LocalDirs;
@@ -48,15 +49,15 @@ sub register {
       '[.]c$',
       $mangler,
       $stage,
-      $SMake::Model::Const::C_TASK);
+      $SMake::Platform::Generic::Const::C_TASK);
   $multi->appendResolver($resolver);
 
   # -- type of library
   my $profile = SMake::Profile::ValueProfile->new(
-      '^' . quotemeta($SMake::Model::Const::C_TASK) . '$',
-      $SMake::Executor::Const::DLL_GROUP,
+      '^' . quotemeta($SMake::Platform::Generic::Const::C_TASK) . '$',
+      $SMake::Platform::Generic::Const::DLL_GROUP,
       0,
-      $SMake::Executor::Const::LIB_TYPE_OPTION, $libtype);
+      $SMake::Platform::Generic::Const::LIB_TYPE_OPTION, $libtype);
   $resolver->appendProfile($profile);
   
   # -- C headers
@@ -69,20 +70,28 @@ sub staticRegister {
 
   # -- include directories from the installation area
   $toolchain->appendProfile(SMake::Profile::InstallPaths->new(
-      $SMake::Model::Const::C_TASK,
-      $SMake::Executor::Const::HEADERDIR_GROUP,
-      $SMake::Model::Const::HEADER_MODULE,
+      $SMake::Platform::Generic::Const::C_TASK,
+      $SMake::Platform::Generic::Const::HEADERDIR_GROUP,
+      $SMake::Platform::Generic::Const::HEADER_MODULE,
       1));
   # -- local header paths
   $toolchain->appendProfile(SMake::Profile::LocalDirs->new(
-      $SMake::Model::Const::C_TASK,
-      $SMake::Executor::Const::HEADERDIR_GROUP,
-      "^" . quotemeta($SMake::Model::Const::HEADER_MODULE . "/"),
+      $SMake::Platform::Generic::Const::C_TASK,
+      $SMake::Platform::Const::HEADERDIR_GROUP,
+      "^" . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE . "/"),
       1));
 
   # -- command builder
   $toolchain->getBuilder()->appendBuilders(
-    [$SMake::Model::Const::C_TASK, SMake::Executor::Builder::Compile->new()]);
+    [$SMake::Platform::Generic::Const::C_TASK, SMake::Executor::Builder::Compile->new(
+        SMake::Executor::Builder::Resources::sourceResources(
+            $SMake::Platform::Generic::Const::SOURCE_GROUP,
+            $SMake::Platform::Generic::Const::C_RESOURCE),
+        SMake::Executor::Builder::Resources::targetResources(
+            $SMake::Platform::Generic::Const::PRODUCT_GROUP,
+            $SMake::Platform::Generic::Const::OBJ_RESOURCE),
+    )],
+  );
 }
 
 return 1;

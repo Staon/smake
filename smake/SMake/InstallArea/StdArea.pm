@@ -28,13 +28,12 @@ use SMake::Utils::Utils;
 
 # Create new installation area
 #
-# Usage: new($restype)
-#    restype ...... resource type of the installation area. The area can be placed
-#                   into the source tree or into the product tree
+# Usage: new($location)
+#    location ..... location resource type of the installation area
 sub new {
-  my ($class, $restype) = @_;
+  my ($class, $location) = @_;
   my $this = bless(SMake::InstallArea::InstallArea->new(), $class);
-  $this->{restype} = $restype;
+  $this->{location} = $location;
   return $this;
 }
 
@@ -67,7 +66,7 @@ sub installResolvedResource {
   # -- prepare installation directory
   my $dirpath = $basepath->joinPaths($name->getDirpath());
   my $dirname = $project->getRepository()->getPhysicalLocationString(
-      $this->{restype}, $dirpath);
+      $this->{location}, $dirpath);
   if(! -d $dirname) {
     my $msg = SMake::Utils::Dirutils::makeDirectory($dirname);
     if($msg) {
@@ -83,7 +82,7 @@ sub installResolvedResource {
   # -- install the resource
   my $srcname = $resolved->getPhysicalPathString();
   my $tgname = $project->getRepository()->getPhysicalLocationString(
-      $this->{restype}, $dirpath->joinPaths($name->getBasepath()));
+      $this->{location}, $dirpath->joinPaths($name->getBasepath()));
   if(!-f $tgname) {
     if(!SMake::Utils::Dirutils::linkFile($tgname, $srcname)) {
         SMake::Utils::Utils::dieReport(
@@ -146,7 +145,7 @@ sub cleanArea {
 
   my $path = $this->getBasePath($project);
   $path = $project->getRepository()->getPhysicalLocationString(
-      $this->{restype}, $path);
+      $this->{location}, $path);
   SMake::Utils::Dirutils::removeDirectory($path);
 }
 

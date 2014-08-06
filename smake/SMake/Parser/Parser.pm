@@ -121,7 +121,7 @@ sub parseFile {
   $context_->pushCurrentDir($currdir);
   $this->{dirstack}->pushDir(
       $context_->getRepository()->getPhysicalLocationString(
-          $SMake::Model::Const::SOURCE_RESOURCE, $currdir), 
+          $SMake::Model::Const::SOURCE_LOCATION, $currdir), 
       $context_->getReporter(),
       $SUBSYSTEM);
 
@@ -136,7 +136,7 @@ sub parseFile {
     local $context = $context_;
     local $parser_state = $state;
     my $file = $context->getRepository()->getPhysicalLocationString(
-        $SMake::Model::Const::SOURCE_RESOURCE, $path);
+        $SMake::Model::Const::SOURCE_LOCATION, $path);
     my $info = SMake::Utils::Evaluate::evaluateSpecFile($file, $this->{evals});
     if($info) {
       SMake::Utils::Utils::dieReport($context->getReporter(), $SUBSYSTEM, '%s', $info);

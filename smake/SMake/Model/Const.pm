@@ -18,74 +18,24 @@
 # Some constants related to the model
 package SMake::Model::Const;
 
-# -- artifacts
-$LIB_ARTIFACT = "lib";
-$BIN_ARTIFACT = "bin";
+# -- resource location types
+$SOURCE_LOCATION = "source";
+$PRODUCT_LOCATION = "product";
+$EXTERNAL_LOCATION = "external";
+$PUBLIC_LOCATION = "public";
 
 # -- source files
 $SOURCE_STAGE = "src";
 $SOURCE_RESOURCE = "src";
 $SOURCE_TASK = "src";
 
-# -- created files
-$PRODUCT_RESOURCE = "product";
-
-# -- compiling
-$C_TASK = "c";
-$CXX_TASK = "cxx";
-
-# -- static libraries
-$LIB_MAIN_TYPE = "staticlib";
-$LIB_COMPILE_STAGE = "libcompile";
-$LIB_STAGE = "liblink";
-$LIB_TASK = "lib";
-
-# -- dynamic libraries
-$DLL_MAIN_TYPE = "dynamiclib";
-$DLL_COMPILE_STAGE = "dllcompile";
-$DLL_STAGE = "dlllink";
-$DLL_TASK = "dll";
-
-# -- executable binaries
-$BIN_MAIN_TYPE = "binary";
-$BIN_MAIN_TYPE_LINKER = "binary_linker";
-$BIN_COMPILE_STAGE = "bincompile";
-$BIN_STAGE = "binlink";
-$BIN_TASK = "bin";
-
-# -- dependency types
-$LINK_DEPENDENCY = "link";
-
 # -- external resources
 $EXTERNAL_TASK = "install";
-$EXTERNAL_RESOURCE = "external";
 
 # -- public resources
-$PUBLISH_STAGE = "publish";
-$PUBLISH_RESOURCE = "public";
 $PUBLISH_TASK = "publish";
 
-# -- installation
-$INSTALL_DEPENDENCY = "install";
-$LIB_INSTALL_STAGE = "libinstall";
-$HEADER_MODULE = "include";
-$LIB_MODULE = "lib";
-
-# -- profile variables
-$VAR_HEADER_DIRECTORY = "HEADER_DIR";
-
-# -- cleaning task
-$CLEAN_STAGE = "clean";
-$CLEAN_TASK = "clean";
-
-# -- service stage and task
-$SERVICE_ARTIFACT = "smake_service";
-$SERVICE_DEPENDENCY = "smake_service";
-$SERVICE_STAGE = "smake_service";
-$SERVICE_TASK = "smake_service";
-$SERVICE_DEP_TASK = "smake_dep_service";
-
-# -- construction of building tree
+# -- construction of the build tree
 $BUILD_TREE_STAGE = "smake_build_tree";
 $BUILD_TREE_TASK = "smake_build_tree";
 $BUILD_TREE_RESOURCE = "smake_build_tree";

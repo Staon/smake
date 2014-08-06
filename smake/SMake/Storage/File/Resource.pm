@@ -24,23 +24,25 @@ use SMake::Model::Resource;
 
 # Create new resource
 #
-# Usage: new($repository, $storage, $artifact, $basepath, $prefix, $name)
+# Usage: new($repository, $storage, $artifact, $basepath, $type, $name, $location, $task)
 #    repository ... a repository which the resource belongs to
 #    storage ...... owning file storage
 #    artifact ..... an artifact which the resource belongs to
 #    basepath ..... path of the artifact
-#    name ......... name of the resource (as a relative path based on the artifact)
 #    type ......... type of the resource (for example "src")
+#    name ......... name of the resource (as a relative path based on the artifact)
+#    location ..... resource location type
 #    task ......... task which generates the resource
 sub new {
-  my ($class, $repository, $storage, $artifact, $basepath, $name, $type, $task) = @_;
+  my ($class, $repository, $storage, $artifact, $basepath, $type, $name, $location, $task) = @_;
   my $this = bless(SMake::Model::Resource->new(), $class);
   $this->{repository} = $repository;
   $this->{storage} = $storage;
   $this->{artifact} = $artifact;
+  $this->{type} = $type;
   $this->{name} = $name;
   $this->{path} = $basepath->joinPaths($name);
-  $this->{type} = $type;
+  $this->{location} = $location;
   $this->{task} = $task;
   return $this;
 }
@@ -58,8 +60,9 @@ sub destroy {
 }
 
 sub update {
-  my ($this, $task) = @_;
+  my ($this, $location, $task) = @_;
   
+  $this->{location} = $location;
   $this->{task} = $task;
 }
 
@@ -86,6 +89,11 @@ sub getPath {
 sub getArtifact {
   my ($this) = @_;
   return $this->{artifact};
+}
+
+sub getLocation {
+  my ($this) = @_;
+  return $this->{location};
 }
 
 sub getTask {

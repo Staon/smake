@@ -32,8 +32,13 @@ sub new {
 
 # Update attributes of the resource
 #
-# Usage: update($task)
-#    task ..... task which creates the resource
+# Usage: update($location, $task)
+#    location .. location type. The type can be:
+#         $SMake::Model::Const::SOURCE_LOCATION .... source resource
+#         $SMake::Model::Const::PRODUCT_LOCATION ... product (created during the build)
+#         $SMake::Model::Const::EXTERNAL_LOCATION .. resource from another project
+#         $SMake::Model::Const::PUBLIC_LOCATION .... resource published from the project
+#    task ...... task which creates the resource
 sub update {
   SMake::Utils::Abstract::dieAbstract();
 }
@@ -97,13 +102,13 @@ sub getPath {
 sub getPhysicalPath {
   my ($this) = @_;
   
-  if($this->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
+  if($this->getLocation() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
     return $this->getRepository()->getInstallArea()->getPhysicalLocation(
         $this->getProject(), $this);
   }
   else {
     return $this->getRepository()->getPhysicalLocation(
-        $this->getType(), $this->getPath());
+        $this->getLocation(), $this->getPath());
   }
 }
 
@@ -125,6 +130,11 @@ sub getArtifact {
 sub getProject {
   my ($this) = @_;
   return $this->getArtifact()->getProject();
+}
+
+# Get resource location type
+sub getLocation {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 # Get task which is a creator of the resource
@@ -155,8 +165,12 @@ sub publishResource {
 sub prettyPrint {
   my ($this, $indent) = @_;
   
-  print ::HANDLE "Resource(" . $this->getType()
-      . ", " . $this->getName()->asString() . ", " . $this->getPath()->asString() . ")";
+  print ::HANDLE "Resource(" 
+      . $this->getType() . ", " 
+      . $this->getName()->asString() . ", "
+      . $this->getPath()->asString() . ", "
+      . $this->getLocation()
+      . ")";
 }
 
 return 1;

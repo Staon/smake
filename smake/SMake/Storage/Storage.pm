@@ -90,9 +90,9 @@ sub isBuildTreeSeparated {
 
 # Get physical (filesystem) location
 #
-# Usage: getPhysicalLocation($restype, $path)
-#    restype ..... type of the resource
-#    path ..... a path object in the storage meaning
+# Usage: getPhysicalLocation($location, $path)
+#    location .. resource location type
+#    path ...... a path object in the storage meaning
 # Returns: a path object with absolute filesystem path
 sub getPhysicalLocation {
   SMake::Utils::Abstract::dieAbstract();
@@ -100,8 +100,8 @@ sub getPhysicalLocation {
 
 # Convert a physical location to repository path
 #
-# Usage: getRepositoryLocation($restype, $path)
-#    restype ..... type of the resource
+# Usage: getRepositoryLocation($location, $path)
+#    location .. resource location type
 #    path ........ the physical path
 # Returns: a path object with repository location
 sub getRepositoryLocation {

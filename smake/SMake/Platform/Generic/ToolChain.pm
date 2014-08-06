@@ -26,6 +26,7 @@ use SMake::ToolChain::ToolChain;
 use SMake::Executor::Builder::Compile;
 use SMake::Executor::Builder::Empty;
 use SMake::Executor::Builder::Group;
+use SMake::Executor::Builder::Resources;
 use SMake::Executor::Instruction::Clean;
 use SMake::Executor::Instruction::CleanInstallArea;
 use SMake::Executor::Instruction::CreateDirectory;
@@ -33,6 +34,7 @@ use SMake::Executor::Instruction::Install;
 use SMake::Executor::Translator::Instruction;
 use SMake::Executor::Translator::Table;
 use SMake::Model::Const;
+use SMake::Platform::Generic::Const;
 use SMake::ToolChain::Constructor::Generic;
 use SMake::ToolChain::Constructor::Table;
 use SMake::ToolChain::Mangler::Mangler;
@@ -56,11 +58,10 @@ sub new {
   my $builder = SMake::Executor::Builder::Group->new(
     [$SMake::Model::Const::SOURCE_TASK, SMake::Executor::Builder::Empty->new()],
     [$SMake::Model::Const::PUBLISH_TASK, SMake::Executor::Builder::Empty->new()],
-    [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Builder::Compile->new(
-        "addTargetResources")],
-    [$SMake::Model::Const::CLEAN_TASK, SMake::Executor::Builder::Compile->new()],
-    [$SMake::Model::Const::SERVICE_DEP_TASK, SMake::Executor::Builder::Empty->new()],
-    [$SMake::Model::Const::SERVICE_TASK, SMake::Executor::Builder::Compile->new()],
+    [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Builder::Compile->new()],
+    [$SMake::Platform::Generic::Const::CLEAN_TASK, SMake::Executor::Builder::Compile->new()],
+    [$SMake::Platform::Generic::Const::SERVICE_DEP_TASK, SMake::Executor::Builder::Empty->new()],
+    [$SMake::Platform::Generic::Const::SERVICE_TASK, SMake::Executor::Builder::Compile->new()],
     [$SMake::Model::Const::BUILD_TREE_TASK, SMake::Executor::Builder::Compile->new()],
   );
   
@@ -70,11 +71,11 @@ sub new {
        SMake::Executor::Translator::Instruction->new(
            SMake::Executor::Instruction::Install),
       ],
-      [$SMake::Model::Const::CLEAN_TASK,
+      [$SMake::Platform::Generic::Const::CLEAN_TASK,
        SMake::Executor::Translator::Instruction->new(
            SMake::Executor::Instruction::Clean),
       ],
-      [$SMake::Model::Const::SERVICE_TASK,
+      [$SMake::Platform::Generic::Const::SERVICE_TASK,
        SMake::Executor::Translator::Instruction->new(
            SMake::Executor::Instruction::CleanInstallArea),
       ],

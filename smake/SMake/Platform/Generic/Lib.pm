@@ -19,8 +19,9 @@
 package SMake::Platform::Generic::Lib;
 
 use SMake::Executor::Builder::Compile;
-use SMake::Executor::Const;
+use SMake::Executor::Builder::Resources;
 use SMake::Model::Const;
+use SMake::Platform::Generic::Const;
 use SMake::ToolChain::Constructor::MainResource;
 use SMake::ToolChain::Resolver::Link;
 
@@ -29,10 +30,11 @@ sub register {
   
   # -- register main resource
   my $mres = SMake::ToolChain::Constructor::MainResource->new(
-      $SMake::Model::Const::LIB_MAIN_TYPE,
+      $SMake::Platform::Generic::Const::LIB_RESOURCE,
+      $SMake::Platform::Generic::Const::LIB_MAIN_TYPE,
       $mangler,
-      $SMake::Model::Const::LIB_STAGE,
-      $SMake::Model::Const::LIB_TASK,
+      $SMake::Platform::Generic::Const::LIB_STAGE,
+      $SMake::Platform::Generic::Const::LIB_TASK,
       {});
   $constructor->appendMainResource($mres);
   
@@ -40,7 +42,7 @@ sub register {
   my $resolver = SMake::ToolChain::Resolver::Link->new(
       '.*',
       $objectmask,
-      $SMake::Model::Const::LIB_MAIN_TYPE);
+      $SMake::Platform::Generic::Const::LIB_MAIN_TYPE);
   $constructor->appendResolver($resolver);
 }
 
@@ -49,7 +51,15 @@ sub staticRegister {
 
   # -- command builder
   $toolchain->getBuilder()->appendBuilders(
-    [$SMake::Model::Const::LIB_TASK, SMake::Executor::Builder::Compile->new()]);
+    [$SMake::Platform::Generic::Const::LIB_TASK, SMake::Executor::Builder::Compile->new(
+        SMake::Executor::Builder::Resources::sourceResources(
+            $SMake::Platform::Generic::Const::SOURCE_GROUP,
+            $SMake::Platform::Generic::Const::OBJ_RESOURCE),
+        SMake::Executor::Builder::Resources::targetResources(
+            $SMake::Platform::Generic::Const::PRODUCT_GROUP,
+            $SMake::Platform::Generic::Const::LIB_RESOURCE),
+    )],
+  );
 }
 
 return 1;

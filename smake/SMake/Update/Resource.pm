@@ -25,18 +25,19 @@ package SMake::Update::Resource;
 #    artifact .... parent artifact object
 #    name ........ name of the resource (relative path)
 #    type ........ type of the resource
+#    location .... resource location type
 #    task ........ a task object which creates the resource
 sub new {
-  my ($class, $context, $artifact, $name, $type, $task) = @_;
+  my ($class, $context, $artifact, $type, $name, $location, $task) = @_;
   my $this = bless({}, $class);
   
   my $resource = $artifact->getObject()->getResource($type, $name);
   if(defined($resource)) {
-    $resource->update($task->getObject());
+    $resource->update($location, $task->getObject());
   }
   else {
     $resource = $artifact->getObject()->createResource(
-        $name, $type, $task->getObject());
+        $type, $name, $location, $task->getObject());
   }
   $this->{artifact} = $artifact;
   $this->{task} = $task;
@@ -123,6 +124,12 @@ sub getArtifact {
 sub getProject {
   my ($this) = @_;
   return $this->getArtifact()->getProject();
+}
+
+# Get resource location type
+sub getLocation {
+  my ($this) = @_;
+  return $this->{resource}->getLocation();
 }
 
 # Get task which is a creator of the resource

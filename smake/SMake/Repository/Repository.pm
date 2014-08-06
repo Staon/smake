@@ -85,35 +85,35 @@ sub isBuildTreeSeparated {
 
 # Get physical location of a resource
 #
-# Usage: getPhysicalLocation($restype, $respath)
-#    restype ....... resource type
+# Usage: getPhysicalLocation($location, $respath)
+#    location ...... resource location type
 #    respath ....... a location (a path object) in repository meaning
 # Returns: a path object with absolute filesystem path
 sub getPhysicalLocation {
-  my ($this, $restype, $respath) = @_;
-  return $this->{storage}->getPhysicalLocation($restype, $respath);
+  my ($this, $location, $respath) = @_;
+  return $this->{storage}->getPhysicalLocation($location, $respath);
 }
 
 # Get physical location of a resource
 #
-# Usage: getPhysicalLocation($restype, $respath)
-#    restype ....... resource type
+# Usage: getPhysicalLocation($location, $respath)
+#    location ...... resource location type
 #    respath ....... a location (a path object) in repository meaning
 # Returns: a string which represents the absolute filesystem path
 sub getPhysicalLocationString {
-  my ($this, $restype, $respath) = @_;
-  return $this->getPhysicalLocation($restype, $respath)->systemAbsolute();
+  my ($this, $location, $respath) = @_;
+  return $this->getPhysicalLocation($location, $respath)->systemAbsolute();
 }
 
 # Convert a physical aboslute location to repository location
 #
-# Usage: getRepositoryLocation($restype, $respath)
-#    restype ....... resource type
+# Usage: getRepositoryLocation($location, $respath)
+#    location ...... resource location type
 #    respath ....... a physical location (a path object)
 # Returns: a path object with the repository location
 sub getRepositoryLocation {
-  my ($this, $restype, $respath) = @_;
-  return $this->{storage}->getRepositoryLocation($restype, $respath);
+  my ($this, $location, $respath) = @_;
+  return $this->{storage}->getRepositoryLocation($location, $respath);
 }
 
 # Open transaction of the project storage

@@ -18,13 +18,13 @@
 # Static library
 package SMake::Platform::Aveco::Lib;
 
-use SMake::Executor::Const;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Model::Const;
 use SMake::Platform::Aveco::Compilers;
-use SMake::Platform::Generic::Lib;
 use SMake::Platform::Generic::CompileTranslator;
+use SMake::Platform::Generic::Const;
+use SMake::Platform::Generic::Lib;
 
 sub register {
   my ($class, $toolchain, $constructor) = @_;
@@ -35,7 +35,7 @@ sub register {
 
   # -- register standard compilers
   $toolchain->registerFeature(
-      SMake::Platform::Aveco::Compilers, $SMake::Model::Const::LIB_COMPILE_STAGE);
+      SMake::Platform::Aveco::Compilers, $SMake::Platform::Generic::Const::LIB_COMPILE_STAGE);
 }
 
 sub staticRegister {
@@ -43,14 +43,15 @@ sub staticRegister {
 
   # -- register command translator
   $toolchain->getTranslator()->appendRecords(
-      [$SMake::Model::Const::LIB_TASK, SMake::Platform::Generic::CompileTranslator->new(
+      [$SMake::Platform::Generic::Const::LIB_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "wlib -b",
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, 0, "", "", "", "", "", 0),
+                  $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "", "", "", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                   $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
-      )]);
+                   $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
+      )],
+  );
 }
 
 return 1;

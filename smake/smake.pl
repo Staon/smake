@@ -82,14 +82,14 @@ my $context = SMake::Parser::Context->new(
 foreach my $path (@$paths) {
   $repository->openTransaction();
   $parser -> parse($context, $context->getRepository()->getRepositoryLocation(
-      $SMake::Model::Const::SOURCE_RESOURCE, $path));
+      $SMake::Model::Const::SOURCE_LOCATION, $path));
   $repository->commitTransaction();
 }
 
 # -- execute the project
 $repository->openTransaction();
 my $executor = SMake::Executor::Executor->new($force);
-my $installarea = SMake::InstallArea::StdArea->new($SMake::Model::Const::SOURCE_RESOURCE);
+my $installarea = SMake::InstallArea::StdArea->new($SMake::Model::Const::SOURCE_LOCATION);
 my $execcontext = SMake::Executor::Context->new(
     $reporter, $decider, $runner, $repository, $visibility, $installarea);
 my $rootlist = [];
