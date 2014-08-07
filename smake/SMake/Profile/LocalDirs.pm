@@ -34,6 +34,7 @@ use SMake::Utils::Searching;
 #    cmdmask ..... a regular expression of command type
 #    address ..... address of the command node (an SMake::Data::Path object or
 #                  appropriately formatted string)
+#    restype ..... a regular expression to match type of the external resources
 #    resmask ..... a regular expression to match names of external resources
 #    prepend ..... if it's true, the paths are prepended
 sub new {
@@ -55,7 +56,8 @@ sub modifyNode {
   my $srclist = $task->getSources();
   my $pathset = {};
   foreach my $src (@$srclist) {
-    if($src->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE
+    if($src->getLocation() eq $SMake::Model::Const::EXTERNAL_LOCATION
+       && $src->getType() =~ /$this->{typemask}/
        && $src->getName()->asString() =~ /$this->{resmask}/) {
       # -- try to resolve the external resource in the local project
       my ($found, $resolved) = SMake::Utils::Searching::resolveLocal(

@@ -33,25 +33,37 @@ use SMake::Platform::Generic::Bin;
 use SMake::Platform::Generic::CompileTranslator;
 use SMake::Platform::Generic::Const;
 use SMake::Profile::InstallPaths;
+use SMake::ToolChain::Constructor::MainResource;
 use SMake::ToolChain::Resolver::Link;
 
 $AVECO_LINK = "aveco_linker";
+$AVECO_LINK_RESOURCE = "aveco_lnk";
 
 sub register {
   my ($class, $toolchain, $constructor) = @_;
 
   # -- generic parts
   $toolchain->registerFeature(
-      SMake::Platform::Generic::Bin, 'Dir() . Name()', '[.]lnk$');
+      SMake::Platform::Generic::Bin,
+      'Dir() . Name()',
+      '^' . quotemeta($AVECO_LINK_RESOURCE) . '$',
+      '[.]lnk$');
+
+  # -- linker main type (a main type which the library dependecies are added in)
+  my $mres = SMake::ToolChain::Constructor::MainResource->new(
+      $SMake::Platform::Generic::Const::AVECO_LINK_RESOURCE,
+      $SMake::Platform::Generic::Const::BIN_MAIN_TYPE_LINKER,
+      $mangler,
+      $SMake::Platform::Generic::Const::BIN_STAGE,
+      $SMake::Platform::Generic::Const::AVECO_LINK,
+      {});
+  $constructor->appendMainResource($mres);
   
   # -- construct the .lnk file
   my $resolver = SMake::ToolChain::Resolver::Link->new(
+      '^' . quotemeta($SMake::Platform::Generic::Const::OBJ_RESOURCE) . '$',
       '.*',
-      '[.]o$',
-      $SMake::Platform::Generic::Const::BIN_MAIN_TYPE,
-      'Dir() . Name() . ".lnk"',
-      $AVECO_LINK,
-      $SMake::Platform::Generic::Const::BIN_MAIN_TYPE_LINKER);
+      $SMake::Platform::Generic::Const::BIN_MAIN_TYPE);
   $constructor->appendResolver($resolver);
 
   # -- register standard compilers
@@ -110,7 +122,8 @@ sub staticRegister {
       )],
       [$SMake::Platform::Generic::Const::BIN_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
-              "wlink op q",
+              "wlink",
+              "op q",
               SMake::Executor::Translator::FileList->new(
                   $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "", "", "name ", "", "", 0),
               SMake::Executor::Translator::FileList->new(

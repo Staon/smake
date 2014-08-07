@@ -28,24 +28,37 @@ use SMake::Utils::Utils;
 
 # Create new generic constructor
 #
-# Usage: new($resolver, $resources)
+# Usage: new($resolver, $resources, $finishrecs)
 #    resolver .... resolver object
 #    resources ... list of records of main resources
+#    finishrecs .. list of finishing records
 sub new {
-  my ($class, $resolver, $resources) = @_;
+  my ($class, $resolver, $resources, $finishrecs) = @_;
   my $this = bless(SMake::ToolChain::Constructor::Constructor->new(), $class);
   $this->{resolver} = $resolver;
-  $this->{resources} = (defined($resources))?$resources:[];
+  $this->{resources} = [];
+  $this->{finishrecs} = [];
+  
+  $this->appendMainResource(@$resources) if(defined($resources));
+  $this->appendFinishRecord(@$finishrecs) if(defined($finishrecs));
   
   return $this;
 }
 
 # Append new main resource record
 #
-# Usage: appendMainResource($resource)
+# Usage: appendMainResource($resource...)
 sub appendMainResource {
-  my ($this, $resource) = @_;
-  push @{$this->{resources}}, $resource;
+  my ($this, @resources) = @_;
+  push @{$this->{resources}}, @resources;
+}
+
+# Append finish records
+#
+# Usage: appendFinishRecord($records...);
+sub appendFinishRecord {
+  my ($this, @finishrecs) = @_;
+  push @{$this->{finishrecs}}, @finishrecs;
 }
 
 # Append new resolve. The method expects that the resolver of mine is a container
@@ -120,54 +133,9 @@ sub resolveDependencies {
 
 sub finishArtifact {
   my ($this, $context, $artifact) = @_;
-
-  # -- add cleaning stage and task
-  my $task = $artifact->createTaskInStage(
-      $context,
-      $SMake::Model::Const::CLEAN_STAGE,
-      $SMake::Model::Const::CLEAN_STAGE,
-      $SMake::Model::Const::CLEAN_TASK,
-      undef,
-      undef,
-      undef);
-      
-  # -- create the service artifact, stage and task
-  my $project = $artifact->getProject();
-  my $service = $project->getArtifact($SMake::Model::Const::SERVICE_ARTIFACT);
-  if(!defined($service)) {
-    $service = $project->createArtifact(
-        $context,
-        $project->getPath(),
-        $SMake::Model::Const::SERVICE_ARTIFACT,
-        $SMake::Model::Const::SERVICE_ARTIFACT,
-        undef);
-    $service->createTaskInStage(
-        $context,
-        $SMake::Model::Const::SERVICE_STAGE,
-        $SMake::Model::Const::SERVICE_STAGE,
-        $SMake::Model::Const::SERVICE_TASK,
-        undef,
-        undef,
-        undef);
-  }
   
-  # -- make all stages dependent
-  my $servicedep = $artifact->createStageDependency(
-      $context,
-      $SMake::Model::Const::SERVICE_DEPENDENCY,
-      $project->getName(),
-      $SMake::Model::Const::SERVICE_ARTIFACT,
-      $SMake::Model::Const::SERVICE_STAGE);
-  my $stages = $artifact->getStages();
-  foreach my $stage (@$stages) {
-    my $taskdep = $stage->createTask(
-        $context,
-        $SMake::Model::Const::SERVICE_DEP_TASK,
-        $SMake::Model::Const::SERVICE_DEP_TASK,
-        undef,
-        undef,
-        undef);
-    $taskdep->appendDependency($context, $servicedep, undef);
+  foreach my $rec (@{$this->{finishrecs}}) {
+    $rec->finish($context, $artifact, $this);
   }
 }
 

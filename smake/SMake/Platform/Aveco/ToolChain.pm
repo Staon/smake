@@ -52,7 +52,8 @@ sub new {
   $this->registerProfile(
       "preproc",
       SMake::Profile::ValueProfile,
-      $SMake::Platform::Generic::Const::C_TASK . "|" . $SMake::Platform::Generic::Const::CXX_TASK,
+      $SMake::Platform::Generic::Const::C_TASK 
+      . "|" . $SMake::Platform::Generic::Const::CXX_TASK,
       $SMake::Platform::Generic::Const::PREPROC_GROUP,
       0);
 

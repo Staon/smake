@@ -29,7 +29,7 @@ use SMake::ToolChain::Resolver::DepResource;
 use SMake::ToolChain::Resolver::Link;
 
 sub register {
-  my ($class, $toolchain, $constructor, $mangler, $objectmask) = @_;
+  my ($class, $toolchain, $constructor, $mangler, $objecttype, $objectmask) = @_;
   
   # -- register main resource
   my $mres = SMake::ToolChain::Constructor::MainResource->new(
@@ -43,7 +43,7 @@ sub register {
   
   # -- register the linker resolver
   my $resolver = SMake::ToolChain::Resolver::Link->new(
-      '.*',
+      $objecttype,
       $objectmask,
       $SMake::Platform::Generic::Const::BIN_MAIN_TYPE);
   $constructor->appendResolver($resolver);
@@ -52,7 +52,7 @@ sub register {
   $resolver = SMake::ToolChain::Resolver::Multi->new(
       SMake::ToolChain::Resolver::DepResource->new(
           '^' . $SMake::Platform::Generic::Const::LINK_DEPENDENCY . '$',
-          [[$SMake::Platform::Generic::Const::MAIN_TYPE_LINKER, 
+          [[$SMake::Platform::Generic::Const::BIN_MAIN_TYPE_LINKER, 
             $SMake::Platform::Generic::Const::BIN_MAIN_TYPE]],
       ),
       SMake::ToolChain::Resolver::DepInstall->new(

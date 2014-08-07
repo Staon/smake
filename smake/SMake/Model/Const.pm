@@ -35,6 +35,9 @@ $EXTERNAL_TASK = "install";
 # -- public resources
 $PUBLISH_TASK = "publish";
 
+# -- resource translation
+$RES_TRANSLATION_TASK = "resource_trans";
+
 # -- construction of the build tree
 $BUILD_TREE_STAGE = "smake_build_tree";
 $BUILD_TREE_TASK = "smake_build_tree";

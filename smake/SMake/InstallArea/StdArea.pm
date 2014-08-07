@@ -131,7 +131,7 @@ sub installDependency {
 
 sub getModulePath {
   my ($this, $context, $subsystem, $module, $project) = @_;
-  return $this->{restype}, $this->getBasePath($project, $module);
+  return $this->{location}, $this->getBasePath($project, $module);
 }
 
 # Clean the installation area

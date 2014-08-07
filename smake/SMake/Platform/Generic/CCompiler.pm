@@ -29,6 +29,7 @@ use SMake::Profile::LocalDirs;
 use SMake::Profile::ValueProfile;
 use SMake::ToolChain::Resolver::Compile;
 use SMake::ToolChain::Resolver::Multi;
+use SMake::ToolChain::Resolver::ResourceTrans;
 
 # Usage: register($toolchain, $constructor, $stage, $mangler, $libtype)
 #    toolchain ...... the platform toolchain
@@ -39,14 +40,26 @@ use SMake::ToolChain::Resolver::Multi;
 sub register {
   my ($class, $toolchain, $constructor, $stage, $mangler, $libtype) = @_;
   
+  # -- resolve file suffixes
+  $toolchain->createObject(
+      "C_sources",
+      SMake::ToolChain::Resolver::ResourceTrans,
+      sub { $constructor->appendResolver($_[0]); },
+      '^' . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . '$',
+      '[.]c$',
+      $SMake::Platform::Generic::Const::C_RESOURCE,
+      undef,
+      undef);
+  
   # -- resolver
   my $multi = $toolchain->createObject(
       "C_compiler",
       SMake::ToolChain::Resolver::Multi,
       sub { $constructor->appendResolver($_[0]); });
   my $resolver = SMake::ToolChain::Resolver::Compile->new(
+      '^' . quotemeta($SMake::Platform::Generic::Const::C_RESOURCE) . '$',
       '.*',
-      '[.]c$',
+      $SMake::Platform::Generic::Const::OBJ_RESOURCE,
       $mangler,
       $stage,
       $SMake::Platform::Generic::Const::C_TASK);
@@ -78,6 +91,7 @@ sub staticRegister {
   $toolchain->appendProfile(SMake::Profile::LocalDirs->new(
       $SMake::Platform::Generic::Const::C_TASK,
       $SMake::Platform::Const::HEADERDIR_GROUP,
+      '^' . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE) . '$',
       "^" . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE . "/"),
       1));
 

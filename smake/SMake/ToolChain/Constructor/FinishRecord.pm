@@ -15,26 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic header scanner
-package SMake::Platform::Generic::HeaderScanner;
+# Finishing record of the generic constructor
+package SMake::ToolChain::Constructor::FinishRecord;
 
-use SMake::Platform::Generic::Const;
-use SMake::ToolChain::Scanner::HdrScanner;
+use SMake::Utils::Abstract;
 
-sub register {
-  my ($class, $toolchain, $constructor, $resmask) = @_;
-
+sub new {
+  my ($class) = @_;
+  return bless({}, $class);
 }
 
-sub staticRegister {
-  my ($class, $toolchain, $constructor, $resmask) = @_;
-
-  $toolchain->getScanner()->appendScanners(
-      SMake::ToolChain::Scanner::HdrScanner->new(
-          '.*',
-          $resmask,
-          '.*',
-          $SMake::Platform::Generic::Const::HEADER_MODULE));
+# Do some job while an artifact is closing
+#
+# Usage: finish($context, $artifact, $constructor)
+#    context ...... parser context
+#    artifact ..... the artifact
+#    constructor .. the generic constructor
+sub finish {
+  SMake::Utils::Abstract::dieAbstract();
 }
 
 return 1;

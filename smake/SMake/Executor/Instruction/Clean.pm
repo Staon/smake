@@ -45,10 +45,7 @@ sub execute {
   my $list = $artifact->getResources();
   my @paths = ();
   foreach my $resource (@$list) {
-    if($resource->getType() eq $SMake::Model::Const::PRODUCT_RESOURCE) {
-      push @paths, $resource->getPhysicalPathString();
-    }
-    elsif($resource->getType() eq $SMake::Model::Const::BUILD_TREE_RESOURCE) {
+    if($resource->getLocation() eq $SMake::Model::Const::PRODUCT_LOCATION) {
       push @paths, $resource->getPhysicalPathString();
     }
   }

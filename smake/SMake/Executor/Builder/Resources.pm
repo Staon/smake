@@ -86,7 +86,7 @@ sub sourceResources {
   return SMake::Executor::Builder::Resources->new(
       0,
       $group,
-      '^' . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . '|' . quotemeta($restype) . '$',
+      '^' . quotemeta($restype) . '$',
       '.*'
   );
 }

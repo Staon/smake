@@ -26,7 +26,7 @@ use SMake::ToolChain::Constructor::MainResource;
 use SMake::ToolChain::Resolver::Link;
 
 sub register {
-  my ($class, $toolchain, $constructor, $mangler, $objectmask) = @_;
+  my ($class, $toolchain, $constructor, $mangler, $objecttype, $objectmask) = @_;
   
   # -- register main resource
   my $mres = SMake::ToolChain::Constructor::MainResource->new(
@@ -40,7 +40,7 @@ sub register {
   
   # -- register the library resolver
   my $resolver = SMake::ToolChain::Resolver::Link->new(
-      '.*',
+      $objecttype,
       $objectmask,
       $SMake::Platform::Generic::Const::DLL_MAIN_TYPE);
   $constructor->appendResolver($resolver);

@@ -18,6 +18,9 @@
 # Some constants
 package SMake::Platform::Generic::Const;
 
+# -- headers
+$H_RESOURCE = "h";
+
 # -- C compiling
 $C_TASK = "c";
 $C_RESOURCE = "c";

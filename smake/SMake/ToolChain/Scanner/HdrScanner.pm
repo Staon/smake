@@ -29,16 +29,18 @@ use SMake::Utils::Utils;
 
 # Create new header scanner
 #
-# Usage: new($tasktype, $restype, $resname)
+# Usage: new($tasktype, $restype, $resname, $instmodule)
 #    tasktype .... a regular expression which describes type of the task
 #    restype ..... a regular expression which describes type of the resource
 #    resname ..... a regular expression which describes name of the resource
+#    instmodule .. installation module name
 sub new {
   my ($class, $tasktype, $restype, $resname, $instmodule) = @_;
   my $this = bless(SMake::ToolChain::Scanner::Scanner->new(), $class);
   $this->{tasktype} = $tasktype;
   $this->{restype} = $restype;
   $this->{resname} = $resname;
+  $this->{instmodule} = $instmodule;
   return $this;
 }
 
@@ -63,8 +65,15 @@ sub scanSource {
       if($line =~ /^\s*#\s*include\s*[<"]([^">]+)[">]/) {
         my $path = $1;
         $path =~ s/\\/\//;  # -- windows paths
-        $path = SMake::Data::Path->new($SMake::Model::Const::HEADER_MODULE, $path);
-        $this->installExternalResource($context, $artifact, $resource, $task, $path);
+        $path = SMake::Data::Path->new($this->{instmodule}, $path);
+        $this->installExternalResource(
+            $context,
+            $artifact,
+            $resource,
+            $task,
+            $this->{restype},
+            $path,
+            $this->{instmodule});
       }
     }
     close SRCFILE;

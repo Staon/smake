@@ -34,7 +34,7 @@ sub create {
   
   my $storage = SMake::Storage::File::Storage->new($dir);
   my $installarea = SMake::InstallArea::StdArea->new(
-      $SMake::Model::Const::SOURCE_RESOURCE);
+      $SMake::Model::Const::SOURCE_LOCATION);
   my $repository = SMake::Repository::Repository->new(
       $parent, $storage, $installarea);
   return $repository;

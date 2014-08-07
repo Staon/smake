@@ -114,11 +114,15 @@ sub computeCurrentMark {
   # -- get set of resources to compute the mark
   my $resource = $this->getResource();
   my $declist = SMake::ToolChain::Decider::DeciderList->new();
-  if($resource->getType() eq $SMake::Model::Const::SOURCE_RESOURCE 
-     || $resource->getType() eq $SMake::Model::Const::PRODUCT_RESOURCE) {
+  if($resource->getLocation() eq $SMake::Model::Const::SOURCE_LOCATION) {
     $declist->appendPaths($resource->getPhysicalPath());
   }
-  elsif($resource->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
+  elsif($resource->getLocation() eq $SMake::Model::Const::PRODUCT_LOCATION) {
+    if($resource->getType() ne $SMake::Model::Const::BUILD_TREE_RESOURCE) {
+      $declist->appendPaths($resource->getPhysicalPath());
+    }
+  }
+  elsif($resource->getLocation() eq $SMake::Model::Const::EXTERNAL_LOCATION) {
     # -- do transitive closure and compute combined stamp
     my $closure = SMake::Utils::Searching::externalTransitiveClosure(
         $context, $subsystem, $resource);
@@ -126,15 +130,12 @@ sub computeCurrentMark {
       $declist->appendPaths($c->[1]->getPhysicalPath());
     }
   }
-  elsif($resource->getType() eq $SMake::Model::Const::BUILD_TREE_RESOURCE) {
-    # -- the mark is not computed for directories
-  }
   else {
     SMake::Utils::Utils::dieReport(
         $context->getReporter(),
         $subsystem,
-        "i cannot compute timestamp for resource of type '%s'",
-        $resource->getType());
+        "i cannot compute timestamp for resource of location '%s'",
+        $resource->getLocation());
   }
     
   # -- get file timestamp

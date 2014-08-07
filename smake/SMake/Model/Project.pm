@@ -165,8 +165,8 @@ sub installDependency {
 #    context ..... executor context
 #    subsystem ... logging subsystem
 #    module ...... installation module
-# Returns: ($restype, $path)
-#    restype ..... resource type of the path
+# Returns: ($location, $path)
+#    location .... resource location path
 #    path ........ the path (Data)
 sub getModulePath {
   my ($this, $context, $subsystem, $module) = @_;

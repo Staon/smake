@@ -102,7 +102,7 @@ sub getPath {
 sub getPhysicalPath {
   my ($this) = @_;
   
-  if($this->getLocation() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
+  if($this->getLocation() eq $SMake::Model::Const::EXTERNAL_LOCATION) {
     return $this->getRepository()->getInstallArea()->getPhysicalLocation(
         $this->getProject(), $this);
   }

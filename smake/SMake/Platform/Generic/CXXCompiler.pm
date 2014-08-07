@@ -29,6 +29,7 @@ use SMake::Profile::LocalDirs;
 use SMake::Profile::ValueProfile;
 use SMake::ToolChain::Resolver::Compile;
 use SMake::ToolChain::Resolver::Multi;
+use SMake::ToolChain::Resolver::ResourceTrans;
 
 # Usage: register($toolchain, $construct, $stage, $mangler, $libtype)
 #    toolchain ...... the platform toolchain
@@ -39,14 +40,26 @@ use SMake::ToolChain::Resolver::Multi;
 sub register {
   my ($class, $toolchain, $constructor, $stage, $mangler, $libtype) = @_;
   
+  # -- resolve file suffixes
+  $toolchain->createObject(
+      "CXX_sources",
+      SMake::ToolChain::Resolver::ResourceTrans,
+      sub { $constructor->appendResolver($_[0]); },
+      '^' . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . '$',
+      '[.]cpp$',
+      $SMake::Platform::Generic::Const::CXX_RESOURCE,
+      undef,
+      undef);
+  
   # -- resolver
   my $multi = $toolchain->createObject(
       "CXX_compiler",
       SMake::ToolChain::Resolver::Multi,
       sub { $constructor->appendResolver($_[0]); });
   my $resolver = SMake::ToolChain::Resolver::Compile->new(
+      '^' . quotemeta($SMake::Platform::Generic::Const::CXX_RESOURCE) . '$',
       '.*',
-      '[.]cpp$',
+      $SMake::Platform::Generic::Const::OBJ_RESOURCE,
       $mangler,
       $stage,
       $SMake::Platform::Generic::Const::CXX_TASK);
@@ -57,7 +70,7 @@ sub register {
       '^' . quotemeta($SMake::Platform::Generic::Const::CXX_TASK) . '$',
       $SMake::Platform::Generic::Const::DLL_GROUP,
       0,
-      $SMake::Platfrom::Generic::Const::LIB_TYPE_OPTION,
+      $SMake::Platform::Generic::Const::LIB_TYPE_OPTION,
       $libtype);
   $resolver->appendProfile($profile);
   
@@ -80,6 +93,7 @@ sub staticRegister {
   $toolchain->appendProfile(SMake::Profile::LocalDirs->new(
       $SMake::Platform::Generic::Const::CXX_TASK,
       $SMake::Platform::Generic::Const::HEADERDIR_GROUP,
+      '^' . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE) . '$',
       "^" . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE . "/"),
       1),
   );

@@ -23,9 +23,21 @@ use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::HeaderScanner;
 use SMake::Profile::VarProfile;
 use SMake::ToolChain::Resolver::Publish;
+use SMake::ToolChain::Resolver::ResourceTrans;
 
 sub register {
   my ($class, $toolchain, $constructor) = @_;
+
+  # -- resolve file suffixes
+  $toolchain->createObject(
+      "header_sources",
+      SMake::ToolChain::Resolver::ResourceTrans,
+      sub { $constructor->appendResolver($_[0]); },
+      '^' . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . '$',
+      '[.]h(pp)?$',
+      $SMake::Platform::Generic::Const::H_RESOURCE,
+      undef,
+      undef);
 
   # -- header resolver
   $toolchain->createObject(
@@ -36,10 +48,13 @@ sub register {
 
         # -- header scanner
         $toolchain->registerFeature(
-            [SMake::Platform::Generic::HeaderScanner, '[.]h$']);
+            [SMake::Platform::Generic::HeaderScanner,
+             $SMake::Platform::Generic::Const::H_RESOURCE
+            ]
+        );
       },
+      '^' . quotemeta($SMake::Platform::Generic::Const::H_RESOURCE) . '$',
       '.*',
-      '[.]h$',
       $SMake::Platform::Generic::Const::HEADER_MODULE,
       $SMake::Platform::Generic::Const::VAR_HEADER_DIRECTORY);
 }

@@ -35,6 +35,7 @@ use SMake::Executor::Translator::Instruction;
 use SMake::Executor::Translator::Table;
 use SMake::Model::Const;
 use SMake::Platform::Generic::Const;
+use SMake::Platform::Generic::FinishArtifact;
 use SMake::ToolChain::Constructor::Generic;
 use SMake::ToolChain::Constructor::Table;
 use SMake::ToolChain::Mangler::Mangler;
@@ -59,10 +60,11 @@ sub new {
     [$SMake::Model::Const::SOURCE_TASK, SMake::Executor::Builder::Empty->new()],
     [$SMake::Model::Const::PUBLISH_TASK, SMake::Executor::Builder::Empty->new()],
     [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Builder::Compile->new()],
+    [$SMake::Model::Const::BUILD_TREE_TASK, SMake::Executor::Builder::Compile->new()],
+    [$SMake::Model::Const::RES_TRANSLATION_TASK, SMake::Executor::Builder::Empty->new()],
     [$SMake::Platform::Generic::Const::CLEAN_TASK, SMake::Executor::Builder::Compile->new()],
     [$SMake::Platform::Generic::Const::SERVICE_DEP_TASK, SMake::Executor::Builder::Empty->new()],
     [$SMake::Platform::Generic::Const::SERVICE_TASK, SMake::Executor::Builder::Compile->new()],
-    [$SMake::Model::Const::BUILD_TREE_TASK, SMake::Executor::Builder::Compile->new()],
   );
   
   # -- command translators
@@ -137,7 +139,8 @@ sub registerConstructor {
   my ($this, $type) = @_;
 
   my $resolver = SMake::ToolChain::Resolver::Chain->new();
-  my $constructor = SMake::ToolChain::Constructor::Generic->new($resolver, []);
+  my $constructor = SMake::ToolChain::Constructor::Generic->new(
+      $resolver, undef, [SMake::Platform::Generic::FinishArtifact->new()]);
   $this->getConstructor()->appendConstructors([$type, $constructor]);
   $this->{curr_constructor} = $constructor;
   $this->{objects} = {};

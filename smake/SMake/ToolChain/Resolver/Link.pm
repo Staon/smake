@@ -24,6 +24,7 @@ use SMake::ToolChain::Resolver::Resource;
 
 @ISA = qw(SMake::ToolChain::Resolver::Resource);
 
+use SMake::Model::Const;
 use SMake::Utils::Utils;
 
 # Create new resolver
@@ -32,17 +33,11 @@ use SMake::Utils::Utils;
 #    type ...... mask of type of the resources
 #    file ...... mask of path of the resources
 #    maintype .. type of the main resource
-#    mangler ... (optional) mangler of the name of the main resource
-#    tasktype .. type of the task which creates the mangled resource
-#    newmain ... main resource type of the newly created resource
 sub new {
-  my ($class, $type, $file, $maintype, $mangler, $tasktype, $newmain) = @_;
+  my ($class, $type, $file, $maintype) = @_;
   my $this = bless(
       SMake::ToolChain::Resolver::Resource->new($type, $file), $class);
   $this->{maintype} = $maintype;
-  $this->{mangler} = $mangler;
-  $this->{tasktype} = $tasktype;
-  $this->{newmain} = $newmain;
   return $this;
 }
 
@@ -59,29 +54,6 @@ sub doJob {
         "artifact '%s' doesn't define a main resource of type '%s'",
         $artifact->getName(),
         $this->{maintype});
-  }
-  
-  # -- create new resource if it should be done
-  if(defined($this->{mangler})) {
-    my $path = $context->getMangler()->mangleName(
-        $context, $this->{mangler}, $main_resource->getName());
-    my $resource = $artifact->getResource(
-        $SMake::Model::Const::PRODUCT_RESOURCE, $path);
-    if(!defined($resource)) {
-      my $task = $artifact->createTaskInStage(
-          $context,
-          $main_resource->getStage()->getName(),
-          $path->asString(),
-          $this->{tasktype},
-          $main_resource->getTask()->getWDType(),
-          $main_resource->getTask()->getWDPath(),
-          undef);
-      $resource = $artifact->createProductResource(
-          $context, $path, $SMake::Model::Const::PRODUCT_RESOURCE, $task);
-      $artifact->appendMainResource($context, $this->{newmain}, $resource);
-      $queue->pushResource($resource);
-    }
-    $main_resource = $resource;
   }
   
   # -- append resolved resource to list of source resources of the task
