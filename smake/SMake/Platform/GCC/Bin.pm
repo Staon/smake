@@ -18,7 +18,6 @@
 # Binary executable
 package SMake::Platform::GCC::Bin;
 
-use SMake::Executor::Const;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Executor::Translator::OptionList;
@@ -26,17 +25,26 @@ use SMake::Model::Const;
 use SMake::Platform::GCC::Compilers;
 use SMake::Platform::Generic::Bin;
 use SMake::Platform::Generic::CompileTranslator;
+use SMake::Platform::Generic::Const;
 
 sub register {
   my ($class, $toolchain, $constructor) = @_;
 
   # -- generic parts
   $toolchain->registerFeature(
-      SMake::Platform::Generic::Bin, 'Dir() . Name()', '.o$');
+      [SMake::Platform::Generic::Bin,
+       $SMake::Platform::Generic::Const::BIN_TASK,
+       $SMake::Platform::Generic::Const::OBJ_RESOURCE],
+      'Dir() . Name()',
+      '^' . quotemeta($SMake::Platform::Generic::Const::OBJ_RESOURCE) . '$',
+      '.*');
 
   # -- register standard compilers
   $toolchain->registerFeature(
-      SMake::Platform::GCC::Compilers, $SMake::Model::Const::BIN_COMPILE_STAGE, '.o', "no");
+      SMake::Platform::GCC::Compilers,
+      $SMake::Platform::Generic::Const::BIN_COMPILE_STAGE,
+      '.o',
+      "no");
 }
 
 sub staticRegister {
@@ -46,30 +54,31 @@ sub staticRegister {
   $toolchain->registerProfile(
       "rpath",
       SMake::Profile::InstallPaths,
-      $SMake::Model::Const::BIN_TASK,
-      $SMake::Executor::Const::RPATH_GROUP,
-      $SMake::Model::Const::LIB_MODULE,
+      $SMake::Platform::Generic::Const::BIN_TASK,
+      $SMake::Platform::Generic::Const::RPATH_GROUP,
+      $SMake::Platform::Generic::Const::LIB_MODULE,
       1);
 
   # -- register command translator
   $toolchain->getTranslator()->appendRecords(
-      [$SMake::Model::Const::BIN_TASK, SMake::Platform::Generic::CompileTranslator->new(
+      [$SMake::Platform::Generic::Const::BIN_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "g++",
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, 0, "", "", "-o ", "", "", 0),
+                  $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1),
+                  $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1),
               SMake::Executor::Translator::OptionList->new(
-                  $SMake::Executor::Const::RPATH_GROUP, 1, "", "", "-Wl,-rpath=", "", " "),
+                  $SMake::Platform::Generic::Const::RPATH_GROUP, 1, "", "", "-Wl,-rpath=", "", " "),
               SMake::Executor::Translator::OptionList->new(
-                  $SMake::Executor::Const::LIBDIR_GROUP, 1, "", "", "-L", "", " "),
+                  $SMake::Platform::Generic::Const::LIBDIR_GROUP, 1, "", "", "-L", "", " "),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::LIB_GROUP, 1, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
+                  $SMake::Platform::Generic::Const::LIB_GROUP, 1, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::LIB_GROUP, 1, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
+                  $SMake::Platform::Generic::Const::LIB_GROUP, 1, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
           ),
-      )]);
+      )],
+  );
 }
 
 return 1;

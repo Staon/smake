@@ -18,25 +18,28 @@
 # Dynamic library
 package SMake::Platform::GCC::Dll;
 
-use SMake::Executor::Const;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Model::Const;
 use SMake::Platform::GCC::Compilers;
 use SMake::Platform::Generic::Dll;
 use SMake::Platform::Generic::CompileTranslator;
+use SMake::Platform::Generic::Const;
 
 sub register {
   my ($class, $toolchain, $constructor) = @_;
 
   # -- generic parts
   $toolchain->registerFeature(
-      SMake::Platform::Generic::Dll, 'Dir() . Name() . ".so"', '.so.o$');
+      SMake::Platform::Generic::Dll,
+      'Dir() . Name() . ".so"',
+      '^' . quotemeta($SMake::Platform::Generic::Const::OBJ_RESOURCE) . '$',
+      '[.]so[.]o$');
 
   # -- register standard compilers
   $toolchain->registerFeature(
       SMake::Platform::GCC::Compilers,
-      $SMake::Model::Const::DLL_COMPILE_STAGE,
+      $SMake::Platform::Generic::Const::DLL_COMPILE_STAGE,
       '.so.o',
       "dll");
 }
@@ -46,14 +49,14 @@ sub staticRegister {
 
   # -- register command translator
   $toolchain->getTranslator()->appendRecords(
-      [$SMake::Model::Const::DLL_TASK, SMake::Platform::Generic::CompileTranslator->new(
+      [$SMake::Platform::Generic::Const::DLL_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "gcc",
               "-shared",
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, 0, "", "", "-o ", "", "", 0),
+                  $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                   $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
+                   $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
       )]
   );
 }

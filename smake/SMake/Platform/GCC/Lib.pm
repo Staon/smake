@@ -18,25 +18,28 @@
 # Static library
 package SMake::Platform::GCC::Lib;
 
-use SMake::Executor::Const;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Model::Const;
 use SMake::Platform::GCC::Compilers;
 use SMake::Platform::Generic::Lib;
 use SMake::Platform::Generic::CompileTranslator;
+use SMake::Platform::Generic::Const;
 
 sub register {
   my ($class, $toolchain, $constructor) = @_;
 
   # -- generic parts
   $toolchain->registerFeature(
-      SMake::Platform::Generic::Lib, 'Dir() . Name() . ".a"', '.a.o$');
+      SMake::Platform::Generic::Lib,
+      'Dir() . Name() . ".a"',
+      '^' . quotemeta($SMake::Platform::Generic::Const::OBJ_RESOURCE) . '$',
+      '[.]a[.]o$');
 
   # -- register standard compilers
   $toolchain->registerFeature(
       SMake::Platform::GCC::Compilers,
-      $SMake::Model::Const::LIB_COMPILE_STAGE,
+      $SMake::Platform::Generic::Const::LIB_COMPILE_STAGE,
       '.a.o',
       "static");
 }
@@ -46,13 +49,13 @@ sub staticRegister {
 
   # -- register command translator
   $toolchain->getTranslator()->appendRecords(
-      [$SMake::Model::Const::LIB_TASK, SMake::Platform::Generic::CompileTranslator->new(
+      [$SMake::Platform::Generic::Const::LIB_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "ar rs",
               SMake::Executor::Translator::FileList->new(
-                  $SMake::Executor::Const::PRODUCT_GROUP, 0, "", "", "", "", "", 0),
+                  $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "", "", "", "", "", 0),
               SMake::Executor::Translator::FileList->new(
-                   $SMake::Executor::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
+                   $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
       )]
   );
 }

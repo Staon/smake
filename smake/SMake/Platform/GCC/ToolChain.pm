@@ -22,11 +22,11 @@ use SMake::Platform::Generic::ToolChain;
 
 @ISA = qw(SMake::Platform::Generic::ToolChain);
 
-use SMake::Executor::Const;
 use SMake::Model::Const;
 use SMake::Platform::GCC::Bin;
 use SMake::Platform::GCC::Dll;
 use SMake::Platform::GCC::Lib;
+use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::ToolChain;
 use SMake::Profile::ValueProfile;
 use SMake::ToolChain::ResourceFilter::SysLocation;
@@ -39,20 +39,21 @@ sub new {
   my $this = bless(SMake::Platform::Generic::ToolChain->new());
 
   # -- library artifact
-  $this->registerConstructor($SMake::Model::Const::LIB_ARTIFACT);
+  $this->registerConstructor($SMake::Platform::Generic::Const::LIB_ARTIFACT);
   $this->registerFeature(SMake::Platform::GCC::Dll);
   $this->registerFeature(SMake::Platform::GCC::Lib);
 
   # -- binary artifact
-  $this->registerConstructor($SMake::Model::Const::BIN_ARTIFACT);
+  $this->registerConstructor($SMake::Platform::Generic::Const::BIN_ARTIFACT);
   $this->registerFeature(SMake::Platform::GCC::Bin);
 
   # -- generic preprocessor profile
   $this->registerProfile(
       "preproc",
       SMake::Profile::ValueProfile,
-      $SMake::Model::Const::C_TASK . "|" . $SMake::Model::Const::CXX_TASK,
-      $SMake::Executor::Const::PREPROC_GROUP,
+      $SMake::Platform::Generic::Const::C_TASK 
+          . "|" . $SMake::Platform::Generic::Const::CXX_TASK,
+      $SMake::Platform::Generic::Const::PREPROC_GROUP,
       0);
   
   # -- resource filters
@@ -62,8 +63,8 @@ sub new {
   };
   $this->getResourceFilter()->appendFilters(
       SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include", $ttable),
-      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include/c++/4.7.3", $ttable),
-      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include/c++/4.7.3/tr1", $ttable),
+      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include/c++/4.6.3", $ttable),
+      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include/c++/4.6.3/tr1", $ttable),
   );
   
   return $this;

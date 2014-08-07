@@ -69,14 +69,6 @@ sub register {
 sub staticRegister {
   my ($class, $toolchain, $constructor, $task, $srcres) = @_;
 
-  # -- default source resource are classic .o files and the binary task
-  if(!defined($task)) {
-    $task = $SMake::Platform::Generic::Const::BIN_TASK;
-  }
-  if(!defined($srcres)) {
-    $srcres = $SMake::Platform::Generic::Const::OBJ_RESOURCE;
-  }
-
   # -- it appends library directories from the installation area
   $toolchain->appendProfile(SMake::Profile::InstallPaths->new(
       $SMake::Platform::Generic::Const::BIN_TASK,

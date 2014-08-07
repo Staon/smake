@@ -24,7 +24,7 @@ use SMake::Executor::Translator::OptionList;
 use SMake::Executor::Translator::Select;
 use SMake::Executor::Translator::ValueList;
 use SMake::Model::Const;
-use SMake::Platfrom::Generic::Const;
+use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::CXXCompiler;
 use SMake::Platform::Generic::CompileTranslator;
 
@@ -42,7 +42,7 @@ sub staticRegister {
   
   # -- create command translator
   $toolchain->getTranslator()->appendRecords(
-      [$SMake::Platfrom::Generic::Const::CXX_TASK, SMake::Platform::Generic::CompileTranslator->new(
+      [$SMake::Platform::Generic::Const::CXX_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
               "g++",
               SMake::Executor::Translator::Select->new(
