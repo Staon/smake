@@ -28,16 +28,17 @@ package SMake::Update::Resource;
 #    location .... resource location type
 #    task ........ a task object which creates the resource
 sub new {
-  my ($class, $context, $artifact, $type, $name, $location, $task) = @_;
+  my ($class, $context, $artifact, $location, $type, $name, $task) = @_;
   my $this = bless({}, $class);
   
-  my $resource = $artifact->getObject()->getResource($type, $name);
+  my $resource = $artifact->getObject()->getResource(
+      $location, $type, $name);
   if(defined($resource)) {
-    $resource->update($location, $task->getObject());
+    $resource->update($task->getObject());
   }
   else {
     $resource = $artifact->getObject()->createResource(
-        $type, $name, $location, $task->getObject());
+        $location, $type, $name, $task->getObject());
   }
   $this->{artifact} = $artifact;
   $this->{task} = $task;
@@ -75,19 +76,22 @@ sub getKey {
   return $this->{resource}->getKey();
 }
 
+# Get resource location type
+sub getLocation {
+  my ($this) = @_;
+  return $this->{resource}->getLocation();
+}
+
+# Get type of the resource
+sub getType {
+  my ($this) = @_;
+  return $this->{resource}->getType();
+}
+
 # Get resource name (a path object)
 sub getName {
   my ($this) = @_;
   return $this->{resource}->getName();
-}
-
-# Get type of the resource
-#
-# For example type can be "file" for physical file, "install" for a resource
-# which is created in the installation are etc.
-sub getType {
-  my ($this) = @_;
-  return $this->{resource}->getType();
 }
 
 # Get logical path of the resource
@@ -124,12 +128,6 @@ sub getArtifact {
 sub getProject {
   my ($this) = @_;
   return $this->getArtifact()->getProject();
-}
-
-# Get resource location type
-sub getLocation {
-  my ($this) = @_;
-  return $this->{resource}->getLocation();
 }
 
 # Get task which is a creator of the resource

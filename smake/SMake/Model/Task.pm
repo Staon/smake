@@ -175,16 +175,17 @@ sub createTargetTimestamp {
 
 # Get target timestamp object
 #
-# Usage: getSourceTimestamp($type, $name)
-#    type .... resource type
-#    name .... name (relative path) of the timestamp's resource
+# Usage: getTargetTimestamp($location, $type, $name)
+#    location .. resource location type
+#    type ...... resource type
+#    name ...... name (relative path) of the timestamp's resource
 sub getTargetTimestamp {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Get list of target timestamps
 #
-# Usage: getSourceTimestamp()
+# Usage: getTargetTimestamps()
 # Returns: \@list
 sub getTargetTimestamps {
   SMake::Utils::Abstract::dieAbstract();
@@ -224,16 +225,17 @@ sub createSourceTimestamp {
 
 # Get source timestamp object
 #
-# Usage: getSourceTimestamp($type, $name)
-#    type .... resource type
-#    name .... name (relative path) of the timestamp's resource
+# Usage: getSourceTimestamp($location, $type, $name)
+#    location .. resource location type
+#    type ...... resource type
+#    name ...... name (relative path) of the timestamp's resource
 sub getSourceTimestamp {
   SMake::Utils::Abstract::dieAbstract();
 }
 
 # Get list of source timestamps
 #
-# Usage: getSourceTimestamp()
+# Usage: getSourceTimestamps()
 # Returns: \@list
 sub getSourceTimestamps {
   SMake::Utils::Abstract::dieAbstract();
@@ -340,7 +342,15 @@ sub prettyPrint {
 
   SMake::Utils::Print::printIndent($indent + 1);
   {
-    print ::HANDLE "wd: " . (defined($wd)?($wd->asString()):"undef") . "\n";
+    print ::HANDLE "wd: ";
+    my $wd = $this->getWDType();
+    if(defined($wd)) {
+      print ::HANDLE $wd . '@' . $this->getWDPath()->asString();
+    }
+    else {
+      print ::HANDLE "undef";
+    }
+    print ::HANDLE "\n"; 
   }
 
   SMake::Utils::Print::printIndent($indent + 1);

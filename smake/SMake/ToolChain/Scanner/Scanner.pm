@@ -74,13 +74,14 @@ sub installExternalResource {
     # -- create the external resource
     $extres = $artifact->createResource(
         $context,
+        $SMake::Model::Const::EXTERNAL_LOCATION,
         $module,
         $name,
-        $SMake::Model::Const::EXTERNAL_LOCATION,
         $insttask);
   }
   else {
-    $extres = $artifact->getResource($module, $name);
+    $extres = $artifact->getResource(
+        $SMake::Model::Const::EXTERNAL_LOCATION, $module, $name);
     if(!defined($extres)) {
       die "there is something wrong: resource '" . $name->asString() . "' is missing!";
     }

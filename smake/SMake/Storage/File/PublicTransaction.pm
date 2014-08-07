@@ -45,7 +45,8 @@ sub registerResource {
   my ($this, $resource, $project) = @_;
   
   # -- get already existing or create new record
-  my $record = $this->{table}->get(SMake::Model::Resource::createKey(@$resource));
+  my $key = SMake::Model::Resource::createKey(@$resource);
+  my $record = $this->{table}->get($key);
   if(!defined($record)) {
     $record = [];
   }
@@ -90,7 +91,7 @@ sub unregisterResource {
 #    list ...... list of project's key tuples or undef
 sub searchResource {
   my ($this, $resource) = @_;
-  
+
   my $key = SMake::Model::Resource::createKey(@$resource);
   my $record = $this->{table}->get($key);
   if(defined($record)) {

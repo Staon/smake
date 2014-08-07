@@ -92,7 +92,7 @@ sub staticRegister {
   # -- local header paths
   $toolchain->appendProfile(SMake::Profile::LocalDirs->new(
       '^' . quotemeta($SMake::Platform::Generic::Const::C_TASK) . '$',
-      $SMake::Platform::Const::HEADERDIR_GROUP,
+      $SMake::Platform::Generic::Const::HEADERDIR_GROUP,
       '^' . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE) . '$',
       "^" . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE . "/"),
       1));

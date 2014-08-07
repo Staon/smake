@@ -29,7 +29,7 @@ sub newSource {
   my $this = bless({}, $class);
 
   my $ts = $task->getObject()->getSourceTimestamp(
-      $resource->getType(), $resource->getName());
+      $resource->getLocation(), $resource->getType(), $resource->getName());
   if(!defined($ts)) {
     $ts = $task->getObject()->createSourceTimestamp($resource->getObject());
   }
@@ -51,7 +51,7 @@ sub newTarget {
   my $this = bless({}, $class);
 
   my $ts = $task->getObject()->getTargetTimestamp(
-      $resource->getType(), $resource->getName());
+      $resource->getLocation(), $resource->getType(), $resource->getName());
   if(!defined($ts)) {
     $ts = $task->getObject()->createTargetTimestamp($resource->getObject());
   }

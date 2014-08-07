@@ -144,8 +144,8 @@ sub createTargetTimestamp {
 }
 
 sub getTargetTimestamp {
-  my ($this, $type, $name) = @_;
-  return $this->{targets}->{SMake::Model::Timestamp::createKey($type, $name)};
+  my ($this, $location, $type, $name) = @_;
+  return $this->{targets}->{SMake::Model::Timestamp::createKey($location, $type, $name)};
 }
 
 sub getTargetTimestamps {
@@ -182,8 +182,8 @@ sub createSourceTimestamp {
 }
 
 sub getSourceTimestamp {
-  my ($this, $type, $name) = @_;
-  return $this->{sources}->{SMake::Model::Timestamp::createKey($type, $name)};
+  my ($this, $location, $type, $name) = @_;
+  return $this->{sources}->{SMake::Model::Timestamp::createKey($location, $type, $name)};
 }
 
 sub getSourceTimestamps {

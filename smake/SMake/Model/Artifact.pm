@@ -97,7 +97,8 @@ sub getProject {
 
 # Create new resource
 #
-# Usage: createResource($type, $name, $location, $task)
+# Usage: createResource($location, $type, $name, $location, $task)
+#    location .. resource location type
 #    name ...... name of the resource (relative path based on the artifact)
 #    type ...... type of the resource
 #    location .. resource location type
@@ -108,7 +109,7 @@ sub createResource {
 
 # Get resource
 #
-# Usage: getResource($type, $path)
+# Usage: getResource($location, $type, $path)
 # Returns: undef or the resource
 sub getResource {
   SMake::Utils::Abstract::dieAbstract();
@@ -117,7 +118,7 @@ sub getResource {
 # Get list of strings which represent artifact's resources
 #
 # Usage: getResourceKeys()
-# Returns: \@list of tuples [$type, $name]
+# Returns: \@list of tuples [$location, $type, $name]
 sub getResourceKeys {
   SMake::Utils::Abstract::dieAbstract();
 }
@@ -125,7 +126,7 @@ sub getResourceKeys {
 # Delete specified resources
 #
 # Usage: deleteResources(\@list)
-#    list .... list of tuples ($type, $name)
+#    list .... list of tuples ($location, $type, $name)
 sub deleteResources {
   SMake::Utils::Abstract::dieAbstract();
 }

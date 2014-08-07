@@ -62,7 +62,7 @@ sub doJob {
         undef,
         undef);
     my $instres = $artifact->createResource(
-        $context, $this->{instmodule}, $path, $SMake::Model::Const::PUBLIC_LOCATION, $task);
+        $context, $SMake::Model::Const::PUBLIC_LOCATION, $this->{instmodule}, $path, $task);
     $instres->publishResource();
     $task->appendSource($context, $resource);
   }

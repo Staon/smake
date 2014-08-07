@@ -41,14 +41,14 @@ sub new {
 
 # (static) Create string key
 #
-# Usage: createKey($type, $name)
+# Usage: createKey($location, $type, $name)
 sub createKeyTuple {
   return SMake::Model::Resource::createKeyTuple(@_);
 }
 
 # (static) Create string key
 #
-# Usage: createKey($type, $name)
+# Usage: createKey($location, $type, $name)
 sub createKey {
   return SMake::Model::Resource::createKey(@_);
 }
@@ -63,6 +63,12 @@ sub getKeyTuple {
 sub getKey {
   my ($this) = @_;
   return $this->getResource()->getKey();
+}
+
+# Get resource location type
+sub getLocation {
+  my ($this) = @_;
+  return $this->getResource()->getLocation();
 }
 
 # Get resource type

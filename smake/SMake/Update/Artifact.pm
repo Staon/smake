@@ -153,17 +153,17 @@ sub getProject {
 
 # Create resource or use already created
 #
-# Usage: createResource($context, $type, $name, $location, $task)
+# Usage: createResource($context, $location, $type, $name, $task)
 #    context ... parser context
+#    location .. location type
 #    type ...... type of the resource
 #    name ...... name of the resource (relative path based on the artifact)
-#    location .. location type
 #    task ...... a task which generates this resource
 sub createResource {
-  my ($this, $context, $type, $name, $location, $task) = @_;
+  my ($this, $context, $location, $type, $name, $task) = @_;
 
   my $resource = SMake::Update::Resource->new(
-      $context, $this, $type, $name, $location, $task);
+      $context, $this, $location, $type, $name, $task);
   $this->{resources}->addItem($resource);
   $task->appendTarget($context, $resource);
   return $resource;
@@ -181,7 +181,9 @@ sub createProductDirResource {
 
   # -- check if the resource already exists
   my $resource = $this->getResource(
-      $SMake::Model::Const::BUILD_TREE_RESOURCE, $name);
+      $SMake::Model::Const::PRODUCT_LOCATION,
+      $SMake::Model::Const::BUILD_TREE_RESOURCE,
+      $name);
   if(!defined($resource)) {
     # -- it doesn't -> create new
     my $dirtask = $this->createTaskInStage(
@@ -194,9 +196,9 @@ sub createProductDirResource {
         undef);
     $resource = $this->createResource(
         $context,
+        $SMake::Model::Const::PRODUCT_LOCATION,
         $SMake::Model::Const::BUILD_TREE_RESOURCE,
         $name,
-        $SMake::Model::Const::PRODUCT_LOCATION,
         $dirtask);
     if(defined($parentres)) {
       $dirtask->appendSource($context, $parentres);
@@ -219,7 +221,7 @@ sub createProductResource {
 
   # -- create the resource
   my $resource = $this->createResource(
-      $context, $type, $name, $SMake::Model::Const::PRODUCT_LOCATION, $task);
+      $context, $SMake::Model::Const::PRODUCT_LOCATION, $type, $name, $task);
 
   # -- create the directory resources
   my $parentres;
@@ -241,15 +243,16 @@ sub createProductResource {
 
 # Get resource object
 #
-# Usage: getResource($type, $name)
-#    type .... type of the resource
-#    name .... name of the resource (relative path)
+# Usage: getResource($location, $type, $name)
+#    location .. resource location type
+#    type ...... type of the resource
+#    name ...... name of the resource (relative path)
 # Returns: the resource or undef
 sub getResource {
-  my ($this, $type, $name) = @_;
+  my ($this, $location, $type, $name) = @_;
 
   my $resource = $this->{resources}->getItemByKey(
-      SMake::Model::Resource::createKey($type, $name));
+      SMake::Model::Resource::createKey($location, $type, $name));
   return ($resource)?$resource:undef;
 }
 
@@ -467,9 +470,9 @@ sub appendSourceResources {
     # -- create resource
     my $resource = $this->createResource(
         $context,
+        $SMake::Model::Const::SOURCE_LOCATION,
         $SMake::Model::Const::SOURCE_RESOURCE,
         $prefix->joinPaths($name),
-        $SMake::Model::Const::SOURCE_LOCATION,
         $task);
     push @$reslist, $resource;
   }

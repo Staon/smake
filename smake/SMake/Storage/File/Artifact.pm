@@ -124,29 +124,29 @@ sub getProject {
 }
 
 sub createResource {
-  my ($this, $type, $name, $location, $task) = @_;
+  my ($this, $location, $type, $name, $task) = @_;
 
   my $resource = SMake::Storage::File::Resource->new(
       $this->{repository},
       $this->{storage},
       $this,
       $this->{path},
+      $location,
       $type,
       $name,
-      $location,
       $task);
   $this->{resources}->{$resource->getKey()} = $resource;
   return $resource;
 }
 
 sub getResource {
-  my ($this, $type, $name) = @_;
-  return $this->{resources}->{SMake::Model::Resource::createKey($type, $name)};
+  my ($this, $location, $type, $name) = @_;
+  return $this->{resources}->{SMake::Model::Resource::createKey($location, $type, $name)};
 }
 
 sub getResourceKeys {
   my ($this) = @_;
-  return [map { [$_->getType(), $_->getName()] } values(%{$this->{resources}})];
+  return [map { $_->getKeyTuple() } values(%{$this->{resources}})];
 }
 
 sub deleteResources {
@@ -259,12 +259,7 @@ sub getDependencyRecords {
 sub searchResource {
   my ($this, $restype, $path, $location) = @_;
 
-  print "$restype " . $path->asString() . "$location\n";
-
   foreach my $resource (values %{$this->{resources}}) {
-  	
-  	print "  " . $resource->getType() . " " . $resource->getName()->asString() . " " . $resource->getLocation() . "\n";
-  	
     if($resource->getType() =~ /$restype/
        && $resource->getName()->asString() eq $path->asString()
        && $resource->getLocation() =~ /$location/) {

@@ -69,7 +69,7 @@ sub doJob {
       $resource->getTask()->getArguments());
   $task->appendSource($context, $resource);
   my $tgres = $artifact->createResource(
-      $context, $tgtype, $tgname, $tglocation, $task);
+      $context, $tglocation, $tgtype, $tgname, $task);
   $queue->pushResource($tgres);
 }
 

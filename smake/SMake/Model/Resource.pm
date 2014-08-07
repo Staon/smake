@@ -33,11 +33,6 @@ sub new {
 # Update attributes of the resource
 #
 # Usage: update($location, $task)
-#    location .. location type. The type can be:
-#         $SMake::Model::Const::SOURCE_LOCATION .... source resource
-#         $SMake::Model::Const::PRODUCT_LOCATION ... product (created during the build)
-#         $SMake::Model::Const::EXTERNAL_LOCATION .. resource from another project
-#         $SMake::Model::Const::PUBLIC_LOCATION .... resource published from the project
 #    task ...... task which creates the resource
 sub update {
   SMake::Utils::Abstract::dieAbstract();
@@ -45,40 +40,45 @@ sub update {
 
 # (static) create key tuple
 #
-# Usage: createKeyTuple($type, $name)
+# Usage: createKeyTuple($location, $type, $name)
+#    location . resource location type
 #    type ..... task type
 #    name ..... name of the resource (relative path)
 sub createKeyTuple {
-  my ($type, $name) = @_;
-  return [$type, $name];
+  my ($location, $type, $name) = @_;
+  return [$location, $type, $name];
 }
 
 # (static) create string key
 #
-# Usage: createKey($type, $name)
+# Usage: createKey($location, $type, $name)
+#    location . resource location type
 #    type ..... task type
 #    name ..... name of the resource (relative path)
 sub createKey {
-  my ($type, $name) = @_;
-  return $type . "@" . $name->hashKey();
+  my ($location, $type, $name) = @_;
+  return $location . '@' . $type . '@' . $name->hashKey();
 }
 
 sub getKeyTuple {
   my ($this) = @_;
-  return createKeyTuple($this->getType(), $this->getName());
+  return createKeyTuple($this->getLocation(), $this->getType(), $this->getName());
 }
 
 sub getKey {
   my ($this) = @_;
-  return createKey($this->getType(), $this->getName());
+  return createKey($this->getLocation(), $this->getType(), $this->getName());
 }
 
-# Get name of the resource
+# Get resource location type
 #
-# The name is a Path object, which contains a relative path of the resource
-# based on the artifact location. Or the name can be a relative path of an
-# external resource. The path must be unique in the project.
-sub getName {
+# Usage: getLocation()
+# Returns:
+#    $SMake::Model::Const::SOURCE_LOCATION .... source resource
+#    $SMake::Model::Const::PRODUCT_LOCATION ... product (created during the build)
+#    $SMake::Model::Const::EXTERNAL_LOCATION .. resource from another project
+#    $SMake::Model::Const::PUBLIC_LOCATION .... resource published from the project
+sub getLocation {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -87,6 +87,15 @@ sub getName {
 # For example type can be "file" for physical file, "install" for a resource
 # which is created in the installation are etc.
 sub getType {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get name of the resource
+#
+# The name is a Path object, which contains a relative path of the resource
+# based on the artifact location. Or the name can be a relative path of an
+# external resource. The path must be unique in the project.
+sub getName {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -132,11 +141,6 @@ sub getProject {
   return $this->getArtifact()->getProject();
 }
 
-# Get resource location type
-sub getLocation {
-  SMake::Utils::Abstract::dieAbstract();
-}
-
 # Get task which is a creator of the resource
 #
 # Returns: the task or undef, if the resource is an external resource
@@ -166,10 +170,10 @@ sub prettyPrint {
   my ($this, $indent) = @_;
   
   print ::HANDLE "Resource(" 
+      . $this->getLocation() . ", "
       . $this->getType() . ", " 
       . $this->getName()->asString() . ", "
       . $this->getPath()->asString() . ", "
-      . $this->getLocation()
       . ")";
 }
 
