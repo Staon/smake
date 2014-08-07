@@ -68,21 +68,8 @@ sub appendResolver {
   $this->{resolver}->appendResolver($resolver);
 }
 
-sub constructArtifact {
-  my ($this, $context, $artifact) = @_;
-  
-  # -- create main resources
-  foreach my $record (@{$this->{resources}}) {
-    $record->createMainResource($context, $artifact);
-  }
-  
-  # -- clear pushed resolvers and scanners
-  $context->clearScanners();
-  $context->clearResolvers();
-}
-
-sub resolveResources {
-  my ($this, $context, $artifact, $list) = @_;
+sub resolveResourcesQueue {
+  my ($this, $context, $artifact, $queue) = @_;
 
   # -- push resolver and scanner into the context to allow pushing of artifact dependent
   #    resolvers and scanners
@@ -90,7 +77,6 @@ sub resolveResources {
   $context->pushScanner($context->getToolChain()->getScanner());
   
   # -- resolve resources
-  my $queue = SMake::ToolChain::Constructor::Queue->new($list);
   for(
       $resource = $queue->getResource();
       defined($resource);
@@ -107,6 +93,28 @@ sub resolveResources {
   # -- clear pushed resolvers and scanners
   $context->clearScanners();
   $context->clearResolvers();
+}
+
+sub constructArtifact {
+  my ($this, $context, $artifact) = @_;
+  
+  # -- create main resources
+  my $queue = SMake::ToolChain::Constructor::Queue->new([]);
+  foreach my $record (@{$this->{resources}}) {
+    $record->createMainResource($context, $artifact, $queue);
+  }
+  $this->resolveResourcesQueue($context, $artifact, $queue);
+  
+  # -- clear pushed resolvers and scanners
+  $context->clearScanners();
+  $context->clearResolvers();
+}
+
+sub resolveResources {
+  my ($this, $context, $artifact, $list) = @_;
+
+  my $queue = SMake::ToolChain::Constructor::Queue->new($list);
+  $this->resolveResourcesQueue($context, $artifact, $queue);
 }
 
 sub resolveDependencies {

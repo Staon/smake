@@ -50,12 +50,13 @@ sub scanSource {
 #    artifact ..... artifact of the scanned resource
 #    resource ..... the scanned resource
 #    task ......... a task which the scanned resource is a source for
-#    restype ...... resource type of the external resource
-#    name ......... name of the external resource
 #    module ....... installation module
+#    name ......... name of the external resource
 sub installExternalResource {
-  my ($this, $context, $artifact, $resource, $task, $restype, $name, $module) = @_;
+  my ($this, $context, $artifact, $resource, $task, $module, $name) = @_;
 
+  $name = SMake::Data::Path->new($module, $name);
+  
   # -- create the installation stage
   my $stagename = "install:" . $name->asString();
   my $stage = $artifact->getStage($stagename);
@@ -72,12 +73,16 @@ sub installExternalResource {
         undef);
     # -- create the external resource
     $extres = $artifact->createResource(
-        $context, $restype, $path, $module, $insttask);
+        $context,
+        $module,
+        $name,
+        $SMake::Model::Const::EXTERNAL_LOCATION,
+        $insttask);
   }
   else {
-    $extres = $artifact->getResource($restype, $path);
+    $extres = $artifact->getResource($module, $name);
     if(!defined($extres)) {
-      die "there is something wrong: resource '" . $path->asString() . "' is missing!";
+      die "there is something wrong: resource '" . $name->asString() . "' is missing!";
     }
   }
   

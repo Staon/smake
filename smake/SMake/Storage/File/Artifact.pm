@@ -257,11 +257,17 @@ sub getDependencyRecords {
 }
 
 sub searchResource {
-  my ($this, $restype, $path) = @_;
+  my ($this, $restype, $path, $location) = @_;
+
+  print "$restype " . $path->asString() . "$location\n";
 
   foreach my $resource (values %{$this->{resources}}) {
+  	
+  	print "  " . $resource->getType() . " " . $resource->getName()->asString() . " " . $resource->getLocation() . "\n";
+  	
     if($resource->getType() =~ /$restype/
-       && $resource->getName()->asString() eq $path->asString()) {
+       && $resource->getName()->asString() eq $path->asString()
+       && $resource->getLocation() =~ /$location/) {
       return $resource;
     }
   }

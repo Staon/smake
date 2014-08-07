@@ -75,7 +75,9 @@ sub register {
   $resolver->appendProfile($profile);
   
   # -- C headers
-  $toolchain->registerFeature([SMake::Platform::Generic::HeaderScanner, '[.]cpp$']);
+  $toolchain->registerFeature(
+      [SMake::Platform::Generic::HeaderScanner,
+       '^' . $SMake::Platform::Generic::Const::CXX_RESOURCE . '$']);
   $toolchain->registerFeature(SMake::Platform::Generic::CHeader);
 }
 
@@ -91,7 +93,7 @@ sub staticRegister {
   );
   # -- local include directories
   $toolchain->appendProfile(SMake::Profile::LocalDirs->new(
-      $SMake::Platform::Generic::Const::CXX_TASK,
+      '^' . quotemeta($SMake::Platform::Generic::Const::CXX_TASK) . '$',
       $SMake::Platform::Generic::Const::HEADERDIR_GROUP,
       '^' . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE) . '$',
       "^" . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE . "/"),

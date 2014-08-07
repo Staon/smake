@@ -36,9 +36,12 @@ sub resolveLocal {
 
   my $project = $resource->getProject();
   my $resolved = $project->searchResource(
-      "^" . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . "|"
-          . quotemeta($SMake::Model::Const::PRODUCT_RESOURCE) . "\$",
-      $resource->getName()->removePrefix(1));
+      '.*',
+      $resource->getName()->removePrefix(1),
+      '^' . quotemeta($SMake::Model::Const::SOURCE_LOCATION)
+        . '|' . quotemeta($SMake::Model::Const::PRODUCT_LOCATION)
+        . '$'
+  );
   if(defined($resolved)) {
     return 1, $resolved;
   }
@@ -74,8 +77,7 @@ sub resolveExternal {
   
   # -- search table of public resources
   my $prjlist = $context->getRepository()->searchPublicResource(
-      SMake::Model::Resource::createKeyTuple(
-          $SMake::Model::Const::PUBLISH_RESOURCE, $resource->getName()));
+      $resource->getKeyTuple());
   if(defined($prjlist)) {
   	# -- TODO: select appropriate project
     my $project = $context->getVisibility()->getProject(
@@ -83,8 +85,9 @@ sub resolveExternal {
     
     # -- search public resource in the project
     my $resolved = $project->searchResource(
-        "^" . quotemeta($SMake::Model::Const::PUBLISH_RESOURCE) . "\$",
-        $resource->getName());
+        ".*",
+        $resource->getName(),
+        '^' . quotemeta($SMake::Model::Const::PUBLIC_LOCATION) . '$');
     if(!defined($resolved)) {
       die "project '" . $prjlist->[0]->[0] 
           . "' doesn't exist but it's registered for public resource "
@@ -145,7 +148,7 @@ sub externalTransitiveClosure {
         my $task = $resolved->getTask();
         my $srctasks = $task->getSources();
         foreach my $src (@$srctasks) {
-          if($src->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
+          if($src->getLocation() eq $SMake::Model::Const::EXTERNAL_LOCATION) {
             push @queue, [$src, $reslocal];
           }
         }

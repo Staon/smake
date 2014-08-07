@@ -65,7 +65,8 @@ sub compose {
 # Returns: the record
 sub simpleRecord {
   my ($group, $deptype) = @_;
-  return new($group, '^' . quotemeta($deptype) . '$');
+  return SMake::Executor::Builder::Dependencies->new(
+      $group, '^' . quotemeta($deptype) . '$');
 }
 
 return 1;

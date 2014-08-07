@@ -46,12 +46,12 @@ sub new {
 
 sub scanSource {
   my ($this, $context, $queue, $artifact, $resource, $task) = @_;
-  
+    
   # -- check task and resource masks
   if(($resource->getType() =~ /$this->{restype}/)
       && ($resource->getName()->asString() =~ /$this->{resname}/)
       && ($task->getType() =~ /$this->{tasktype}/)) {
-      	
+
     # -- scan the file
     my $filename = $resource->getPhysicalPathString();
     local *SRCFILE;
@@ -65,15 +65,13 @@ sub scanSource {
       if($line =~ /^\s*#\s*include\s*[<"]([^">]+)[">]/) {
         my $path = $1;
         $path =~ s/\\/\//;  # -- windows paths
-        $path = SMake::Data::Path->new($this->{instmodule}, $path);
         $this->installExternalResource(
             $context,
             $artifact,
             $resource,
             $task,
-            $this->{restype},
-            $path,
-            $this->{instmodule});
+            $this->{instmodule},
+            SMake::Data::Path->new($path));
       }
     }
     close SRCFILE;

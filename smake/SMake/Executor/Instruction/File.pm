@@ -31,6 +31,10 @@ use SMake::Utils::Chdir;
 sub new {
   my ($class, $file, $wdir, $separator, $arguments) = @_;
   
+  if($file =~ /^$/) {
+    die "file";
+  }
+  
   my $this = bless(SMake::Executor::Instruction::Instruction->new(), $class);
   $this->{file} = $file;
   $this->{wdir} = $wdir;

@@ -35,6 +35,7 @@ sub register {
       $mangler,
       $SMake::Platform::Generic::Const::DLL_STAGE,
       $SMake::Platform::Generic::Const::DLL_TASK,
+      0,
       {});
   $constructor->appendMainResource($mres);
   

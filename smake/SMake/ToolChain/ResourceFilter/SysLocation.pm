@@ -43,7 +43,7 @@ sub new {
 sub filterResource {
   my ($this, $context, $resource) = @_;
 
-  if($resource->getType() eq $SMake::Model::Const::EXTERNAL_RESOURCE) {
+  if($resource->getLocation() eq $SMake::Model::Const::EXTERNAL_LOCATION) {
     # -- translate resource name
     my $name = $resource->getName()->removePrefix(1)->systemRelative();
     if(defined($this->{transtable}->{$name})) {

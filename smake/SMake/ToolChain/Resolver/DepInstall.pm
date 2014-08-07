@@ -27,14 +27,15 @@ use SMake::Utils::Searching;
 
 # Create new dependency installation resolver
 #
-# Usage: new($mask, $stage, $mainres|[$mainres*], $instmodule)
+# Usage: new($mask, $stage, $mainres|[$mainres*], $deptype, $instmodule)
 #    mask ........ mask of the dependency type
 #    stage ....... name of the installation stage
 #    mainres ..... list of main resources which are dependent on the installation
 #        stage.
+#    deptype ..... type of the dependency added into the main resource
 #    instmodule .. installation module
 sub new {
-  my ($class, $mask, $stage, $mainres, $instmodule) = @_;
+  my ($class, $mask, $stage, $mainres, $deptype, $instmodule) = @_;
 
   my $this = bless(SMake::ToolChain::Resolver::Dependency->new($mask), $class);
   $this->{stage} = $stage;
@@ -44,7 +45,9 @@ sub new {
   else {
     $this->{mainres} = [$mainres];
   }
+  $this->{deptype} = $deptype;
   $this->{instmodule} = $instmodule;
+
   return $this;
 }
 
@@ -75,14 +78,14 @@ sub doJob {
   # -- get installation dependency
   my $instdep = $artifact->getDependency(
       $SMake::Model::Dependency::STAGE_KIND,
-      $SMake::Model::Const::INSTALL_DEPENDENCY,
+      $this->{deptype},
       $artifact->getProject()->getName(),
       $artifact->getName(),
       $this->{stage});
   if(!defined($instdep)) {
     $instdep = $artifact->createStageDependency(
         $context,
-        $SMake::Model::Const::INSTALL_DEPENDENCY,
+        $this->{deptype},
         $artifact->getProject()->getName(),
         $artifact->getName(),
         $this->{stage});

@@ -183,7 +183,7 @@ sub registerFeature {
         $this, $this->{curr_constructor}, @static_args);
     $this->{features}->{$key} = 1;
   }
-  
+
   # -- instance initialization
   $modulename->register(
       $this, $this->{curr_constructor}, @static_args, @args);

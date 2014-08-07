@@ -29,7 +29,7 @@ use SMake::ToolChain::Resolver::DepResource;
 use SMake::ToolChain::Resolver::Link;
 
 sub register {
-  my ($class, $toolchain, $constructor, $mangler, $objecttype, $objectmask) = @_;
+  my ($class, $toolchain, $constructor, $taskname, $srcres, $mangler, $objecttype, $objectmask) = @_;
   
   # -- register main resource
   my $mres = SMake::ToolChain::Constructor::MainResource->new(
@@ -38,6 +38,7 @@ sub register {
       $mangler,
       $SMake::Platform::Generic::Const::BIN_STAGE,
       $SMake::Platform::Generic::Const::BIN_TASK,
+      0,
       {});
   $constructor->appendMainResource($mres);
   
@@ -60,12 +61,21 @@ sub register {
           $SMake::Platform::Generic::Const::LIB_INSTALL_STAGE,
           [[$SMake::Platform::Generic::Const::BIN_MAIN_TYPE_LINKER,
             $SMake::Platform::Generic::Const::BIN_MAIN_TYPE]],
+          $SMake::Platform::Generic::Const::LIB_INSTALL_DEPENDENCY,
           $SMake::Platform::Generic::Const::LIB_MODULE));
   $constructor->appendResolver($resolver);
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain, $constructor, $task, $srcres) = @_;
+
+  # -- default source resource are classic .o files and the binary task
+  if(!defined($task)) {
+    $task = $SMake::Platform::Generic::Const::BIN_TASK;
+  }
+  if(!defined($srcres)) {
+    $srcres = $SMake::Platform::Generic::Const::OBJ_RESOURCE;
+  }
 
   # -- it appends library directories from the installation area
   $toolchain->appendProfile(SMake::Profile::InstallPaths->new(
@@ -77,10 +87,10 @@ sub staticRegister {
 
   # -- command builder
   $toolchain->getBuilder()->appendBuilders(
-    [$SMake::Platform::Generic::Const::BIN_TASK, SMake::Executor::Builder::Compile->new(
+    [$task, SMake::Executor::Builder::Compile->new(
         SMake::Executor::Builder::Resources::sourceResources(
             $SMake::Platform::Generic::Const::SOURCE_GROUP,
-            $SMake::Platform::Generic::Const::OBJ_RESOURCE),
+            $srcres),
         SMake::Executor::Builder::Resources::targetResources(
             $SMake::Platform::Generic::Const::PRODUCT_GROUP,
             $SMake::Platform::Generic::Const::BIN_RESOURCE),

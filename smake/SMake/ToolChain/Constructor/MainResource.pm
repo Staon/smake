@@ -22,30 +22,33 @@ use SMake::Model::Const;
 
 # Create new record
 #
-# Usage: new($restype, $maintype, $mangler, $stage, $task, \%args)
+# Usage: new($restype, $maintype, $mangler, $stage, $task, $resolve, \%args)
 #    restype .... type of the created resource
 #    maintype ... type of the main resource (when it's searched from a dependency)
 #    mangler .... mangler description for the main resource
 #    stage ...... name of the stage which the resource is created in
 #    task ....... type of the task which creates the resource
+#    resolve .... if it's true, the created main resource will be processed by
+#        the resource resolvers
 #    args ....... arguments of the task
 sub new {
-  my ($class, $restype, $maintype, $mangler, $stage, $task, $args) = @_;
+  my ($class, $restype, $maintype, $mangler, $stage, $task, $resolve, $args) = @_;
   return bless({
     restype => $restype,
   	maintype => $maintype,
     mangler => $mangler,
     stage => $stage,
     task => $task,
+    resolve => $resolve,
     args => $args,
   }, $class);
 }
 
 # Create main resource
 #
-# Usage: createMainResource($context, $artifact)
+# Usage: createMainResource($context, $artifact, $queue)
 sub createMainResource {
-  my ($this, $context, $artifact) = @_;
+  my ($this, $context, $artifact, $queue) = @_;
 
   # -- create name of the main resource
   my $prefix = $context->getResourcePrefix();
@@ -68,6 +71,11 @@ sub createMainResource {
   
   # -- append the main resource
   $artifact->appendMainResource($context, $this->{maintype}, $resource);
+  
+  # -- resolve, if it's wanted
+  if($this->{resolve}) {
+    $queue->pushResource($resource);
+  }
 }
 
 return 1;

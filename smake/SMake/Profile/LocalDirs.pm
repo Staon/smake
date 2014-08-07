@@ -30,16 +30,17 @@ use SMake::Utils::Searching;
 
 # Create new profile
 #
-# Usage: new($cmdmask, $address, $resmask, $prepend)
+# Usage: new($cmdmask, $address, $typemask, $resmask, $prepend)
 #    cmdmask ..... a regular expression of command type
 #    address ..... address of the command node (an SMake::Data::Path object or
 #                  appropriately formatted string)
-#    restype ..... a regular expression to match type of the external resources
+#    typemask..... a regular expression to match type of the external resources
 #    resmask ..... a regular expression to match names of external resources
 #    prepend ..... if it's true, the paths are prepended
 sub new {
-  my ($class, $cmdmask, $address, $resmask, $prepend) = @_;
+  my ($class, $cmdmask, $address, $typemask, $resmask, $prepend) = @_;
   my $this = bless(SMake::Profile::NodeProfile->new($cmdmask, $address), $class);
+  $this->{typemask} = $typemask;
   $this->{resmask} = $resmask;
   $this->{prepend} = $prepend;
   return $this;

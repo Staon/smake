@@ -44,18 +44,21 @@ sub register {
 
   # -- generic parts
   $toolchain->registerFeature(
-      SMake::Platform::Generic::Bin,
+      [SMake::Platform::Generic::Bin,
+        $SMake::Platform::Generic::Const::BIN_TASK,
+        $AVECO_LINK_RESOURCE],
       'Dir() . Name()',
       '^' . quotemeta($AVECO_LINK_RESOURCE) . '$',
       '[.]lnk$');
 
   # -- linker main type (a main type which the library dependecies are added in)
   my $mres = SMake::ToolChain::Constructor::MainResource->new(
-      $SMake::Platform::Generic::Const::AVECO_LINK_RESOURCE,
+      $AVECO_LINK_RESOURCE,
       $SMake::Platform::Generic::Const::BIN_MAIN_TYPE_LINKER,
-      $mangler,
+      'Dir() . Name() . ".lnk"',
       $SMake::Platform::Generic::Const::BIN_STAGE,
-      $SMake::Platform::Generic::Const::AVECO_LINK,
+      $AVECO_LINK,
+      1,
       {});
   $constructor->appendMainResource($mres);
   
@@ -63,7 +66,7 @@ sub register {
   my $resolver = SMake::ToolChain::Resolver::Link->new(
       '^' . quotemeta($SMake::Platform::Generic::Const::OBJ_RESOURCE) . '$',
       '.*',
-      $SMake::Platform::Generic::Const::BIN_MAIN_TYPE);
+      $SMake::Platform::Generic::Const::BIN_MAIN_TYPE_LINKER);
   $constructor->appendResolver($resolver);
 
   # -- register standard compilers
@@ -89,7 +92,7 @@ sub staticRegister {
             $SMake::Platform::Generic::Const::OBJ_RESOURCE),
         SMake::Executor::Builder::Resources::targetResources(
             $SMake::Platform::Generic::Const::PRODUCT_GROUP,
-            $SMake::Platform::Generic::Const::BIN_RESOURCE),
+            $AVECO_LINK_RESOURCE),
         SMake::Executor::Builder::Dependencies::simpleRecord(
             $SMake::Platform::Generic::Const::LIB_GROUP,
             $SMake::Platform::Generic::Const::LINK_DEPENDENCY),

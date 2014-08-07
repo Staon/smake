@@ -80,15 +80,30 @@ sub compose {
 #    group ..... name of the group
 #    restype ... name of type of source resources
 # Returns: the record
+sub createResourceRecord {
+  my ($target, $group, $restype) = @_;
+  
+  my $mask;
+  if(defined($restype)) {
+    $mask = '^' . quotemeta($restype) . '$';
+  }
+  else {
+    $mask = '.*';
+  }
+  return SMake::Executor::Builder::Resources->new($target, $group, $mask, '.*');
+}
+
+# Helper method (static)
+#
+# Create resource record for source resources
+#
+# Usage: sourceResources($group, $restype)
+#    group ..... name of the group
+#    restype ... name of type of source resources
+# Returns: the record
 sub sourceResources {
   my ($group, $restype) = @_;
-  
-  return SMake::Executor::Builder::Resources->new(
-      0,
-      $group,
-      '^' . quotemeta($restype) . '$',
-      '.*'
-  );
+  return createResourceRecord(0, $group, $restype);
 }
 
 # Helper method (static)
@@ -101,13 +116,7 @@ sub sourceResources {
 # Returns: the record
 sub targetResources {
   my ($group, $restype) = @_;
-  
-  return SMake::Executor::Builder::Resources->new(
-      1,
-      $group,
-      '^' . quotemeta($restype) . '$',
-      '.*'
-  );
+  return createResourceRecord(1, $group, $restype);
 }
 
 return 1;

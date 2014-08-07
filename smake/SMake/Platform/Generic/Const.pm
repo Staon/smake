@@ -59,13 +59,15 @@ $BIN_TASK = "bin";
 $BIN_RESOURCE = "bin";
 
 # -- dependency types
-$LINK_DEPENDENCY = "link";
+$LINK_DEPENDENCY = "link";     # -- library linking
 
-# -- installation
-$INSTALL_DEPENDENCY = "install";
+# -- library installation
+$LIB_INSTALL_DEPENDENCY = "install";  # -- dependency of a task on the install stage
 $LIB_INSTALL_STAGE = "libinstall";
-$HEADER_MODULE = "include";
 $LIB_MODULE = "lib";
+
+# -- header installation
+$HEADER_MODULE = "include";
 
 # -- profile variables
 $VAR_HEADER_DIRECTORY = "HEADER_DIR";

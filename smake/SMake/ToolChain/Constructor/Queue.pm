@@ -29,10 +29,10 @@ sub new {
 
 # Push a resource into the queue
 #
-# Usage: pushResource($resource)
+# Usage: pushResource($resource...)
 sub pushResource {
-  my ($this, $resource) = @_;
-  push @$this, $resource;
+  my ($this, @resource) = @_;
+  push @$this, @resource;
 }
 
 # Get and remove resource from the top of the queue

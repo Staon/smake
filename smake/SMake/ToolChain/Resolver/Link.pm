@@ -29,15 +29,20 @@ use SMake::Utils::Utils;
 
 # Create new resolver
 #
-# Usage: new($type, $file, $maintype, [$mangler, $tasktype, $newmain])
+# Usage: new($type, $file, $maintype, [$mangler, $tasktype, $mainres])
 #    type ...... mask of type of the resources
 #    file ...... mask of path of the resources
-#    maintype .. type of the main resource
+#    mainres ... type of the main resource
 sub new {
-  my ($class, $type, $file, $maintype) = @_;
+  my ($class, $type, $file, $mainres) = @_;
   my $this = bless(
       SMake::ToolChain::Resolver::Resource->new($type, $file), $class);
-  $this->{maintype} = $maintype;
+  if(ref($mainres) eq "ARRAY") {
+    $this->{mainres} = $mainres;
+  }
+  else {
+    $this->{mainres} = [$mainres];
+  }
   return $this;
 }
 
@@ -46,7 +51,8 @@ sub doJob {
 
   # -- get the main resource
   my $artifact = $context->getArtifact();
-  my $main_resource = $artifact->getMainResource($this->{maintype});
+  my $main_resource = SMake::Utils::Searching::resolveMainResource(
+        $artifact, $this->{mainres});
   if(!defined($main_resource)) {
     SMake::Utils::Utils::dieReport(
         $context->getReporter(),

@@ -49,7 +49,7 @@ sub register {
         # -- header scanner
         $toolchain->registerFeature(
             [SMake::Platform::Generic::HeaderScanner,
-             $SMake::Platform::Generic::Const::H_RESOURCE
+             '^' . $SMake::Platform::Generic::Const::H_RESOURCE . '$'
             ]
         );
       },

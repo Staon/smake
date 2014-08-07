@@ -127,10 +127,10 @@ sub getArtifacts {
 }
 
 sub searchResource {
-  my ($this, $restype, $path) = @_;
+  my ($this, $restype, $path, $location) = @_;
 
   foreach my $artifact (values %{$this->{artifacts}}) {
-    my $resource = $artifact->searchResource($restype, $path);
+    my $resource = $artifact->searchResource($restype, $path, $location);
     return $resource if(defined($resource));
   }
   return undef;
