@@ -45,7 +45,7 @@ sub filterResource {
 
   if($resource->getLocation() eq $SMake::Model::Const::EXTERNAL_LOCATION) {
     # -- translate resource name
-    my $name = $resource->getName()->removePrefix(1)->systemRelative();
+    my $name = $resource->getName()->systemRelative();
     if(defined($this->{transtable}->{$name})) {
       $name = $this->{transtable}->{$name};
     }

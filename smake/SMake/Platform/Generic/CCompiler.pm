@@ -94,7 +94,7 @@ sub staticRegister {
       '^' . quotemeta($SMake::Platform::Generic::Const::C_TASK) . '$',
       $SMake::Platform::Generic::Const::HEADERDIR_GROUP,
       '^' . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE) . '$',
-      "^" . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE . "/"),
+      '.*',
       1));
 
   # -- command builder

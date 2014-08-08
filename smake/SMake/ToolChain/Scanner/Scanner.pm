@@ -55,9 +55,8 @@ sub scanSource {
 sub installExternalResource {
   my ($this, $context, $artifact, $resource, $task, $module, $name) = @_;
 
-  $name = SMake::Data::Path->new($module, $name);
-  
   # -- create the installation stage
+  $name = SMake::Data::Path->new($name);
   my $stagename = "install:" . $name->asString();
   my $stage = $artifact->getStage($stagename);
   my $extres;

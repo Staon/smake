@@ -49,8 +49,7 @@ sub doJob {
   my $profvar = $context->getProfiles()->getVariable($context, $this->{path});
   if(defined($profvar)) {
     # -- construct name of the public resource
-    my $path = SMake::Data::Path->new(
-        $this->{instmodule}, $profvar, $resource->getName()->getBasepath());
+    my $path = SMake::Data::Path->new($profvar, $resource->getName()->getBasepath());
   
     # -- create the public resource and its task
     my $task = $artifact->createTaskInStage(

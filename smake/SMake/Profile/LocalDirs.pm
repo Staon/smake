@@ -57,9 +57,11 @@ sub modifyNode {
   my $srclist = $task->getSources();
   my $pathset = {};
   foreach my $src (@$srclist) {
+    my $name = $src->getName();
     if($src->getLocation() eq $SMake::Model::Const::EXTERNAL_LOCATION
        && $src->getType() =~ /$this->{typemask}/
-       && $src->getName()->asString() =~ /$this->{resmask}/) {
+       && $name->isBasepath()
+       && $name->asString() =~ /$this->{resmask}/) {
       # -- try to resolve the external resource in the local project
       my ($found, $resolved) = SMake::Utils::Searching::resolveLocal(
           $context, $SMake::Executor::Executor::SUBSYSTEM, $src);

@@ -173,7 +173,7 @@ sub prettyPrint {
       . $this->getLocation() . ", "
       . $this->getType() . ", " 
       . $this->getName()->asString() . ", "
-      . $this->getPath()->asString() . ", "
+      . $this->getPath()->asString()
       . ")";
 }
 

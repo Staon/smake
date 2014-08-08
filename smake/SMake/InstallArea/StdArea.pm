@@ -51,8 +51,8 @@ sub getBasePath {
 sub getPhysicalLocation {
   my ($this, $project, $resource) = @_;
 
-  my $module = $resource->getName()->getPart(0);
-  my $path = $resource->getName()->removePrefix(1);
+  my $module = $resource->getType();
+  my $path = $resource->getName();
   my $basepath = $this->getBasePath($project, $module);
   return $basepath->joinPaths($path);  
 }
@@ -108,8 +108,8 @@ sub installResource {
           $context,
           $subsystem,
           $project,
-          $res->[0]->getName()->getPart(0),
-          $res->[0]->getName()->removePrefix(1),
+          $res->[0]->getType(),
+          $res->[0]->getName(),
           $res->[1]);
     }
   }
