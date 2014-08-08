@@ -60,14 +60,14 @@ sub artifact {
 
   # -- new profile level
   $context->getProfiles()->pushList();
-  
-  # -- give a change to the profiles
-  $context->getProfiles()->artifactBegin(
-      $context, $SMake::Parser::Parser::SUBSYSTEM, $artifact);
 
   # -- construct the artifact
   $context->getRepository()->getToolChain()->getConstructor()
       ->constructArtifact($context, $artifact);
+
+  # -- give a chance to the profiles
+  $context->getProfiles()->artifactBegin(
+      $context, $SMake::Parser::Parser::SUBSYSTEM, $artifact);
   
   # -- switch parser state      
   my $state = SMake::Parser::States::Artifact->new($this);

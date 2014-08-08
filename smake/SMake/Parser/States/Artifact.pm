@@ -80,77 +80,11 @@ sub src {
 
 sub deps {
   my ($this, $parser, $context, $deptype, $deplist) = @_;
-  
+
+  # -- append dependencies  
   my $object = $context->getArtifact();
-  my $added = [];
-  foreach my $dep (@$deplist) {
-  	if(ref($dep) eq "ARRAY") {
-  	  # -- array record
-  	  my $project = $dep->[0];
-  	  my $artspec;
-  	  if(ref($dep->[1]) eq "ARRAY") {
-  	    $artspec = $dep->[1];
-  	  }
-  	  else {
-  	  	$artspec = [@$dep];
-  	  	shift @$artspec;
-  	  	if($#$artspec > 0) {
-  	  	  $artspec = [$artspec];
-  	  	}
-  	  }
-  	  
-  	  foreach my $spec (@$artspec) {
-  	  	my ($artifact, $mainres);
-  	    if(ref($spec) eq "ARRAY") {
-  	      ($artifact, $mainres) = @$spec;
-  	    }
-  	    else {
-  	      # -- string record
-          if($spec =~ /^([^\/\@]+)(\@[^\/]+)?$/) {
-            ($artifact, $mainres) = ($1, $2);
-            if(defined($mainres)) {
-              $mainres =~ s/^\@//;
-            }
-          }
-          else {
-            SMake::Utils::Utils::dieReport(
-                $context->getReporter(),
-                $SMake::Parser::Parser::SUBSYSTEM,
-                "string '%s' is not a valid dependency specification (artifact[\@mainres])",
-                $dep->[1]);
-          }
-  	    }
-        my $depobject = $object->createResourceDependency(
-            $context, $deptype, $project, $artifact, $mainres, undef);
-        push @$added, $depobject;
-  	  }
-  	}
-  	else {
-  	  # -- string record, parse it
-  	  if($dep =~ /^([^\/]+\/)?([^\/\@]+)(\@[^\/]+)?$/) {
-  	  	my ($project, $artifact, $mainres) = ($1, $2, $3);
-  	  	if(defined($project)) {
-  	  	  $project =~ s/[\/]$//;
-  	  	}
-  	  	else {
-  	  	  $project = $context->getProject()->getName();
-  	  	}
-  	  	if(defined($mainres)) {
-  	  	  $mainres =~ s/^\@//;
-  	  	}
-        my $depobject = $object->createResourceDependency(
-            $context, $deptype, $project, $artifact, $mainres);
-        push @$added, $depobject;
-  	  }
-  	  else {
-        SMake::Utils::Utils::dieReport(
-            $context->getReporter(),
-            $SMake::Parser::Parser::SUBSYSTEM,
-            "string '%s' is not a valid dependency specification ([project/]artifact[\@mainres])",
-            $dep);
-  	  }
-  	}
-  }
+  my $added = $object->appendDependencySpecs(
+      $context, $SMake::Parser::Parser::SUBSYSTEM, $deptype, $deplist);
 
   # -- resolve appended dependencies
   $context->getToolChain()->getConstructor()->resolveDependencies(

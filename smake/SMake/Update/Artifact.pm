@@ -480,4 +480,88 @@ sub appendSourceResources {
   return undef;
 }
 
+# -- Append dependencies according to specification from an SMakefile
+#
+# Usage: appendDependencySpecs($context, $subsystem, $deptype, \@deplist)
+#    context ...... parser/executor context
+#    subsystem .... logging subsystem
+#    deptype ...... type of added dependencies
+#    deplist ...... list of dependency specifications (like the directive Deps)
+# Returns: \@list list of added dependencies
+sub appendDependencySpecs {
+  my ($this, $context, $subsystem, $deptype, $deplist) = @_;
+
+  my $added = [];
+  foreach my $dep (@$deplist) {
+    if(ref($dep) eq "ARRAY") {
+      # -- array record
+      my $project = $dep->[0];
+      my $artspec;
+      if(ref($dep->[1]) eq "ARRAY") {
+        $artspec = $dep->[1];
+      }
+      else {
+        $artspec = [@$dep];
+        shift @$artspec;
+        if($#$artspec > 0) {
+          $artspec = [$artspec];
+        }
+      }
+      
+      foreach my $spec (@$artspec) {
+        my ($artifact, $mainres);
+        if(ref($spec) eq "ARRAY") {
+          ($artifact, $mainres) = @$spec;
+        }
+        else {
+          # -- string record
+          if($spec =~ /^([^\/\@]+)(\@[^\/]+)?$/) {
+            ($artifact, $mainres) = ($1, $2);
+            if(defined($mainres)) {
+              $mainres =~ s/^\@//;
+            }
+          }
+          else {
+            SMake::Utils::Utils::dieReport(
+                $context->getReporter(),
+                $subsystem,
+                "string '%s' is not a valid dependency specification (artifact[\@mainres])",
+                $dep->[1]);
+          }
+        }
+        my $depobject = $this->createResourceDependency(
+            $context, $deptype, $project, $artifact, $mainres, undef);
+        push @$added, $depobject;
+      }
+    }
+    else {
+      # -- string record, parse it
+      if($dep =~ /^([^\/]+\/)?([^\/\@]+)(\@[^\/]+)?$/) {
+        my ($project, $artifact, $mainres) = ($1, $2, $3);
+        if(defined($project)) {
+          $project =~ s/[\/]$//;
+        }
+        else {
+          $project = $context->getProject()->getName();
+        }
+        if(defined($mainres)) {
+          $mainres =~ s/^\@//;
+        }
+        my $depobject = $this->createResourceDependency(
+            $context, $deptype, $project, $artifact, $mainres);
+        push @$added, $depobject;
+      }
+      else {
+        SMake::Utils::Utils::dieReport(
+            $context->getReporter(),
+            $subsystem,
+            "string '%s' is not a valid dependency specification ([project/]artifact[\@mainres])",
+            $dep);
+      }
+    }
+  }
+  
+  return $added;
+}
+
 return 1;
