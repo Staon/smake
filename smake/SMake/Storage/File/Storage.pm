@@ -249,6 +249,14 @@ sub getProject {
   return $this->{transaction}->getProject($repository, $name);
 }
 
+sub projectExists {
+  my ($this, $repository, $key) = @_;
+  
+  my $project = $this->getProject($repository, $key->[0]);
+  return defined($project);
+}
+
+
 sub searchPublicResource {
   my ($this, $repository, $resource) = @_;
   

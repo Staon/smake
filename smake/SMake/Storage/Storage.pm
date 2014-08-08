@@ -70,6 +70,16 @@ sub getProject {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Check if the storage knows a project
+#
+# Usage: projectExists($repository, $key)
+#    repository ... owning repository
+#    key .......... project key tuple
+# Returns: true if the project exists
+sub projectExists {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Search for a public resource
 #
 # Usage: searchPublicResource($repository, $resource)

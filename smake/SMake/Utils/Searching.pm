@@ -78,7 +78,8 @@ sub resolveExternal {
   # -- search table of public resources
   my $keytuple = $resource->getKeyTuple();
   $keytuple->[0] = $SMake::Model::Const::PUBLIC_LOCATION;
-  my $prjlist = $context->getRepository()->searchPublicResource($keytuple);
+  my $prjlist = $context->getRepository()->searchPublicResource(
+      $context, $subsystem, $keytuple);
   if(defined($prjlist)) {
   	# -- TODO: select appropriate project
     my $project = $context->getVisibility()->getProject(

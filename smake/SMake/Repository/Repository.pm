@@ -18,6 +18,9 @@
 # Generic repository interface
 package SMake::Repository::Repository;
 
+use SMake::Model::Resource;
+use SMake::Utils::Utils;
+
 # Create new repository
 #
 # Usage: new($parent, $storage)
@@ -178,12 +181,14 @@ sub getProject {
 
 # Search for a public resource
 #
-# Usage: searchPublicResource($resource)
+# Usage: searchPublicResource($context, $subsystem, $resource)
+#    context ...... parser/executor context
+#    subsystem .... logging subsystem
 #    resource ..... resource key tuple
 # Returns: \@list
 #    list ......... list of project key tuples
 sub searchPublicResource {
-  my ($this, $resource) = @_;
+  my ($this, $context, $subsystem, $resource) = @_;
   
   # -- search in my storage
   my $prjlist = $this->{storage}->searchPublicResource($this, $resource);
@@ -191,11 +196,28 @@ sub searchPublicResource {
   
   # -- redirect to the parent
   if(defined($this->{parent})) {
-    return $this->{parent}->searchPublicResource($resource);
+    $prjlist = $this->{parent}->searchPublicResource(
+        $context, $subsystem, $resource);
+    
+    # -- If the resource is found in a parent project, but the project is defined in
+    #    this repository, the resource has been removed. We want to detect this
+    #    situation and fail the compilation.
+    if(defined($prjlist)) {
+      foreach my $prj (@$prjlist) {
+        if($this->{storage}->projectExists($this, $prj)) {
+          SMake::Utils::Utils::dieReport(
+              $context->getReporter(),
+              $subsystem,
+              "external resource '%s' is removed in a nearer repository!",
+              SMake::Model::Resource::createKey(@$resource));
+        }
+      }
+    }
+    
+    return $prjlist;
   }
-  else {
-    return undef;
-  }
+
+  return undef;
 }
 
 # Get list of overlapped projects
