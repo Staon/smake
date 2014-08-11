@@ -46,7 +46,7 @@ sub createProject {
   }
 
   # -- get the repository object
-  my ($project, $external) = $context->getRepository()->getProject($name);
+  my $project = $context->getRepository()->getProjectLocally($name);
   if(!defined($project)) {
     $project = $context->getRepository()->createProject($name);
   }
@@ -94,7 +94,7 @@ sub getProject {
 # Usage: createRootList($context, $subsystem, $artifact, $stage)
 #    context ...... parser/executor context
 #    subsystem .... logging subsystem
-#    project ...... a regulat expression to match projects
+#    project ...... a regular expression to match projects
 #    artifact ..... a regular expression to match artifacts
 #    stage ........ name of root stages
 # Returns: \@list
@@ -138,6 +138,22 @@ sub createRootList {
 sub isExternal {
   my ($this, $name) = @_;
   return $this->{projects}->{$name}->[1];
+}
+
+# Unregister (remove from the storage) all local projects in the visibility list
+#
+# Usage: unregisterProjects($context, $subsystem)
+#    context ..... executor context
+#    subsystem ... logging subsystem
+sub unregisterProjects {
+  my ($this, $context, $subsystem) = @_;
+
+  # -- get list of project
+  foreach my $record (values %{$this->{projects}}) {
+    if(!$record->[1]) {
+      $context->getRepository()->removeProject($context, $subsystem, $record->[0]);
+    }
+  }
 }
 
 return 1;

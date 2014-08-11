@@ -59,6 +59,17 @@ sub createProject {
   return $prj;
 }
 
+# Remove a project
+#
+# Usage: removeProject($repository, $name)
+#    repository ... owning repository
+#    name ......... name of the project
+sub removeProject {
+  my ($this, $repository, $name) = @_;
+  
+  $this->{projects}->remove($name);
+}
+
 # Get project object
 #
 # Usage: getProject($repository, $name)

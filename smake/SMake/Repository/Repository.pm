@@ -143,14 +143,31 @@ sub commitTransaction {
   } 
 }
 
-# Create new project object
+# Create new or used already existing project in the local storage
 #
 # Usage: createProject($name, $path)
 #    name ...... name of the project
 #    path ...... logical path of the project
 sub createProject {
   my ($this, $name, $path) = @_;
+
   return $this->{storage}->createProject($this, $name, $path);
+}
+
+# Remove a project from the storage
+#
+# Usage: removeProject($context, $subsystem, $name)
+#    context ...... executor context
+#    subsystem .... logging subsystem
+#    name ......... name of the project
+sub removeProject {
+  my ($this, $context, $subsystem, $name) = @_;
+  
+  my $project = $this->{storage}->getProject($this, $name);
+  if(defined($project)) {
+    $project->cleanPublicResources($context, $subsystem);
+    $this->{storage}->removeProject($this, $name);
+  }
 }
 
 # Get project object
@@ -177,6 +194,17 @@ sub getProject {
       return undef, 1;
     }
   }
+}
+
+# Get project object in the local storage
+#
+# Usage: getProjectLocally($name)
+#    name .... name of the project
+# Returns: project or undef
+sub getProjectLocally {
+  my ($this, $name) = @_;
+  
+  return $this->{storage}->getProject($this, $name);
 }
 
 # Search for a public resource

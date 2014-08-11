@@ -61,6 +61,15 @@ sub createProject {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Remove a project from the storage
+#
+# Usage: removeProject($repository, $name)
+#    repository ... owning repository
+#    name ......... name of the project
+sub removeProject {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get project object
 #
 # Usage: getProject($repository, $name)

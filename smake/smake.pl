@@ -98,6 +98,9 @@ foreach my $stage (@stages) {
     $executor->executeRoots($execcontext, $rootlist);
     $rootlist = [];
   }
+  elsif($stage eq "unreg") {
+    $visibility->unregisterProjects($execcontext, "main");
+  }
   else {
     my $execlist = $visibility->createRootList($execcontext, "main", ".*", ".*", $stage);
     push @$rootlist, @$execlist;

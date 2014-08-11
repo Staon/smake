@@ -136,6 +136,15 @@ sub searchResource {
   return undef;
 }
 
+sub cleanPublicResources {
+  my ($this, $context, $subsystem) = @_;
+  
+  my $prjkey = $this->getKeyTuple();
+  foreach my $reskey (values %{$this->{publics}}) {
+    $this->{storage}->unregisterPublicResource($reskey, $prjkey);
+  }
+}
+
 # Register public resource
 #
 # Usage: registerPublicResource($resource)

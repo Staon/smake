@@ -128,6 +128,15 @@ sub searchResource {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Clean all registered public resources
+#
+# Usage: cleanPublicResources($context, $subsystem)
+#    context ..... executor context
+#    subsystem ... logging subsystem
+sub cleanPublicResources {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Install a resource into the installation area
 #
 # Usage: installResource($context, $subsystem, $resource)

@@ -243,6 +243,12 @@ sub createProject {
   return $this->{transaction}->createProject($repository, $name, $path);
 }
 
+sub removeProject {
+  my ($this, $repository, $name) = @_;
+  die "not opened transaction" if(!defined($this->{transaction}));
+  $this->{transaction}->removeProject($repository, $name);
+}
+
 sub getProject {
   my ($this, $repository, $name, $path) = @_;
   die "not opened transaction" if(!defined($this->{transaction}));

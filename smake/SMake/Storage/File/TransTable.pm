@@ -52,8 +52,10 @@ sub remove {
   my ($this, $key) = @_;
   
   my $value = delete $this->{inserted}->{$key};
+  if(defined($value)) {
+    &{$this->{lockfce}}($value, 0);
+  }
   $this->{deleted}->{$key} = 1;
-  &{$this->{lockfce}}($value, 0);
   return $value;
 }
 
