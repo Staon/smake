@@ -145,15 +145,20 @@ sub readConfiguration {
     },
     Profile => sub {
       shift;
-      my $profile;
-      if(!ref($_[0])) {
-        $profile = $repository->getToolChain()->createProfile(@_);
-      }
-      else {
-        $profile = $_[0];
-      }
+      my ($profile) = @_;
       $profiles->appendProfile($profile);
     },
+    CreateProfile => sub {
+      shift;
+      my ($name, @args) = @_;
+      my $profile = $repository->getToolChain()->createProfile($name, @args);
+      return $profile;
+    },
+    RegisterProfile => sub {
+      shift;
+      my ($name, $module, @args) = @_;
+      $repository->getToolChain()->registerProfile($name, $module, @args);
+    }
   };
   foreach my $rcfile (@$rcpaths) {
     if(-f $rcfile) {
