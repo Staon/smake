@@ -25,6 +25,7 @@ use SMake::Platform::Generic::ToolChain;
 use SMake::Model::Const;
 use SMake::Platform::GCC::Bin;
 use SMake::Platform::GCC::Dll;
+use SMake::Platform::GCC::HeaderFilter;
 use SMake::Platform::GCC::Lib;
 use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::ToolChain;
@@ -62,9 +63,7 @@ sub new {
       "stddef.h" => "",
   };
   $this->getResourceFilter()->appendFilters(
-      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include", $ttable),
-      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include/c++/4.6.3", $ttable),
-      SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include/c++/4.6.3/tr1", $ttable),
+      SMake::Platform::GCC::HeaderFilter->new(),
   );
   
   return $this;

@@ -54,6 +54,8 @@ sub staticRegister {
               "gcc",
               "-shared",
               SMake::Executor::Translator::FileList->new(
+                  $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "", "", "-Wl,-soname,", "", "", 0),
+              SMake::Executor::Translator::FileList->new(
                   $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(
                    $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1)),
