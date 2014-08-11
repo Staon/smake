@@ -91,19 +91,38 @@ sub deps {
       $context, $object, $added);
 }
 
+# Register new resolver object (valid only for current artifact)
+#
+# Usage: Resolver($resolver)
+#    resolver ...... a resolver object
+sub resolver {
+  my ($this, $parser, $context, $resolver) = @_;
+  $context->pushResolver($resolver);
+}
+
+# Register new source scanner object
+#
+# Usage: Scanner($scanner)
+#    scanner ...... a scanner object
+sub scanner {
+  my ($this, $parser, $context, $scanner) = @_;
+  $context->pushScanner($scanner);
+}
+
 sub endArtifact {
   my ($this, $parser, $context) = @_;
   $context->getReporter()->report(
       5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "EndArtifact()");
-  
-  # -- finish constructed artifact
+
   my $artifact = $context->getArtifact();
-  $context->getToolChain()->getConstructor()->finishArtifact(
-      $context, $artifact);
 
   # -- give a chance to the profiles
   $context->getProfiles()->artifactEnd(
       $context, $SMake::Parser::Parser::SUBSYSTEM, $artifact);
+  
+  # -- finish constructed artifact
+  $context->getToolChain()->getConstructor()->finishArtifact(
+      $context, $artifact);
 
   # -- remove the profile level
   $context->getProfiles()->popList();

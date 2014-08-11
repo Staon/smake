@@ -70,11 +70,6 @@ sub appendResolver {
 
 sub resolveResourcesQueue {
   my ($this, $context, $artifact, $queue) = @_;
-
-  # -- push resolver and scanner into the context to allow pushing of artifact dependent
-  #    resolvers and scanners
-  $context->pushResolver($this->{resolver});
-  $context->pushScanner($context->getToolChain()->getScanner());
   
   # -- resolve resources
   for(
@@ -89,14 +84,15 @@ sub resolveResourcesQueue {
           $resource->getName()->asString());
     }
   }
-  
-  # -- clear pushed resolvers and scanners
-  $context->clearScanners();
-  $context->clearResolvers();
 }
 
 sub constructArtifact {
   my ($this, $context, $artifact) = @_;
+
+  # -- push resolver and scanner into the context to allow pushing of artifact dependent
+  #    resolvers and scanners
+  $context->pushResolver($this->{resolver});
+  $context->pushScanner($context->getToolChain()->getScanner());
   
   # -- create main resources
   my $queue = SMake::ToolChain::Constructor::Queue->new([]);
@@ -104,10 +100,6 @@ sub constructArtifact {
     $record->createMainResource($context, $artifact, $queue);
   }
   $this->resolveResourcesQueue($context, $artifact, $queue);
-  
-  # -- clear pushed resolvers and scanners
-  $context->clearScanners();
-  $context->clearResolvers();
 }
 
 sub resolveResources {
@@ -120,10 +112,6 @@ sub resolveResources {
 sub resolveDependencies {
   my ($this, $context, $artifact, $list) = @_;
 
-  # -- push resolver and into the context to allow pushing of artifact dependent
-  #    resolvers
-  $context->pushResolver($this->{resolver});
-  
   # -- resolve dependency records
   foreach my $dependency (@$list) {
     if(!$context->resolveDependency($dependency)) {
@@ -134,17 +122,19 @@ sub resolveDependencies {
           $dependency->getDependencyType());
     }
   }
-  
-  # -- clear pushed resolvers
-  $context->clearResolvers();
 }
 
 sub finishArtifact {
   my ($this, $context, $artifact) = @_;
-  
+
+  # -- process the finishing records  
   foreach my $rec (@{$this->{finishrecs}}) {
     $rec->finish($context, $artifact, $this);
   }
+  
+  # -- clear pushed resolvers and scanners
+  $context->clearScanners();
+  $context->clearResolvers();
 }
 
 return 1;

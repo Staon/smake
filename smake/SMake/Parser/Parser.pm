@@ -97,6 +97,8 @@ sub new {
       Profile => \&directive_S,
       Group => \&directive_,
       EndGroup => \&directive_,
+      Resolver => \&directive_,
+      Scanner => \&directive_,
     },
   }, $class);
 }
