@@ -93,13 +93,20 @@ my $installarea = SMake::InstallArea::StdArea->new($SMake::Model::Const::SOURCE_
 my $execcontext = SMake::Executor::Context->new(
     $reporter, $decider, $runner, $repository, $visibility, $installarea);
 my $rootlist = [];
-foreach my $stage (@stages) {
+while(@stages) {
+  my $stage = shift @stages;
   if($stage eq "/") {
     $executor->executeRoots($execcontext, $rootlist);
     $rootlist = [];
   }
   elsif($stage eq "unreg") {
     $visibility->unregisterProjects($execcontext, "main");
+  }
+  elsif($stage eq "all") {
+    unshift @stages, "liblink", "binlink";
+  }
+  elsif($stage eq "new") {
+    unshift @stages, "clean", "/", "all";
   }
   else {
     my $execlist = $visibility->createRootList($execcontext, "main", ".*", ".*", $stage);
