@@ -51,11 +51,13 @@ sub staticRegister {
                   "",
                   ["no", ""],
                   ["static", ""],
-                  ["dll", "-pic"]),
+                  ["dll", "-fpic"]),
               SMake::Executor::Translator::OptionList->new(
                   $SMake::Platform::Generic::Const::HEADERDIR_GROUP, 1, "", "", "-I", "", " "),
               SMake::Executor::Translator::ValueList->new(
                   $SMake::Platform::Generic::Const::PREPROC_GROUP, 1, "", "", "-D", "", "=", " "),
+              SMake::Executor::Translator::OptionList->new(
+                  $SMake::Platform::Generic::Const::CFG_HEADER, 1, "", "", "-include ", "", " "),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "-c ", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(

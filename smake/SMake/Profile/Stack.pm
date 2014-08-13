@@ -132,6 +132,18 @@ sub artifactEnd {
   $this->iterateItems(sub { $_[0]->artifactEnd($context, $subsystem, $artifact); });
 }
 
+# Modify a resolved resource
+#
+# Usage: modifyResource($context, $subsystem, $resource, $task)
+#    context ..... parser context
+#    subsystem ... logging subsystem
+#    resource .... the resolved resource
+#    task ........ the task
+sub modifyResource {
+  my ($this, $context, $subsystem, $resource, $task) = @_;
+  $this->iterateItems(sub { $_[0]->modifyResource($context, $subsystem, $resource, $task); });
+}
+
 # Modify logical command
 #
 # Usage: modifyCommand($context, $command, $task)

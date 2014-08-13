@@ -23,8 +23,7 @@ use SMake::ToolChain::Scanner::Scanner;
 @ISA = qw(SMake::ToolChain::Scanner::Scanner);
 
 use SMake::ToolChain::Constructor::Constructor;
-use SMake::Data::Path;
-use SMake::Model::Const;
+use SMake::Utils::Construct;
 use SMake::Utils::Utils;
 
 # Create new header scanner
@@ -65,7 +64,7 @@ sub scanSource {
       if($line =~ /^\s*#\s*include\s*[<"]([^">]+)[">]/) {
         my $path = $1;
         $path =~ s/\\/\//;  # -- windows paths
-        $this->installExternalResource(
+        SMake::Utils::Construct::installExternalResource(
             $context,
             $artifact,
             $resource,

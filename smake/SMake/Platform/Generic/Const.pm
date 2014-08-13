@@ -33,6 +33,7 @@ $CXX_RESOURCE = "cxx";
 $OBJ_RESOURCE = "obj";
 
 # -- artifacts
+$EMPTY_ARTIFACT = "empty";
 $LIB_ARTIFACT = "lib";
 $BIN_ARTIFACT = "bin";
 
@@ -92,7 +93,8 @@ $LIBDIR_GROUP = "lib_dirs";         # -- searching paths of libraries
 $DEBUG_GROUP = "debug";             # -- debugging options
 $PREPROC_GROUP = "preproc";         # -- C/C++ preprocessor options
 $DLL_GROUP = "dll_opts";            # -- compilation options dependent on type of library
-$LIB_TYPE_OPTION = "libtype";       # -- type of library (for compilation)
+  $LIB_TYPE_OPTION = "libtype";     # -- type of library (for compilation)
 $RPATH_GROUP = "rpaths";            # -- rpath argument of an executable (searching of dynamic libraries)
+$CFG_HEADER = "cfgheader";          # -- compiler configuration headers
 
 return 1;

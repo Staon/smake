@@ -72,6 +72,11 @@ sub artifactEnd {
   $this->{children}->artifactEnd(@_);
 }
 
+sub modifyResource {
+  my $this = shift;
+  $this->{children}->modifyResource(@_);
+}
+
 sub modifyCommand {
   my $this = shift;
   return $this->{children}->modifyCommand(@_);

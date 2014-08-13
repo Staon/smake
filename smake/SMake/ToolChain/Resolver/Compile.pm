@@ -23,6 +23,7 @@ use SMake::ToolChain::Resolver::Resource;
 @ISA = qw(SMake::ToolChain::Resolver::Resource);
 
 use SMake::Model::Const;
+use SMake::ToolChain::Constructor::Constructor;
 
 # Create new resolver
 #
@@ -68,6 +69,13 @@ sub doJob {
   
   # -- execute source scanner
   $context->scanSource($queue, $artifact, $resource, $task);
+
+  # -- notify the profiles
+  $context->getProfiles()->modifyResource(
+      $context,
+      $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
+      $resource,
+      $task);
 }
 
 return 1;

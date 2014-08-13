@@ -39,6 +39,10 @@ sub new {
   my ($class) = @_;
   my $this = bless(SMake::Platform::Generic::ToolChain->new());
 
+  # -- empty artifact
+  $this->registerConstructor($SMake::Platform::Generic::Const::EMPTY_ARTIFACT);
+  $this->registerFeature(SMake::Platform::Generic::CHeader);
+  
   # -- library artifact
   $this->registerConstructor($SMake::Platform::Generic::Const::LIB_ARTIFACT);
   $this->registerFeature(SMake::Platform::GCC::Dll);

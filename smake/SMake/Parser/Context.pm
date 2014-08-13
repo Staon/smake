@@ -187,13 +187,13 @@ sub clearResolvers {
 
 # Resolve resource - use all pushed resolvers
 #
-# Usage: resolveResource($scanner, $queue, $resource)
-#    scanner ..... chain source scanner (it can be modified)
+# Usage: resolveResource($subsystem, $queue, $resource)
+#    subsystem ... logging subsystem
 #    queue ....... resource queue
 #    resource .... resolved resource
 # Returns: true if the resource is handled
 sub resolveResource {
-  my ($this, $queue, $resource) = @_;
+  my ($this, $subsystem, $queue, $resource) = @_;
   
   my $retval = 0;
   $this->{resolver}->applyFunctor(sub {

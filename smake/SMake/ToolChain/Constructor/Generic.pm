@@ -76,7 +76,8 @@ sub resolveResourcesQueue {
       $resource = $queue->getResource();
       defined($resource);
       $resource = $queue->getResource()) {
-    if(!$context->resolveResource($queue, $resource)) {
+    if(!$context->resolveResource(
+        $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM, $queue, $resource)) {
       SMake::Utils::Utils::dieReport(
           $context->getReporter(),
           $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,

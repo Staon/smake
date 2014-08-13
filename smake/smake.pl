@@ -103,7 +103,7 @@ while(@stages) {
     $visibility->unregisterProjects($execcontext, "main");
   }
   elsif($stage eq "all") {
-    unshift @stages, "liblink", "binlink";
+    unshift @stages, "liblink", "dlllink", "binlink";
   }
   elsif($stage eq "new") {
     unshift @stages, "clean", "/", "all";

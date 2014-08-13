@@ -105,6 +105,21 @@ sub artifactEnd {
   # -- nothing to do as the default
 }
 
+# Modify a resolved resource
+#
+# This event is raised by several resolvers after they create new task
+# and new product resource. The task and the source resource can be modified
+# here.
+#
+# Usage: modifyResource($context, $subsystem, $resource, $task)
+#    context ..... parser context
+#    subsystem ... logging subsystem
+#    resource .... the resolved resource
+#    task ........ the task
+sub modifyResource {
+  # -- nothing to do as the default
+}
+
 # Modify logical command
 #
 # Usage: modifyCommand($context, $command, $task)
