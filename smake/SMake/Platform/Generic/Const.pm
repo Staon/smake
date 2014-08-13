@@ -91,6 +91,7 @@ $LIB_GROUP = "lib";                 # -- linked libraries
 $HEADERDIR_GROUP = "header_dirs";   # -- searching paths of headers
 $LIBDIR_GROUP = "lib_dirs";         # -- searching paths of libraries
 $DEBUG_GROUP = "debug";             # -- debugging options
+  $DEBUG_TYPE = "type";             # -- debugging type (full, profile, no)
 $PREPROC_GROUP = "preproc";         # -- C/C++ preprocessor options
 $DLL_GROUP = "dll_opts";            # -- compilation options dependent on type of library
   $LIB_TYPE_OPTION = "libtype";     # -- type of library (for compilation)

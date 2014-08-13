@@ -28,6 +28,7 @@ use SMake::Platform::GCC::Dll;
 use SMake::Platform::GCC::HeaderFilter;
 use SMake::Platform::GCC::Lib;
 use SMake::Platform::Generic::Const;
+use SMake::Platform::Generic::Debug;
 use SMake::Platform::Generic::ToolChain;
 use SMake::Profile::ValueProfile;
 use SMake::ToolChain::ResourceFilter::SysLocation;
@@ -69,6 +70,9 @@ sub new {
   $this->getResourceFilter()->appendFilters(
       SMake::Platform::GCC::HeaderFilter->new(),
   );
+  
+  # -- debug options
+  $this->registerFeature(SMake::Platform::Generic::Debug);
   
   return $this;
 }

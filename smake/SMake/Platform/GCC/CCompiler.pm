@@ -46,6 +46,13 @@ sub staticRegister {
           SMake::Executor::Translator::Compositor->new(
               "gcc",
               SMake::Executor::Translator::Select->new(
+                  $SMake::Platform::Generic::Const::DEBUG_GROUP . "/" . $SMake::Platform::Generic::Const::DEBUG_TYPE,
+                  1,
+                  "",
+                  ["full", "-g"],
+                  ["profiler", "-g"],
+                  ["no", ""]),
+              SMake::Executor::Translator::Select->new(
                   $SMake::Platform::Generic::Const::DLL_GROUP . "/" . $SMake::Platform::Generic::Const::LIB_TYPE_OPTION,
                   1,
                   "",

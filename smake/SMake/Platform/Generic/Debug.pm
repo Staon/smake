@@ -16,7 +16,7 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Register generic debug profile
-package SMake::Platform::Aveco::Debug;
+package SMake::Platform::Generic::Debug;
 
 use SMake::Platform::Generic::Const;
 use SMake::Profile::ValueProfile;
@@ -40,7 +40,7 @@ sub staticRegister {
           . '$',
       $SMake::Platform::Generic::Const::DEBUG_GROUP,
       1,
-      "type");
+      $SMake::Platform::Generic::Const::DEBUG_TYPE);
 }
 
 return 1;

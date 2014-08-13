@@ -45,7 +45,9 @@ sub staticRegister {
         SMake::Executor::Translator::Compositor->new(
             "cc",
             SMake::Executor::Translator::Select->new(
-                $SMake::Platform::Generic::Const::DEBUG_GROUP . "/type", 1, "",
+                $SMake::Platform::Generic::Const::DEBUG_GROUP . "/" . $SMake::Platform::Generic::Const::DEBUG_TYPE,
+                1,
+                "",
                 ["full", "-g2d"],
                 ["profiler", "-g1"],
                 ["no", ""]),

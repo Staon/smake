@@ -24,9 +24,9 @@ use SMake::Platform::Generic::ToolChain;
 
 use SMake::Model::Const;
 use SMake::Platform::Aveco::Bin;
-use SMake::Platform::Aveco::Debug;
 use SMake::Platform::Aveco::Lib;
 use SMake::Platform::Generic::Const;
+use SMake::Platform::Generic::Debug;
 use SMake::Platform::Generic::ToolChain;
 use SMake::Profile::ValueProfile;
 use SMake::ToolChain::ResourceFilter::SysLocation;
@@ -63,7 +63,7 @@ sub new {
   );
   
   # -- debug options
-  $this->registerFeature(SMake::Platform::Aveco::Debug);
+  $this->registerFeature(SMake::Platform::Generic::Debug);
   
   return $this;
 }
