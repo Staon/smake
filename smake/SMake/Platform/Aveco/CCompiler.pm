@@ -52,6 +52,8 @@ sub staticRegister {
                   ["profiler", "-g1"],
                   ["no", ""]),
               SMake::Executor::Translator::OptionList->new(
+                  $SMake::Platform::Generic::Const::CFLAGS_GROUP, 1, "", "", "", "", " "),
+              SMake::Executor::Translator::OptionList->new(
                   $SMake::Platform::Generic::Const::HEADERDIR_GROUP, 1, "", "", "-I", "", " "),
               SMake::Executor::Translator::ValueList->new(
                   $SMake::Platform::Generic::Const::PREPROC_GROUP, 1, "", "", "-D", "", "=", " "),

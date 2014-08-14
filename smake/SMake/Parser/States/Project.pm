@@ -93,12 +93,12 @@ sub endProject {
   $context->popProject();
   $project->update($context);
   
-  {
-    local *::HANDLE;
-    open(::HANDLE, ">&STDOUT");
-    $prj->prettyPrint(0);
-    close(::HANDLE);
-  }
+#  {
+#    local *::HANDLE;
+#    open(::HANDLE, ">&STDOUT");
+#    $prj->prettyPrint(0);
+#    close(::HANDLE);
+#  }
   
   # -- switch parser's state
   $parser->switchState($this->{root});

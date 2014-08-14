@@ -97,5 +97,7 @@ $DLL_GROUP = "dll_opts";            # -- compilation options dependent on type o
   $LIB_TYPE_OPTION = "libtype";     # -- type of library (for compilation)
 $RPATH_GROUP = "rpaths";            # -- rpath argument of an executable (searching of dynamic libraries)
 $CFG_HEADER = "cfgheader";          # -- compiler configuration headers
+$CFLAGS_GROUP = "cflags";           # -- generic C flags
+$CXXFLAGS_GROUP = "cflags";         # -- generic C++ flags
 
 return 1;
