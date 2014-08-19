@@ -55,7 +55,7 @@ sub update {
   my ($this, $context) = @_;
 
   # -- update artifacts and construct list of deleted
-  my ($to_delete, undef) = $this->{artifacts}->update($context);
+  my ($to_delete, $changed) = $this->{artifacts}->update($context);
   $this->{project}->deleteArtifacts($to_delete);
   
   # -- destroy the object

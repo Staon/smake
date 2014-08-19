@@ -114,11 +114,12 @@ sub getArtifactKeys {
 
 sub deleteArtifacts {
   my ($this, $list) = @_;
-  
-  foreach my $artifact (@$list) {
-    $this->{artifacts}->{SMake::Model::Artifact::createKey(@$artifact)}->destroy();
+
+  foreach my $tuple (@$list) {
+    my $key = SMake::Model::Artifact::createKey(@$tuple);
+    $this->{artifacts}->{$key}->destroy();
+    delete $this->{artifacts}->{$key};
   }
-  delete $this->{artifacts}->{map {SMake::Model::Artifact::createKey(@$_)} @$list};
 }
 
 sub getArtifacts {
