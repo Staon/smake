@@ -36,7 +36,7 @@ sub resolveLocal {
 
   my $project = $resource->getProject();
   my $resolved = $project->searchResource(
-      '.*',
+      '^(?!' . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . ')(.*)$',
       $resource->getName(),
       '^' . quotemeta($SMake::Model::Const::SOURCE_LOCATION)
         . '|' . quotemeta($SMake::Model::Const::PRODUCT_LOCATION)
