@@ -38,13 +38,10 @@ sub getChildren {
 
 # Create new executor object
 #
-# Usage: new($force)
-#    force ...... force running mode. If the flag is true, smake will not stop
-#                 running if any error occurs.
+# Usage: new()
 sub new {
-  my ($class, $force) = @_;
+  my ($class) = @_;
   return bless({
-    force => $force,
     broken => 0,
   }, $class);
 }
@@ -52,21 +49,20 @@ sub new {
 sub appendStageExecutors {
   my ($this, $context, $exlist, $toporder) = @_;
   
-  if(!$this->{broken} || $this->{force}) {
-    my $toplist = $toporder->getLeaves();
-    foreach my $address (@$toplist) {
-      $context->getReporter()->reportf(
-          2, "info", $SUBSYSTEM, "enter stage %s", $address->printableString());
-        
-      my $stage = SMake::Executor::Stage->new($context, $address);
-      push @$exlist, $stage;
-    }
+  my $toplist = $toporder->getLeaves();
+  foreach my $address (@$toplist) {
+    $context->getReporter()->reportf(
+        2, "info", $SUBSYSTEM, "enter stage %s", $address->printableString());
+      
+    my $stage = SMake::Executor::Stage->new($context, $address);
+    push @$exlist, $stage;
   }
 }
 
 # Execute commands
 #
 # Usage: execute($context, \@roots)
+# Returns: errflag .... true when an error occurs
 sub executeRoots {
   my ($this, $context, $roots) = @_;
   
@@ -101,11 +97,18 @@ sub executeRoots {
   	          "leave stage %s",
   	          $stage->getAddress()->printableString());
   	      
-  	      # -- handle error
-  	      if($errflag) {
-  	        $this->{broken} = 1;
-  	      }
   	    }
+  	    
+        # -- handle error
+        if($errflag) {
+          $this->{broken} = 1;
+          
+          # -- stop if the force mode is not set
+          if(!$context->forceRun()) {
+            $context->getRunner()->cleanOnError($context);
+            return 1;
+          }
+        }
   	  }
   	  
   	  # -- append new prepared stages
@@ -131,6 +134,8 @@ sub executeRoots {
         $SUBSYSTEM,
         "stopped, it's not possible to continue in work");
   }
+  
+  return $this->{broken};
 }
 
 return 1;

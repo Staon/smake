@@ -116,4 +116,10 @@ sub runBlocking {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+sub cleanOnError {
+  my ($this, $context) = @_;
+  
+  # -- nothing to do, as there cannot be running another task
+}
+
 return 1;

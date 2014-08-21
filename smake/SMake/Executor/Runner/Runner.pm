@@ -56,4 +56,11 @@ sub wait {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Clean currently running task if the smake stops on an error
+#
+# Usage: cleanOnError($context)
+sub cleanOnError {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 return 1;

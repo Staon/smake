@@ -20,15 +20,16 @@ package SMake::Executor::Context;
 
 # Create new context
 #
-# Usage: new($reporter, $decider, $runner, $repository, $visibility)
+# Usage: new($reporter, $decider, $runner, $repository, $visibility, $force)
 sub new {
-  my ($class, $reporter, $decider, $runner, $repository, $visibility) = @_;
+  my ($class, $reporter, $decider, $runner, $repository, $visibility, $force) = @_;
   return bless({
     reporter => $reporter,
     decider => $decider,
     runner => $runner,
     repository => $repository,
     visibility => $visibility,
+    force => $force,
   }, $class);
 }
 
@@ -72,6 +73,12 @@ sub getRunner {
 sub getMangler {
   my ($this) = @_;
   return $this->{repository}->getToolChain()->getMangler();
+}
+
+# Check if the force run is set
+sub forceRun() {
+  my ($this) = @_;
+  return $this->{force};
 }
 
 return 1;

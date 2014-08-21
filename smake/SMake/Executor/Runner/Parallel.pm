@@ -169,4 +169,15 @@ sub wait {
   }
 }
 
+sub cleanOnError {
+  my ($this, $context) = @_;
+  
+  # -- wait for finish of all running processes
+  my $handles = $this->{handles};
+  $this->{handles} = undef;
+  foreach my $handle (@$handles) {
+    $this->finishProcess($handle);
+  }
+}
+
 return 1;

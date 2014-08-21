@@ -93,21 +93,19 @@ sub appendTaskExecutor {
   my ($this, $context) = @_;
   
   my $some_new = 0;
-  if(!$this->{broken}) {
-    my $tasks = $this->{toporder}->getLeaves();
-    foreach my $task (@$tasks) {
-      my $taskaddr = SMake::Data::TaskAddress->new($this->{address}, $task);
-      my $executor = SMake::Executor::Task->new($context, $taskaddr);
-      push @{$this->{tasklist}}, $executor;
-      $some_new = 1;
-      $context->getReporter()->reportf(
-          2,
-          "info",
-          $SMake::Executor::Executor::SUBSYSTEM,
-          "enter task %s",
-          $taskaddr->printableString(),
-          $task);
-    }
+  my $tasks = $this->{toporder}->getLeaves();
+  foreach my $task (@$tasks) {
+    my $taskaddr = SMake::Data::TaskAddress->new($this->{address}, $task);
+    my $executor = SMake::Executor::Task->new($context, $taskaddr);
+    push @{$this->{tasklist}}, $executor;
+    $some_new = 1;
+    $context->getReporter()->reportf(
+        2,
+        "info",
+        $SMake::Executor::Executor::SUBSYSTEM,
+        "enter task %s",
+        $taskaddr->printableString(),
+        $task);
   }
   return $some_new;
 }
@@ -117,8 +115,7 @@ sub appendTaskExecutor {
 # Usage: execute($context)
 # Returns: ($running, $errflag)
 #     running ..... false if the stage is finished, true if there are other work
-#     errflag ..... true when the task finished with an error (valid only when
-#                   the running flag is false)
+#     errflag ..... true when any of the tasks finished with an error
 sub execute {
   my ($this, $context) = @_;
 
@@ -144,9 +141,16 @@ sub execute {
         # -- set broken stage
         if($errflag) {
           $this->{broken} = 1;
+          
+          # -- fill broken flag into the model data
           my ($project, $artifact, $stage) = $this->getAddress()->getObjects(
               $context, $SMake::Executor::Executor::SUBSYSTEM);
           $stage->breakStage();
+          
+          # -- stop running, if the force mode is not active
+          if(!$context->forceRun()) {
+            return (0, 1);
+          }
         }
       }
     }

@@ -88,15 +88,18 @@ foreach my $path (@$paths) {
 
 # -- execute the project
 $repository->openTransaction();
-my $executor = SMake::Executor::Executor->new($force);
-my $installarea = SMake::InstallArea::StdArea->new($SMake::Model::Const::SOURCE_LOCATION);
+my $executor = SMake::Executor::Executor->new();
 my $execcontext = SMake::Executor::Context->new(
-    $reporter, $decider, $runner, $repository, $visibility, $installarea);
+    $reporter, $decider, $runner, $repository, $visibility, $force);
 my $rootlist = [];
+my $errflag = 0;
 while(@stages) {
   my $stage = shift @stages;
   if($stage eq "/") {
-    $executor->executeRoots($execcontext, $rootlist);
+    $errflag = $executor->executeRoots($execcontext, $rootlist) || $errflag;
+    if($context->forceRun()) {
+      last;
+    }
     $rootlist = [];
   }
   elsif($stage eq "unreg") {
@@ -113,9 +116,9 @@ while(@stages) {
     push @$rootlist, @$execlist;
   }
 }
-$executor->executeRoots($execcontext, $rootlist);
+$errflag = $executor->executeRoots($execcontext, $rootlist) || $errflag;
 $repository->commitTransaction();
 
 $repository -> destroyRepository();
 
-exit 0;
+exit ($errflag)?1:0;
