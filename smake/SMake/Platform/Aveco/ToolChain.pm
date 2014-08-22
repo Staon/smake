@@ -27,45 +27,38 @@ use SMake::Platform::Aveco::Bin;
 use SMake::Platform::Aveco::Lib;
 use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::Debug;
+use SMake::Platform::Generic::Preproc;
 use SMake::Platform::Generic::ToolChain;
 use SMake::Profile::ValueProfile;
 use SMake::ToolChain::ResourceFilter::SysLocation;
 
-# Create the toolchain
-#
-# Usage: new()
-#    repository ...... the most significant repository
-#    profiles ........ profile stack
-sub new {
-  my ($class) = @_;
-  my $this = bless(SMake::Platform::Generic::ToolChain->new());
+sub register {
+  my ($class, $toolchain, $constructor) = @_;
+
+  # -- nothing to do
+}
+
+sub staticRegister {
+  my ($class, $toolchain, $constructor) = @_;
 
   # -- library artifact
-  $this->registerConstructor($SMake::Platform::Generic::Const::LIB_ARTIFACT);
-  $this->registerFeature(SMake::Platform::Aveco::Lib);
+  $toolchain->registerConstructor($SMake::Platform::Generic::Const::LIB_ARTIFACT);
+  $toolchain->registerFeature(SMake::Platform::Aveco::Lib);
 
   # -- binary artifact
-  $this->registerConstructor($SMake::Platform::Generic::Const::BIN_ARTIFACT);
-  $this->registerFeature(SMake::Platform::Aveco::Bin);
+  $toolchain->registerConstructor($SMake::Platform::Generic::Const::BIN_ARTIFACT);
+  $toolchain->registerFeature(SMake::Platform::Aveco::Bin);
 
   # -- generic preprocessor profile
-  $this->registerProfile(
-      "preproc",
-      SMake::Profile::ValueProfile,
-      $SMake::Platform::Generic::Const::C_TASK 
-      . "|" . $SMake::Platform::Generic::Const::CXX_TASK,
-      $SMake::Platform::Generic::Const::PREPROC_GROUP,
-      0);
+  $toolchain->registerFeature(SMake::Platform::Generic::Preproc);
 
   # -- resource filters
-  $this->getResourceFilter()->appendFilters(
+  $toolchain->getResourceFilter()->appendFilters(
       SMake::ToolChain::ResourceFilter::SysLocation->new("/usr/include"),
   );
   
   # -- debug options
-  $this->registerFeature(SMake::Platform::Generic::Debug);
-  
-  return $this;
+  $toolchain->registerFeature(SMake::Platform::Generic::Debug);
 }
 
 return 1;

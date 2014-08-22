@@ -18,10 +18,6 @@
 # Toolchain for GCC compiler
 package SMake::Platform::GCC::ToolChain;
 
-use SMake::Platform::Generic::ToolChain;
-
-@ISA = qw(SMake::Platform::Generic::ToolChain);
-
 use SMake::Model::Const;
 use SMake::Platform::GCC::Bin;
 use SMake::Platform::GCC::Dll;
@@ -29,52 +25,43 @@ use SMake::Platform::GCC::HeaderFilter;
 use SMake::Platform::GCC::Lib;
 use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::Debug;
+use SMake::Platform::Generic::Preproc;
 use SMake::Platform::Generic::ToolChain;
 use SMake::Profile::ValueProfile;
 use SMake::ToolChain::ResourceFilter::SysLocation;
 
-# Create the toolchain
-#
-# Usage: new()
-sub new {
-  my ($class) = @_;
-  my $this = bless(SMake::Platform::Generic::ToolChain->new());
+sub register {
+  my ($class, $toolchain, $constructor) = @_;
+
+  # -- nothing to do
+}
+
+sub staticRegister {
+  my ($class, $toolchain, $constructor) = @_;
 
   # -- empty artifact
-  $this->registerConstructor($SMake::Platform::Generic::Const::EMPTY_ARTIFACT);
-  $this->registerFeature(SMake::Platform::Generic::CHeader);
+  $toolchain->registerConstructor($SMake::Platform::Generic::Const::EMPTY_ARTIFACT);
+  $toolchain->registerFeature(SMake::Platform::Generic::CHeader);
   
   # -- library artifact
-  $this->registerConstructor($SMake::Platform::Generic::Const::LIB_ARTIFACT);
-  $this->registerFeature(SMake::Platform::GCC::Dll);
-  $this->registerFeature(SMake::Platform::GCC::Lib);
+  $toolchain->registerConstructor($SMake::Platform::Generic::Const::LIB_ARTIFACT);
+  $toolchain->registerFeature(SMake::Platform::GCC::Dll);
+  $toolchain->registerFeature(SMake::Platform::GCC::Lib);
 
   # -- binary artifact
-  $this->registerConstructor($SMake::Platform::Generic::Const::BIN_ARTIFACT);
-  $this->registerFeature(SMake::Platform::GCC::Bin);
+  $toolchain->registerConstructor($SMake::Platform::Generic::Const::BIN_ARTIFACT);
+  $toolchain->registerFeature(SMake::Platform::GCC::Bin);
 
   # -- generic preprocessor profile
-  $this->registerProfile(
-      "preproc",
-      SMake::Profile::ValueProfile,
-      $SMake::Platform::Generic::Const::C_TASK 
-          . "|" . $SMake::Platform::Generic::Const::CXX_TASK,
-      $SMake::Platform::Generic::Const::PREPROC_GROUP,
-      0);
-  
-  # -- resource filters
-  my $ttable = {
-      "algorith" => "algorithm",
-      "stddef.h" => "",
-  };
-  $this->getResourceFilter()->appendFilters(
-      SMake::Platform::GCC::HeaderFilter->new(),
-  );
+  $toolchain->registerFeature(SMake::Platform::Generic::Preproc);
   
   # -- debug options
-  $this->registerFeature(SMake::Platform::Generic::Debug);
-  
-  return $this;
+  $toolchain->registerFeature(SMake::Platform::Generic::Debug);
+
+  # -- resource filters
+  $toolchain->getResourceFilter()->appendFilters(
+      SMake::Platform::GCC::HeaderFilter->new(),
+  );
 }
 
 return 1;

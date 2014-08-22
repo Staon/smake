@@ -181,6 +181,15 @@ sub appendSource {
   $this->{sources}->addItem($ts);
 }
 
+# Get list of source resources
+#
+# Usage: getSources()
+# Returns: \@list
+sub getSources {
+  my ($this) = @_;
+  return [map { $_->getResource() } @{$this->{sources}->getItems()}];
+}
+
 # Append a target resource
 #
 # Usage: appendTarget($context, $resource)

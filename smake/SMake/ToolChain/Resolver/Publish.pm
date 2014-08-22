@@ -68,6 +68,8 @@ sub doJob {
 
   # -- execute source scanner
   $context->scanSource($queue, $artifact, $resource, $resource->getTask());
+  
+  return 1;
 }
 
 return 1;

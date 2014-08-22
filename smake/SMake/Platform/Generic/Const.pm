@@ -18,6 +18,9 @@
 # Some constants
 package SMake::Platform::Generic::Const;
 
+# -- extra files
+$EXTRA_RESOURCE = "extra";
+
 # -- headers
 $H_RESOURCE = "h";
 
@@ -28,6 +31,16 @@ $C_RESOURCE = "c";
 # -- C++ compiling
 $CXX_TASK = "cxx";
 $CXX_RESOURCE = "cxx";
+
+# -- GNU Flex generator
+$FLEX_TASK = "flex";
+$FLEX_RESOURCE = "flex";
+$FLEX_STAGE = "flex";
+
+# -- GNU Bison generator
+$BISON_TASK = "bison";
+$BISON_RESOURCE = "bison";
+$BISON_STAGE = "bison";
 
 # -- object files
 $OBJ_RESOURCE = "obj";
@@ -99,5 +112,7 @@ $RPATH_GROUP = "rpaths";            # -- rpath argument of an executable (search
 $CFG_HEADER = "cfgheader";          # -- compiler configuration headers
 $CFLAGS_GROUP = "cflags";           # -- generic C flags
 $CXXFLAGS_GROUP = "cflags";         # -- generic C++ flags
+$BISON_GROUP = "bison";             # -- flex/bison options
+  $BISON_PREFIX = "prefix";         # -- flex/bison class prefix
 
 return 1;

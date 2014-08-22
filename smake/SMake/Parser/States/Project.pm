@@ -60,14 +60,6 @@ sub artifact {
 
   # -- new profile level
   $context->getProfiles()->pushList();
-
-  # -- construct the artifact
-  $context->getRepository()->getToolChain()->getConstructor()
-      ->constructArtifact($context, $artifact);
-
-  # -- give a chance to the profiles
-  $context->getProfiles()->artifactBegin(
-      $context, $SMake::Parser::Parser::SUBSYSTEM, $artifact);
   
   # -- switch parser state      
   my $state = SMake::Parser::States::Artifact->new($this);
@@ -93,12 +85,12 @@ sub endProject {
   $context->popProject();
   $project->update($context);
   
-#  {
-#    local *::HANDLE;
-#    open(::HANDLE, ">&STDOUT");
-#    $prj->prettyPrint(0);
-#    close(::HANDLE);
-#  }
+  {
+    local *::HANDLE;
+    open(::HANDLE, ">&STDOUT");
+    $prj->prettyPrint(0);
+    close(::HANDLE);
+  }
   
   # -- switch parser's state
   $parser->switchState($this->{root});

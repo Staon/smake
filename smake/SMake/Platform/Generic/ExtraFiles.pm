@@ -15,32 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Register generic debug profile
-package SMake::Platform::Generic::Debug;
+# Extra files
+package SMake::Platform::Generic::ExtraFiles;
 
 use SMake::Platform::Generic::Const;
-use SMake::Profile::ValueProfile;
+use SMake::ToolChain::Resolver::Empty;
+use SMake::Utils::Masks;
 
 sub register {
   my ($class, $toolchain, $constructor) = @_;
 
-  # -- nothing to do
+  # -- resolve file suffixes
+  $toolchain->createObject(
+      "extra_files",
+      SMake::ToolChain::Resolver::Empty,
+      sub { $constructor->appendResolver($_[0]); },
+      SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::EXTRA_RESOURCE),
+      '.*');
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor, $taskname) = @_;
+  my ($class, $toolchain, $constructor) = @_;
 
-  $toolchain->registerProfile(
-      "debug",
-      SMake::Profile::ValueProfile,
-      '^aveco_linker|' 
-          . quotemeta($SMake::Platform::Generic::Const::CXX_TASK)
-          . '|' . quotemeta($SMake::Platform::Generic::Const::C_TASK)
-          . '|' . quotemeta($SMake::Platform::Generic::Const::BIN_TASK)
-          . '$',
-      $SMake::Platform::Generic::Const::DEBUG_GROUP,
-      1,
-      $SMake::Platform::Generic::Const::DEBUG_TYPE);
 }
 
 return 1;

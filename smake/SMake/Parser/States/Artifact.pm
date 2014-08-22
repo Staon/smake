@@ -32,8 +32,27 @@ sub new {
   my ($class, $prjstate) = @_;
   my $this = bless(SMake::Parser::States::State->new(), $class);
   $this->{prjstate} = $prjstate;
+  $this->{initialized} = 0;
 
   return $this;
+}
+
+sub initializeArtifact {
+  my ($this, $parser, $context) = @_;
+
+  if(!$this->{initialized}) {
+    my $artifact = $context->getArtifact();
+    
+    # -- construct the artifact
+    $context->getRepository()->getToolChain()->getConstructor()
+        ->constructArtifact($context, $artifact);
+
+    # -- give a chance to the profiles
+    $context->getProfiles()->artifactBegin(
+        $context, $SMake::Parser::Parser::SUBSYSTEM, $artifact);
+        
+    $this->{initialized} = 1;
+  }  
 }
 
 sub startFile {
@@ -57,6 +76,8 @@ sub src {
   $context->getReporter()->report(
       5, "debug", $SMake::Parser::Parser::SUBSYSTEM, "Src([@$srclist])");
 
+  $this->initializeArtifact($parser, $context);
+  
   # -- create new source resources
   my $artifact = $context->getArtifact();
   my $reslist = [];
@@ -80,6 +101,8 @@ sub src {
 
 sub deps {
   my ($this, $parser, $context, $deptype, $deplist) = @_;
+
+  $this->initializeArtifact($parser, $context);
 
   # -- append dependencies  
   my $object = $context->getArtifact();
@@ -116,13 +139,15 @@ sub endArtifact {
 
   my $artifact = $context->getArtifact();
 
-  # -- give a chance to the profiles
-  $context->getProfiles()->artifactEnd(
-      $context, $SMake::Parser::Parser::SUBSYSTEM, $artifact);
+  if($this->{initialized}) {
+    # -- give a chance to the profiles
+    $context->getProfiles()->artifactEnd(
+        $context, $SMake::Parser::Parser::SUBSYSTEM, $artifact);
   
-  # -- finish constructed artifact
-  $context->getToolChain()->getConstructor()->finishArtifact(
-      $context, $artifact);
+    # -- finish constructed artifact
+    $context->getToolChain()->getConstructor()->finishArtifact(
+        $context, $artifact);
+  }
 
   # -- remove the profile level
   $context->getProfiles()->popList();

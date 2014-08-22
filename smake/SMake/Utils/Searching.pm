@@ -132,6 +132,9 @@ sub externalTransitiveClosure {
     my $current = shift(@queue);
     if(!defined($extmap{$current->[0]->getName()->asString()})) {
       # -- not processed yet
+      $extmap{$current->[0]->getName()->asString()} = 1;
+
+      # -- resolve the external resource      
       my ($found, $resolved, $local) = resolveExternal(
           $context, $subsystem, $current->[0]);
       if(!$found) {

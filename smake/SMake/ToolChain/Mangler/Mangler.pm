@@ -29,16 +29,19 @@ use SMake::Utils::Utils;
 sub name {
   my ($mangler, $context, $resource) = @_;
   my $name = $resource->getBasename();
-  $name =~ s/[.].*$//;
+  $name =~ s/[.][^.]*$//;
   return $name;
 }
 
 sub suffix {
   my ($mangler, $context, $resource) = @_;
   my $name = $resource->getBasename();
-  $name =~ s/^[^.]*//;
-  $name =~ s/^[.]//;
-  return $name;
+  if($name =~ /[.]([^.]*)$/) {
+    return $1;
+  }
+  else {
+    return "";
+  }
 }
 
 sub dir {

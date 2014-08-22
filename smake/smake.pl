@@ -34,8 +34,9 @@ use SMake::Storage::File::Storage;
 use SMake::Utils::Dirutils;
 use SMake::Utils::Searcher;
 
-#local $SIG{__DIE__} = sub { Carp::confess(@_); };
+local $SIG{__DIE__} = sub { Carp::confess(@_); };
 local $SIG{__WARN__} = sub { die @_ };
+$| = 1;      # -- autoflush of the console
 
 # Parse command line options
 my $search = '';
@@ -97,7 +98,7 @@ while(@stages) {
   my $stage = shift @stages;
   if($stage eq "/") {
     $errflag = $executor->executeRoots($execcontext, $rootlist) || $errflag;
-    if($context->forceRun()) {
+    if($execcontext->forceRun()) {
       last;
     }
     $rootlist = [];

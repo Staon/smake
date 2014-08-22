@@ -59,10 +59,10 @@ sub register {
   my $resolver = SMake::ToolChain::Resolver::Compile->new(
       '^' . quotemeta($SMake::Platform::Generic::Const::C_RESOURCE) . '$',
       '.*',
-      $SMake::Platform::Generic::Const::OBJ_RESOURCE,
-      $mangler,
       $stage,
-      $SMake::Platform::Generic::Const::C_TASK);
+      $SMake::Platform::Generic::Const::C_TASK,
+      [$SMake::Platform::Generic::Const::OBJ_RESOURCE, $mangler],
+      );
   $multi->appendResolver($resolver);
 
   # -- type of library

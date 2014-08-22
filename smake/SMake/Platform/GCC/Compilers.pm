@@ -20,6 +20,9 @@ package SMake::Platform::GCC::Compilers;
 
 use SMake::Platform::GCC::CCompiler;
 use SMake::Platform::GCC::CXXCompiler;
+use SMake::Platform::Generic::Bison;
+use SMake::Platform::Generic::ExtraFiles;
+use SMake::Platform::Generic::Flex;
 
 sub register {
   my ($class, $toolchain, $constructor, $stage, $objsuffix, $libtype) = @_;
@@ -28,6 +31,12 @@ sub register {
       SMake::Platform::GCC::CCompiler, $stage, $objsuffix, $libtype);
   $toolchain->registerFeature(
       SMake::Platform::GCC::CXXCompiler, $stage, $objsuffix, $libtype);
+  $toolchain->registerFeature(
+      SMake::Platform::Generic::Flex);
+  $toolchain->registerFeature(
+      SMake::Platform::Generic::Bison);
+  $toolchain->registerFeature(
+      SMake::Platform::Generic::ExtraFiles);
 }
 
 sub staticRegister {

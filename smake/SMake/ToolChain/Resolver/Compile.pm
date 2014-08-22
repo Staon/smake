@@ -27,55 +27,66 @@ use SMake::ToolChain::Constructor::Constructor;
 
 # Create new resolver
 #
-# Usage: new($type, $file, $tgtype, $mangler, $stage, $tasktype)
+# Usage: new($type, $file, $stage, $tasktype, [$tgtype, $mangler]*)
 #    type ...... mask of type of the resources
 #    file ...... mask of path of the resources
-#    tgtype .... type of the target resource
-#    mangler ... mangler description of name of the target resource
 #    stage ..... name of the stage, which the compilation task is run in
 #    tasktype .. type of the compilation task
+#    tgtype .... type of the target resource
+#    mangler ... mangler description of name of the target resource
 sub new {
-  my ($class, $type, $file, $tgtype, $mangler, $stage, $tasktype) = @_;
+  my ($class, $type, $file, $stage, $tasktype, @records) = @_;
   my $this = bless(
       SMake::ToolChain::Resolver::Resource->new($type, $file), $class);
-  $this->{tgtype} = $tgtype;
-  $this->{mangler} = $mangler;
   $this->{stage} = $stage;
   $this->{tasktype} = $tasktype;
+  $this->{records} = [@records];
   return $this;
 }
 
 sub doJob {
   my ($this, $context, $queue, $resource) = @_;
 
-  # -- create name of the new resource
-  my $tgpath = $context->getMangler()->mangleName(
-      $context, $this->{mangler}, $resource->getName());
-
-  # -- create the task and the resource
+  # -- create the task and resource
   my $artifact = $context->getArtifact();
-  my $task = $artifact->createTaskInStage(
-      $context,
-      $this->{stage},
-      $tgpath->asString(),
-      $this->{tasktype},
-      $SMake::Model::Const::PRODUCT_LOCATION,
-      $artifact->getPath(),
-      undef);
-  $task->appendSource($context, $resource);
-  my $tgres = $artifact->createProductResource(
-      $context, $this->{tgtype}, $tgpath, $task);
-  $queue->pushResource($tgres);
-  
-  # -- execute source scanner
-  $context->scanSource($queue, $artifact, $resource, $task);
+  my $task;
 
-  # -- notify the profiles
-  $context->getProfiles()->modifyResource(
-      $context,
-      $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
-      $resource,
-      $task);
+  # -- create target resources
+  foreach my $record (@{$this->{records}}) {
+    my ($tgtype, $mangler) = @$record;
+
+    # -- create name of the new resource
+    my $tgpath = $context->getMangler()->mangleName(
+        $context, $mangler, $resource->getName());
+
+    # -- create the task and resource
+    if(!defined($task)) {
+      $task = $artifact->createTaskInStage(
+          $context,
+          $this->{stage},
+          $tgpath->asString(),
+          $this->{tasktype},
+          $SMake::Model::Const::PRODUCT_LOCATION,
+          $artifact->getPath(),
+          undef);
+      $task->appendSource($context, $resource);
+    }
+    
+    # -- create the resource
+    my $tgres = $artifact->createProductResource(
+        $context, $tgtype, $tgpath, $task);
+    $queue->pushResource($tgres);
+  
+    # -- execute source scanner
+    $context->scanSource($queue, $artifact, $resource, $task);
+
+    # -- notify the profiles
+    $context->getProfiles()->modifyResource(
+        $context,
+        $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
+        $resource,
+        $task);
+  }
 }
 
 return 1;
