@@ -152,12 +152,13 @@ sub register {
   $toolchain->registerFeature(
       [SMake::Platform::Generic::HeaderScanner,
        SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::BISON_RESOURCE)]);
+
   # -- bison/flex prefix profile
   $toolchain->registerFeature(SMake::Platform::Generic::BisonPrefix);
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain) = @_;
 
   # -- command builder
   $toolchain->getBuilder()->appendBuilders(

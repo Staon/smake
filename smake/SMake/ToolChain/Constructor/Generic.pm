@@ -132,10 +132,6 @@ sub finishArtifact {
   foreach my $rec (@{$this->{finishrecs}}) {
     $rec->finish($context, $artifact, $this);
   }
-  
-  # -- clear pushed resolvers and scanners
-  $context->clearScanners();
-  $context->clearResolvers();
 }
 
 return 1;

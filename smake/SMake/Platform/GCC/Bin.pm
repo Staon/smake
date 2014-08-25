@@ -48,7 +48,7 @@ sub register {
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain) = @_;
   
   # -- rpath profile (compilation of paths of dlls)
   $toolchain->registerProfile(

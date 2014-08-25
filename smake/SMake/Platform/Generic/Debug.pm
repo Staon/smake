@@ -28,7 +28,7 @@ sub register {
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor, $taskname) = @_;
+  my ($class, $toolchain) = @_;
 
   $toolchain->registerProfile(
       "debug",

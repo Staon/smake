@@ -39,7 +39,7 @@ sub register {
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain) = @_;
 
   # -- library artifact
   $toolchain->registerConstructor($SMake::Platform::Generic::Const::LIB_ARTIFACT);

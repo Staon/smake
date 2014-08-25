@@ -29,7 +29,7 @@ use SMake::Platform::Generic::CompileTranslator;
 use SMake::Platform::Generic::Const;
 
 sub register {
-  my ($class, $toolchain, $constructor, $stage) = @_;
+  my ($class, $toolchain, $stage) = @_;
   
   # -- register generic parts
   my $mangler = 'Dir() . Name() . ".o"';

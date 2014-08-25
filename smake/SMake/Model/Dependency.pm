@@ -24,6 +24,7 @@ use SMake::Model::Object;
 
 use SMake::Utils::Abstract;
 use SMake::Utils::Print;
+use SMake::Utils::Searching;
 
 $RESOURCE_KIND = "resource";
 $STAGE_KIND = "stage";
@@ -165,68 +166,8 @@ sub getDependencyStage {
 #    $resource .... dependency main resource. It can be undef for stage dependency.
 sub getObjects {
   my ($this, $context, $subsystem) = @_;
-  
-  my $project = $context->getVisibility()->getProject(
-      $context, $subsystem, $this->getDependencyProject());
-  if(!defined($project)) {
-    SMake::Utils::Utils::dieReport(
-        $context->getReporter(),
-        $subsystem,
-        "unknown dependent project '%s'",
-        $this->getDependencyProject());
-  }
-    
-  my $artifact = $project->getArtifact($this->getDependencyArtifact());
-  if(!defined($artifact)) {
-    SMake::Utils::Utils::dieReport(
-        $context->getReporter(),
-        $subsystem,
-        "unknown dependent artifact '%s' in the project '%s'",
-        $this->getDependencyArtifact(),
-        $this->getDependencyProject());
-  }
-  
-  my $kind = $this->getDependencyKind();
-  my $stage;
-  my $resource;
-  if($kind eq $RESOURCE_KIND) {
-    # -- dependency on a main resource
-    my $restype = $this->getDependencyMainResource();
-    if(!defined($restype)) {
-      $resource = $artifact->getDefaultMainResource();
-    }
-    else {
-      $resource = $artifact->getMainResource($restype);
-    }
-    if(!defined($resource)) {
-      SMake::Utils::Utils::dieReport(
-          $context->getReporter(),
-          $subsystem,
-          "unknown dependent main resource '%s' of the artifact '%s' in the project '%s'",
-          (defined($restype)?$restype:"default"),
-          $this->getDependencyProject(),
-          $this->getDependencyArtifact());
-    }
-    $stage = $resource->getStage();
-  }
-  elsif($kind eq $STAGE_KIND) {
-    # -- dependency on a stage
-    $stage = $artifact->getStage($this->getDependencyStage());
-    if(!defined($stage)) {
-      SMake::Utils::Utils::dieReport(
-          $context->getReporter(),
-          $subsystem,
-          "unknown dependent stage '%s' of the artifact '%s' in the project '%s'",
-          $this->getDependencyStage(),
-          $this->getDependencyProject(),
-          $this->getDependencyArtifact());
-    }
-  }
-  else {
-    die "invalid dependency kind";
-  }
-
-  return ($project, $artifact, $stage, $resource);
+  return SMake::Utils::Searching::resolveDependency(
+      $context, $subsystem, @{$this->getKeyTuple()});  
 }
 
 # Print content of the object

@@ -19,6 +19,7 @@
 package SMake::Utils::Searching;
 
 use SMake::Model::Const;
+use SMake::Model::Dependency;
 use SMake::Utils::Masks;
 
 # Try to resolve an external resource in local project
@@ -224,6 +225,87 @@ sub resolveMainResource {
     return $resource if(defined($resource));
   }
   return undef;
+}
+
+# Resolve a dependency
+#
+# Usage: resolveDependency($context, $subsystem, $kind, $type, $project, $artifact, ($mainres|$stage)
+#    context ....... parser context
+#    subsystem ..... logging subsystem
+#    kind .......... kind of the dependency
+#    type .......... type of the dependency (it has no meaning, but the dependency key tuple can be passed)
+#    project ....... name of the project
+#    artifact ...... name of the artifact
+#    mainres ....... name of the main resource. It can be null for the default main resource or for stage
+#                    dependency.
+#    stage ......... name of the dependent stage
+# Returns: ($project, $artifact, $stage, $resource)
+#    $project ..... dependency project
+#    $artifact .... dependency artifact
+#    $stage ....... dependency stage
+#    $resource .... dependency main resource. It can be undef for stage dependency.
+sub resolveDependency {
+  my ($context, $subsystem, $kind, $type, $prjname, $artname, $restype) = @_;
+  
+  my $project = $context->getVisibility()->getProject(
+      $context, $subsystem, $prjname);
+  if(!defined($project)) {
+    SMake::Utils::Utils::dieReport(
+        $context->getReporter(),
+        $subsystem,
+        "unknown dependent project '%s'",
+        $prjname);
+  }
+    
+  my $artifact = $project->getArtifact($artname);
+  if(!defined($artifact)) {
+    SMake::Utils::Utils::dieReport(
+        $context->getReporter(),
+        $subsystem,
+        "unknown dependent artifact '%s' in the project '%s'",
+        $artname,
+        $prjname);
+  }
+  
+  my $stage;
+  my $resource;
+  if($kind eq $SMake::Model::Dependency::RESOURCE_KIND) {
+    # -- dependency on a main resource
+    if(!defined($restype)) {
+      $resource = $artifact->getDefaultMainResource();
+    }
+    else {
+      $resource = $artifact->getMainResource($restype);
+    }
+    if(!defined($resource)) {
+      SMake::Utils::Utils::dieReport(
+          $context->getReporter(),
+          $subsystem,
+          "unknown dependent main resource '%s' of the artifact '%s' in the project '%s'",
+          (defined($restype)?$restype:"default"),
+          $prjname,
+          $artname);
+    }
+    $stage = $resource->getStage();
+  }
+  elsif($kind eq $SMake::Model::Dependency::STAGE_KIND) {
+    # -- dependency on a stage
+    $stage = $artifact->getStage($restype);
+    if(!defined($stage)) {
+      SMake::Utils::Utils::dieReport(
+          $context->getReporter(),
+          $subsystem,
+          "unknown dependent stage '%s' of the artifact '%s' in the project '%s'",
+          $restype,
+          $prjname,
+          $artname);
+    }
+  }
+  else {
+    die "invalid dependency kind";
+  }
+
+  return ($project, $artifact, $stage, $resource);
 }
 
 return 1;

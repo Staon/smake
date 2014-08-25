@@ -29,7 +29,7 @@ sub register {
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain) = @_;
 
   # -- flex/bison class prefix
   $toolchain->registerProfile(

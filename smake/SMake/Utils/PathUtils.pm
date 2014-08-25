@@ -15,51 +15,42 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Resource command option
-package SMake::Executor::Command::Resource;
-
-use SMake::Executor::Command::Node;
-
-@ISA = qw(SMake::Executor::Command::Node);
-
-use SMake::Utils::PathUtils;
-
-# Create new resource command node
-#
-# Usage: new($path)
-#    path .... absolute filesystem path of the resource
-sub new {
-  my ($class, $path) = @_;
-  my $this = bless(SMake::Executor::Command::Node->new(), $class);
-  $this->{path} = $path;
-  return $this;
-}
-
-sub getName {
-  my ($this) = @_;
-  return $this->{path}->asString();
-}
-
-# Get the resource path (absolute filesystem path)
-sub getPath {
-  my ($this) = @_;
-  return $this->{path};
-}
+# Some helper manipulations with the Path class
+package SMake::Utils::PathUtils;
 
 # Get value of the node as a system argument
 #
-# Usage: getSystemArgument($context, $wd, $mangler)
+# Usage: getSystemArgument($context, $path, $wd, $mangler)
 #    context ...... executor context
+#    path ......... an absolute filesystem path
 #    wd ........... task's working directory (absolute filesystem path). It can be
 #                   null => full resource path is used.
 #    mangler ...... resource name mangler description. It can be null => name is
 #                   not mangled.
 # Returns: the argument string
 sub getSystemArgument {
-  my ($this, $context, $wd, $mangler) = @_;
-
-  return SMake::Utils::PathUtils::getSystemArgument(
-      $context, $this->getPath(), $wd, $mangler);  
+  my ($context, $path, $wd, $mangler) = @_;
+  
+  my $relpath;
+  if(defined($wd)) {
+    ($relpath, $path) = $path->systemArgument($wd);
+  }
+  else {
+    $relpath = 0;
+  }
+  
+  # -- mangle the filename
+  if(defined($mangler)) {
+    $path = $context->getMangler()->mangleName($context, $mangler, $path);
+  }
+  
+  # -- construct string filesystem path
+  if($relpath) {
+    return $path->systemRelative();
+  }
+  else {
+    return $path->systemAbsolute();
+  }
 }
 
 return 1;

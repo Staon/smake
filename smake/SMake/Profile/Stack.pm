@@ -47,13 +47,13 @@ sub pushList {
 
 # Append a profile into the list at the top
 #
-# Usage: appendProfile($profile)
+# Usage: appendProfile($profile*)
 sub appendProfile {
-  my ($this, $profile) = @_;
+  my ($this, @profile) = @_;
   if($#$this < 0) {
     die "empty profile stack!";
   }
-  $this->[$#$this]->appendProfile($profile);
+  $this->[$#$this]->appendProfile(@profile);
 }
 
 # Pop top list of compilation profiles

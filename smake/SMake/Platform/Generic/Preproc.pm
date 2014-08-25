@@ -22,13 +22,13 @@ use SMake::Platform::Generic::Const;
 use SMake::Profile::ValueProfile;
 
 sub register {
-  my ($class, $toolchain, $constructor, $mangler) = @_;
+  my ($class, $toolchain, $constructor) = @_;
 
   # -- nothing to do
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor, $taskname) = @_;
+  my ($class, $toolchain) = @_;
 
   # -- generic preprocessor profile
   $toolchain->registerProfile(

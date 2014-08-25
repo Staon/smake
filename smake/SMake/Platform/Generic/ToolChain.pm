@@ -133,6 +133,19 @@ sub createObject {
 
 # Begin specification of an artifact constructor
 #
+# Usage: registerConstructor($type, $object)
+#    type ........ type of the artifact
+#    object ...... the constructor object
+sub registerConstructorObject {
+  my ($this, $type, $object) = @_;
+  
+  $this->getConstructor()->appendConstructors([$type, $object]);
+  $this->{curr_constructor} = $object;
+  $this->{objects} = {};
+}
+
+# Begin specification of an artifact constructor
+#
 # Usage: registerConstructor($type)
 #    type ........ type of the artifact
 sub registerConstructor {
@@ -141,9 +154,7 @@ sub registerConstructor {
   my $resolver = SMake::ToolChain::Resolver::Chain->new();
   my $constructor = SMake::ToolChain::Constructor::Generic->new(
       $resolver, undef, [SMake::Platform::Generic::FinishArtifact->new()]);
-  $this->getConstructor()->appendConstructors([$type, $constructor]);
-  $this->{curr_constructor} = $constructor;
-  $this->{objects} = {};
+  $this->registerConstructorObject($type, $constructor);
 }
 
 sub computeKey {
@@ -179,8 +190,7 @@ sub registerFeature {
 
   # -- static initialization  
   if(!$this->{features}->{$key}) {
-    $modulename->staticRegister(
-        $this, $this->{curr_constructor}, @static_args);
+    $modulename->staticRegister($this, @static_args);
     $this->{features}->{$key} = 1;
   }
 

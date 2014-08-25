@@ -27,7 +27,7 @@ sub register {
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor, $resmask) = @_;
+  my ($class, $toolchain, $resmask) = @_;
 
   $toolchain->getScanner()->appendScanners(
       SMake::ToolChain::Scanner::HdrScanner->new(

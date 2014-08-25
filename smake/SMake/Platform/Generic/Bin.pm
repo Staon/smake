@@ -67,7 +67,7 @@ sub register {
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor, $task, $srcres) = @_;
+  my ($class, $toolchain, $task, $srcres) = @_;
 
   # -- it appends library directories from the installation area
   $toolchain->appendProfile(SMake::Profile::InstallPaths->new(

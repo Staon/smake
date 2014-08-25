@@ -48,7 +48,7 @@ sub register {
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain) = @_;
 
   # -- command builder
   $toolchain->getBuilder()->appendBuilders(

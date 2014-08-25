@@ -37,7 +37,7 @@ sub register {
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain) = @_;
 
   # -- empty artifact
   $toolchain->registerConstructor($SMake::Platform::Generic::Const::EMPTY_ARTIFACT);

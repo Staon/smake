@@ -42,7 +42,7 @@ sub register {
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain) = @_;
 
   # -- register command translator
   $toolchain->getTranslator()->appendRecords(

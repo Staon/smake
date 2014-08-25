@@ -148,6 +148,10 @@ sub endArtifact {
     $context->getToolChain()->getConstructor()->finishArtifact(
         $context, $artifact);
   }
+  
+  # -- clear pushed resolvers and scanners
+  $context->clearScanners();
+  $context->clearResolvers();
 
   # -- remove the profile level
   $context->getProfiles()->popList();

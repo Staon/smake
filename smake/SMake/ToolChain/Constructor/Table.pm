@@ -50,7 +50,11 @@ sub appendConstructors {
   }
 }
 
-sub getConstructorObject {
+# Get constructor of a type
+#
+# Usage: getConstructor($context, $type)
+# Returns: the constructor object
+sub getConstructor {
   my ($this, $context, $type) = @_;
 
   my $child = $this->{constructors}->{$type};
@@ -67,28 +71,28 @@ sub getConstructorObject {
 sub constructArtifact {
   my ($this, $context, $artifact) = @_;
 
-  return $this->getConstructorObject($context, $artifact->getType())
+  return $this->getConstructor($context, $artifact->getType())
       ->constructArtifact($context, $artifact);
 }
 
 sub resolveResources {
   my ($this, $context, $artifact, $list) = @_;
 
-  return $this->getConstructorObject($context, $artifact->getType())
+  return $this->getConstructor($context, $artifact->getType())
       ->resolveResources($context, $artifact, $list);
 }
 
 sub resolveDependencies {
   my ($this, $context, $artifact, $list) = @_;
 
-  return $this->getConstructorObject($context, $artifact->getType())
+  return $this->getConstructor($context, $artifact->getType())
       ->resolveDependencies($context, $artifact, $list);
 }
 
 sub finishArtifact {
   my ($this, $context, $artifact) = @_;
 
-  return $this->getConstructorObject($context, $artifact->getType())
+  return $this->getConstructor($context, $artifact->getType())
       ->finishArtifact($context, $artifact);
 }
 

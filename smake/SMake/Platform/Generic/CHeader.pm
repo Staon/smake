@@ -60,7 +60,7 @@ sub register {
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain) = @_;
 
   # -- header profile (installation directory)
   $toolchain->registerProfile(
