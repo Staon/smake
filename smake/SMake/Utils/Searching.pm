@@ -19,6 +19,7 @@
 package SMake::Utils::Searching;
 
 use SMake::Model::Const;
+use SMake::Utils::Masks;
 
 # Try to resolve an external resource in local project
 #
@@ -38,9 +39,9 @@ sub resolveLocal {
   my $resolved = $project->searchResource(
       '^(?!' . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . ')(.*)$',
       $resource->getName(),
-      '^' . quotemeta($SMake::Model::Const::SOURCE_LOCATION)
-        . '|' . quotemeta($SMake::Model::Const::PRODUCT_LOCATION)
-        . '$'
+      SMake::Utils::Masks::createMask(
+          $SMake::Model::Const::SOURCE_LOCATION,
+          $SMake::Model::Const::PRODUCT_LOCATION)
   );
   if(defined($resolved)) {
     return 1, $resolved;
@@ -84,16 +85,22 @@ sub resolveExternal {
   	# -- TODO: select appropriate project
     my $project = $context->getVisibility()->getProject(
         $context, $subsystem, $prjlist->[0]->[0]);
+    if(!defined($project)) {
+      die "project '" . $prjlist->[0]->[0] 
+          . "' doesn't exist but it's registered for public resource "
+          . $resource->getName()->asString() . "!";
+    }
     
     # -- search public resource in the project
     my $resolved = $project->searchResource(
         ".*",
         $resource->getName(),
-        '^' . quotemeta($SMake::Model::Const::PUBLIC_LOCATION) . '$');
+        SMake::Utils::Masks::createMask($SMake::Model::Const::PUBLIC_LOCATION));
     if(!defined($resolved)) {
-      die "project '" . $prjlist->[0]->[0] 
-          . "' doesn't exist but it's registered for public resource "
-          . $resource->getName()->asString() . "!";
+      die "There is something wrong. The resource "
+          . SMake::Model::Resource::createKey(@$keytuple)
+          . " was found in the project " . $project->getName() 
+          . " but now it cannot be searched in!";
     }
     
     # -- get origin resource of the public resource
