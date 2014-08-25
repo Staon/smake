@@ -101,7 +101,8 @@ sub getName {
 
 # Get logical path of the resource
 sub getPath {
-  SMake::Utils::Abstract::dieAbstract();
+  my ($this) = @_;
+  return $this->getArtifact()->getPath()->joinPaths($this->getName());
 }
 
 # Get physical path of the resource

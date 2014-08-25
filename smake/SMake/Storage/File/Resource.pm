@@ -42,7 +42,6 @@ sub new {
   $this->{location} = $location;
   $this->{type} = $type;
   $this->{name} = $name;
-  $this->{path} = $basepath->joinPaths($name);
   $this->{task} = $task;
   return $this;
 }
@@ -82,11 +81,6 @@ sub getType {
 sub getName {
   my ($this) = @_;
   return $this->{name};
-}
-
-sub getPath {
-  my ($this) = @_;
-  return $this->{path};
 }
 
 sub getArtifact {
