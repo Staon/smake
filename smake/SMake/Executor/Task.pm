@@ -93,6 +93,11 @@ sub execute {
       return (0, 1);
     }
   }
+
+  # -- clear the force running flag as the task finished successfully
+  my ($project, $artifact, $stage, $task) = $this->{taskaddress}->getObjects(
+      $context, $SMake::Executor::Executor::SUBSYSTEM);
+  $task->setForceRun(0);
   
   return (0, 0);
 }

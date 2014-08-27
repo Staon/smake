@@ -101,7 +101,7 @@ sub update {
   }
   $this->{task}->setProfiles($this->{profiles});
 
-  $this->{task}->setForceRun($ts_changed || $tg_changed || $prof_changed);
+  $this->{task}->setForceRun($this->{task}->isForceRun() || $ts_changed || $tg_changed || $prof_changed);
   
   $this->{sources} = undef;
   $this->{targets} = undef;

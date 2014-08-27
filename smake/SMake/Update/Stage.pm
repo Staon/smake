@@ -135,4 +135,13 @@ sub getTask {
   return $this->{tasks}->getItemByKey(SMake::Model::Task::createKey($name));
 }
 
+# Get list of tasks
+#
+# Usage: getTasks()
+# Returns: \@list
+sub getTasks {
+  my ($this) = @_;
+  return $this->{tasks}->getItems();
+}
+
 return 1;

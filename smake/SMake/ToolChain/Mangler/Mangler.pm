@@ -55,6 +55,11 @@ sub dir {
   }
 }
 
+sub artifact {
+  my ($mangler, $context, $resource) = @_;
+  return $resource->getArtifact()->getName();
+}
+
 ##########################################################################
 # Create new name mangler
 #
@@ -71,6 +76,7 @@ sub new {
   $this->registerRecord("Dir", \&dir);
   $this->registerRecord("Name", \&name);
   $this->registerRecord("Suffix", \&suffix);
+  $this->registerRecord("Artifact", \&artifact);
   return $this;
 }
 
