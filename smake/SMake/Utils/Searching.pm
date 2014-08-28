@@ -142,7 +142,7 @@ sub externalTransitiveClosure {
       # -- not processed yet
       $extmap{$current->[0]->getName()->asString()} = 1;
 
-      # -- resolve the external resource      
+      # -- resolve the external resource
       my ($found, $resolved, $local) = resolveExternal(
           $context, $subsystem, $current->[0]);
       if(!$found) {
@@ -169,6 +169,46 @@ sub externalTransitiveClosure {
     }
   }
 
+  return $list;  
+}
+
+# Compute transitive closure of an external resource, but resolve only local
+# resources (and ignore resources from another projects)
+#
+# Usage: externalTransitiveClosure($context, $subsystem, $resource)
+#    context ...... executor context
+#    subsystem .... logging subsystem
+#    resource ..... the external resources
+# Returns: \@list of resources
+sub localTransitiveClosure {
+  my ($context, $subsystem, $resource) = @_;
+
+  my $list = [];
+  my @queue = ($resource);
+  my %extmap = ();
+  while($#queue >= 0) {
+    my $current = shift(@queue);
+    if(!defined($extmap{$current->getName()->asString()})) {
+      # -- not processed yet
+      $extmap{$current->getName()->asString()} = 1;
+      
+      # -- resolve the external resource
+      my ($found, $resolved) = resolveLocal(
+          $context, $subsystem, $current);
+      if($found) {
+        push @$list, $resolved;
+
+        # -- search its external resources
+        my $task = $resolved->getTask();
+        my $srctasks = $task->getSources();
+        foreach my $src (@$srctasks) {
+          if($src->getLocation() eq $SMake::Model::Const::EXTERNAL_LOCATION) {
+            push @queue, $src;
+          }
+        }
+      }
+    }
+  }
   return $list;  
 }
 

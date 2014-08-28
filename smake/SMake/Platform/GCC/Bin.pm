@@ -70,12 +70,13 @@ sub staticRegister {
                   $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 1),
               SMake::Executor::Translator::OptionList->new(
                   $SMake::Platform::Generic::Const::RPATH_GROUP, 1, "", "", "-Wl,-rpath=", "", " "),
+              "-Wl,--no-as-needed",
               SMake::Executor::Translator::OptionList->new(
                   $SMake::Platform::Generic::Const::LIBDIR_GROUP, 1, "", "", "-L", "", " "),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Platform::Generic::Const::LIB_GROUP, 1, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
-              SMake::Executor::Translator::FileList->new(
-                  $SMake::Platform::Generic::Const::LIB_GROUP, 1, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
+#              SMake::Executor::Translator::FileList->new(
+#                  $SMake::Platform::Generic::Const::LIB_GROUP, 1, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
           ),
       )],
   );

@@ -22,7 +22,7 @@ use SMake::Executor::Builder::Record;
 
 @ISA = qw(SMake::Executor::Builder::Record);
 
-use SMake::Executor::Command::Group;
+use SMake::Executor::Command::Set;
 use SMake::Model::Const;
 
 # Create new record
@@ -58,7 +58,7 @@ sub compose {
   # -- construct the group
   my $group = $command->getChild($this->{group});
   if(!defined($group)) {
-    $group = SMake::Executor::Command::Group->new($this->{group});
+    $group = SMake::Executor::Command::Set->new($this->{group});
     $command->putChild($group);
   }
   
@@ -67,7 +67,7 @@ sub compose {
     my $restype = $resource->getType();
     my $resname = $resource->getName()->asString();
     if($restype =~ /$this->{restype}/ && $resname =~ /$this->{resmask}/) {
-      $group->appendChild($this->createResourceNode($context, $resource));
+      $group->putChild($this->createResourceNode($context, $resource));
     }
   }
 }

@@ -46,6 +46,19 @@ sub putChild {
   $this->{children}->{$child->getName()} = $child;
 }
 
+# Add child
+#
+# A synonym for the putChild. It's present to be compatible with
+# the Group (the method is used by the profiles)
+#
+# Usage: addChild($child, $prepend)
+#    child ..... the child
+#    prepend ... it has no meaning
+sub addChild {
+  my ($this, $child, $prepend) = @_;
+  $this->putChild($child);
+}
+
 # Clear all children
 sub clearSet {
   my ($this) = @_;

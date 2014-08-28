@@ -22,7 +22,7 @@ use SMake::Executor::Builder::Record;
 
 @ISA = qw(SMake::Executor::Builder::Record);
 
-use SMake::Executor::Command::Group;
+use SMake::Executor::Command::Set;
 use SMake::Executor::Executor;
 
 # Create new record
@@ -44,7 +44,7 @@ sub compose {
   # -- construct the group
   my $group = $command->getChild($this->{group});
   if(!defined($group)) {
-    $group = SMake::Executor::Command::Group->new($this->{group});
+    $group = SMake::Executor::Command::Set->new($this->{group});
     $command->putChild($group);
   }
   
@@ -54,7 +54,7 @@ sub compose {
     if($dep->getDependencyType() =~ /$this->{deptype}/) {
       my ($depprj, $depart, $stage, $depres) = $dep->getObjects(
           $context, $SMake::Executor::Executor::SUBSYSTEM);
-      $group->appendChild($this->createResourceNode($context, $depres));
+      $group->putChild($this->createResourceNode($context, $depres));
     }
   }
 }

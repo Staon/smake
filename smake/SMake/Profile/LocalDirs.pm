@@ -63,10 +63,10 @@ sub modifyNode {
        && $name->isBasepath()
        && $name->asString() =~ /$this->{resmask}/) {
       # -- try to resolve the external resource in the local project
-      my ($found, $resolved) = SMake::Utils::Searching::resolveLocal(
+      my $resolved = SMake::Utils::Searching::localTransitiveClosure(
           $context, $SMake::Executor::Executor::SUBSYSTEM, $src);
-      if($found) {
-        my $path = $resolved->getPhysicalPath()->getDirpath();
+      foreach my $resres (@$resolved) {
+        my $path = $resres->getPhysicalPath()->getDirpath();
         $pathset->{$path->hashKey()} = $path;
       }
     }
