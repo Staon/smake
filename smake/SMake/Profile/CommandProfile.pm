@@ -35,6 +35,11 @@ sub new {
   return $this;
 }
 
+sub isExecutionProfile {
+  my ($this, $context) = @_;
+  return 1;
+}
+
 sub modifyCommand {
   my ($this, $context, $command, $task) = @_;
  

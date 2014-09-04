@@ -57,7 +57,7 @@ sub new {
   my ($class, $path, $srcbase, $tgbase) = @_;
   my $this = bless(SMake::Storage::Storage->new(), $class);
   $this->{path} = $path;
-  $this->{projects} = SMake::Storage::File::Cache->new(10);
+  $this->{projects} = SMake::Storage::File::Cache->new(100);
   $this->{publics} = SMake::Storage::File::PublicTable->new();
 
   # -- base source directory  

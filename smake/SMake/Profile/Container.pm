@@ -52,6 +52,11 @@ sub new {
   return $this;
 }
 
+sub constructProfiles {
+  my ($this, $context, $task) = @_;
+  $this->{children}->constructProfiles($context, $task);
+}
+
 sub projectBegin {
   my $this = shift;
   $this->{children}->projectBegin(@_);

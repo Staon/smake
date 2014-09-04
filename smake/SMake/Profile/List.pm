@@ -41,19 +41,6 @@ sub appendProfile {
   push @{$this->{profiles}}, @profiles;
 }
 
-# Create model objects of profile data
-#
-# Usage: constructProfiles($context, $task)
-#    context ..... parser context
-#    task ........ a task which the profiles are created for
-sub constructProfiles {
-  my ($this, $context, $task) = @_;
-
-  foreach my $profile (@{$this->{profiles}}) {
-    $profile->constructProfiles($context, $task);
-  }
-}
-
 sub iterateItems {
   my ($this, $func) = @_;
   
@@ -62,69 +49,36 @@ sub iterateItems {
   }
 }
 
-# Begining of construction of a project
-#
-# Usage: projectBegin($context, $subsystem, $project)
-#    context ..... parser context
-#    subsystem ... logging subsystem
-#    project ..... the project
+sub constructProfiles {
+  my ($this, $context, $task) = @_;
+  $this->iterateItems(sub { $_[0]->constructProfiles($context, $task); });
+}
+
 sub projectBegin {
   my ($this, $context, $subsystem, $project) = @_;
   $this->iterateItems(sub { $_[0]->projectBegin($context, $subsystem, $project); });
 }
 
-# Ending of construction of a project
-#
-# Usage: projectEnd($context, $subsystem, $project)
-#    context ..... parser context
-#    subsystem ... logging subsystem
-#    project ..... the project
 sub projectEnd {
   my ($this, $context, $subsystem, $project) = @_;
   $this->iterateItems(sub { $_[0]->projectEnd($context, $subsystem, $project); });
 }
 
-# Beginning of construction of an artifact
-#
-# Usage: artifactBegin($context, $subsystem, $artifact)
-#    context ..... parser context
-#    subsystem ... logging subsystem
-#    artifact .... the artifact object
 sub artifactBegin {
   my ($this, $context, $subsystem, $artifact) = @_;
   $this->iterateItems(sub { $_[0]->artifactBegin($context, $subsystem, $artifact); });
 }
 
-# Ending of construction of an artifact
-#
-# Usage: artifactEnd($context, $subsystem, $artifact)
-#    context ..... parser context
-#    subsystem ... logging subsystem
-#    artifact .... the artifact object
 sub artifactEnd {
   my ($this, $context, $subsystem, $artifact) = @_;
   $this->iterateItems(sub { $_[0]->artifactEnd($context, $subsystem, $artifact); });
 }
 
-# Modify a resolved resource
-#
-# Usage: modifyResource($context, $subsystem, $resource, $task)
-#    context ..... parser context
-#    subsystem ... logging subsystem
-#    resource .... the resolved resource
-#    task ........ the task
 sub modifyResource {
   my ($this, $context, $subsystem, $resource, $task) = @_;
   $this->iterateItems(sub { $_[0]->modifyResource($context, $subsystem, $resource, $task); });
 }
 
-# Modify logical command
-#
-# Usage: modifyCommand($context, $command, $task)
-#    context .... executor context
-#    command .... the logical command
-#    task ....... a task object which the command is attached to
-# Returns: modified logical command
 sub modifyCommand {
   my ($this, $context, $command, $task) = @_;
 
@@ -132,11 +86,6 @@ sub modifyCommand {
   return $command;
 }
 
-# Get profile variable
-#
-# Usage: getVariable($context, $name)
-#    context .... parser/executor context
-#    name ....... name of the variable
 sub getVariable {
   my ($this, $context, $name) = @_;
   

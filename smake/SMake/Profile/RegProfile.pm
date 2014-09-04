@@ -47,6 +47,11 @@ sub redirect {
   &$func($profile);
 }
 
+sub constructProfiles {
+  my ($this, $context, $task) = @_;
+  $this->redirect($context, sub { $_[0]->constructProfiles($contex, $task); });
+}
+
 sub projectBegin {
   my ($this, $context, $subsystem, $project) = @_;
   $this->redirect($context, sub { $_[0]->projectBegin($context, $subsystem, $project); });

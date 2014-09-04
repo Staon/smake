@@ -61,8 +61,19 @@ sub ressurect {
 sub constructProfiles {
   my ($this, $context, $task) = @_;
   
-  my $dumpstring = $this->dumpContent();
-  $task->appendProfile($context, $dumpstring);
+  if($this->isExecutionProfile($context)) {
+    my $dumpstring = $this->dumpContent();
+    $task->appendProfile($context, $dumpstring);
+  }
+}
+
+# It returns true, if the profile modifies behavior of the executor
+#
+# Usage: isExecutionProfile($context)
+# Returns: true/false
+sub isExecutionProfile {
+  my ($this, $context) = @_;
+  return 0;
 }
 
 # Begining of construction of a project
