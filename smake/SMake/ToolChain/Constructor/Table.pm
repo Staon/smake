@@ -75,6 +75,13 @@ sub constructArtifact {
       ->constructArtifact($context, $artifact);
 }
 
+sub createMainResources {
+  my ($this, $context, $artifact) = @_;
+
+  return $this->getConstructor($context, $artifact->getType())
+      ->createMainResources($context, $artifact);
+}
+
 sub resolveResources {
   my ($this, $context, $artifact, $list) = @_;
 

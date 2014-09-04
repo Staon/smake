@@ -21,13 +21,12 @@ package SMake::Platform::GCC::Lib;
 use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Model::Const;
-use SMake::Platform::GCC::Compilers;
 use SMake::Platform::Generic::Lib;
 use SMake::Platform::Generic::CompileTranslator;
 use SMake::Platform::Generic::Const;
 
 sub register {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain, $constructor, $compset) = @_;
 
   # -- generic parts
   $toolchain->registerFeature(
@@ -38,7 +37,7 @@ sub register {
 
   # -- register standard compilers
   $toolchain->registerFeature(
-      SMake::Platform::GCC::Compilers,
+      $compset,
       $SMake::Platform::Generic::Const::LIB_COMPILE_STAGE,
       '.a.o',
       "static");

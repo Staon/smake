@@ -38,6 +38,7 @@ sub new {
   $this->{resolver} = $resolver;
   $this->{resources} = [];
   $this->{finishrecs} = [];
+  $this->{profiles} = [];
   
   $this->appendMainResource(@$resources) if(defined($resources));
   $this->appendFinishRecord(@$finishrecs) if(defined($finishrecs));
@@ -68,6 +69,14 @@ sub appendResolver {
   $this->{resolver}->appendResolver($resolver);
 }
 
+# Append profile(s)
+#
+# Usage: appendProfile($profile...)
+sub appendProfile {
+  my ($this, @profiles) = @_;
+  push @{$this->{profiles}}, @profiles;
+}
+
 sub resolveResourcesQueue {
   my ($this, $context, $artifact, $queue) = @_;
   
@@ -95,6 +104,13 @@ sub constructArtifact {
   $context->pushResolver($this->{resolver});
   $context->pushScanner($context->getToolChain()->getScanner());
   
+  # -- push the profiles
+  $context->getProfiles()->appendProfile(@{$this->{profiles}});
+}
+
+sub createMainResources {
+  my ($this, $context, $artifact) = @_;
+
   # -- create main resources
   my $queue = SMake::ToolChain::Constructor::Queue->new([]);
   foreach my $record (@{$this->{resources}}) {

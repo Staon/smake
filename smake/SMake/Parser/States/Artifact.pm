@@ -45,7 +45,7 @@ sub initializeArtifact {
     
     # -- construct the artifact
     $context->getRepository()->getToolChain()->getConstructor()
-        ->constructArtifact($context, $artifact);
+        ->createMainResources($context, $artifact);
 
     # -- give a chance to the profiles
     $context->getProfiles()->artifactBegin(

@@ -22,8 +22,10 @@ use SMake::Executor::Builder::Compile;
 use SMake::Executor::Builder::Resources;
 use SMake::Model::Const;
 use SMake::Platform::Generic::CHeader;
+use SMake::Platform::Generic::Compile;
 use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::HeaderScanner;
+use SMake::Platform::Generic::Source;
 use SMake::Profile::InstallPaths;
 use SMake::Profile::LocalDirs;
 use SMake::Profile::ValueProfile;
@@ -41,64 +43,65 @@ sub register {
   my ($class, $toolchain, $constructor, $stage, $mangler, $libtype) = @_;
   
   # -- resolve file suffixes
-  $toolchain->createObject(
-      "CXX_sources",
-      SMake::ToolChain::Resolver::ResourceTrans,
-      sub { $constructor->appendResolver($_[0]); },
-      '^' . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . '$',
+  $toolchain->registerFeature(
+      SMake::Platform::Generic::Source,
       '[.]cpp$',
-      $SMake::Platform::Generic::Const::CXX_RESOURCE,
-      undef,
-      undef);
+      $SMake::Platform::Generic::Const::CXX_RESOURCE);
   
-  # -- resolver
-  my $multi = $toolchain->createObject(
-      "CXX_compiler",
-      SMake::ToolChain::Resolver::Multi,
-      sub { $constructor->appendResolver($_[0]); });
-  my $resolver = SMake::ToolChain::Resolver::Compile->new(
-      '^' . quotemeta($SMake::Platform::Generic::Const::CXX_RESOURCE) . '$',
-      '.*',
-      $stage,
+  # -- compilation task
+  my $resolver = $toolchain->registerFeature(
+      SMake::Platform::Generic::Compile,
       $SMake::Platform::Generic::Const::CXX_TASK,
-      [$SMake::Platform::Generic::Const::OBJ_RESOURCE, $mangler],
-  );
-  $multi->appendResolver($resolver);
+      $stage,
+      $SMake::Platform::Generic::Const::CXX_RESOURCE,
+      '.*',
+      [$SMake::Platform::Generic::Const::OBJ_RESOURCE, $mangler]);
 
-  # -- type of library
+  # -- type of library (profile)
   my $profile = SMake::Profile::ValueProfile->new(
-      '^' . quotemeta($SMake::Platform::Generic::Const::CXX_TASK) . '$',
+      SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::CXX_TASK),
       $SMake::Platform::Generic::Const::DLL_GROUP,
       0,
       $SMake::Platform::Generic::Const::LIB_TYPE_OPTION,
       $libtype);
   $resolver->appendProfile($profile);
-  
-  # -- C headers
+
+  # -- C++ header scanner
   $toolchain->registerFeature(
       [SMake::Platform::Generic::HeaderScanner,
-       '^' . $SMake::Platform::Generic::Const::CXX_RESOURCE . '$']);
+       SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::CXX_RESOURCE)]);
+  
+  # -- C/C++ headers
   $toolchain->registerFeature(SMake::Platform::Generic::CHeader);
+
+  # -- include directories from the installation area
+  $toolchain->createObject(
+      "CXX::compile::install_paths",
+      SMake::Profile::InstallPaths,
+      sub { $constructor->appendProfile($_[0]); },
+      $SMake::Platform::Generic::Const::CXX_TASK,
+      $SMake::Platform::Generic::Const::HEADERDIR_GROUP,
+      $SMake::Platform::Generic::Const::HEADER_MODULE,
+      1,
+  );
+  
+  # -- local include directories
+  $toolchain->createObject(
+      "CXX::compile::local_dirs",
+      SMake::Profile::LocalDirs,
+      sub { $constructor->appendProfile($_[0]); },
+      SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::CXX_TASK),
+      $SMake::Platform::Generic::Const::HEADERDIR_GROUP,
+      SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::HEADER_MODULE),
+      '.*',
+      1,
+  );
+  
+  return $resolver;
 }
 
 sub staticRegister {
   my ($class, $toolchain) = @_;
-
-  # -- include directories from the installation area
-  $toolchain->appendProfile(SMake::Profile::InstallPaths->new(
-      $SMake::Platform::Generic::Const::CXX_TASK,
-      $SMake::Platform::Generic::Const::HEADERDIR_GROUP,
-      $SMake::Platform::Generic::Const::HEADER_MODULE,
-      1),
-  );
-  # -- local include directories
-  $toolchain->appendProfile(SMake::Profile::LocalDirs->new(
-      '^' . quotemeta($SMake::Platform::Generic::Const::CXX_TASK) . '$',
-      $SMake::Platform::Generic::Const::HEADERDIR_GROUP,
-      '^' . quotemeta($SMake::Platform::Generic::Const::HEADER_MODULE) . '$',
-      '.*',
-      1),
-  );
 
   # -- command builder
   $toolchain->getBuilder()->appendBuilders(

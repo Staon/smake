@@ -39,6 +39,15 @@ sub constructArtifact {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Prepare constructor's main resources
+#
+# Usage: createMainResources($context, $artifact)
+#    context .... parser context
+#    artifact ... the artifact object
+sub createMainResources {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Resolve queue of resources in area of the artifact
 #
 # Usage: resolveResources($context, $artifact, \@list)

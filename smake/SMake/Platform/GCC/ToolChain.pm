@@ -31,13 +31,7 @@ use SMake::Profile::ValueProfile;
 use SMake::ToolChain::ResourceFilter::SysLocation;
 
 sub register {
-  my ($class, $toolchain, $constructor) = @_;
-
-  # -- nothing to do
-}
-
-sub staticRegister {
-  my ($class, $toolchain) = @_;
+  my ($class, $toolchain, $constructor, $compset) = @_;
 
   # -- empty artifact
   $toolchain->registerConstructor($SMake::Platform::Generic::Const::EMPTY_ARTIFACT);
@@ -45,12 +39,16 @@ sub staticRegister {
   
   # -- library artifact
   $toolchain->registerConstructor($SMake::Platform::Generic::Const::LIB_ARTIFACT);
-  $toolchain->registerFeature(SMake::Platform::GCC::Dll);
-  $toolchain->registerFeature(SMake::Platform::GCC::Lib);
+  $toolchain->registerFeature(SMake::Platform::GCC::Dll, $compset);
+  $toolchain->registerFeature(SMake::Platform::GCC::Lib, $compset);
 
   # -- binary artifact
   $toolchain->registerConstructor($SMake::Platform::Generic::Const::BIN_ARTIFACT);
-  $toolchain->registerFeature(SMake::Platform::GCC::Bin);
+  $toolchain->registerFeature(
+      SMake::Platform::GCC::Bin,
+      $SMake::Platform::Generic::Const::BIN_COMPILE_STAGE,
+      $compset,
+      $SMake::Platform::Generic::Const::BIN_STAGE);
 
   # -- generic preprocessor profile
   $toolchain->registerFeature(SMake::Platform::Generic::Preproc);
@@ -62,6 +60,11 @@ sub staticRegister {
   $toolchain->getResourceFilter()->appendFilters(
       SMake::Platform::GCC::HeaderFilter->new(),
   );
+}
+
+sub staticRegister {
+  my ($class, $toolchain) = @_;
+
 }
 
 return 1;

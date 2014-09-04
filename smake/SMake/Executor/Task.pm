@@ -49,7 +49,7 @@ sub new {
         SMake::Profile::Profile::ressurect($profdump));
   }
   
-  # -- translate command to a shell commands
+  # -- translate command to shell commands
   my $translator = $context->getToolChain()->getTranslator();
   my $wd = $task->getWDPhysicalPath();
   my $instructions = [];

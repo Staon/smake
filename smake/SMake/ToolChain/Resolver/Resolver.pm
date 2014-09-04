@@ -33,10 +33,10 @@ sub new {
 
 # Append a profile to the resolver
 #
-# Usage: appendProfile($profile)
+# Usage: appendProfile($profile...)
 sub appendProfile {
-  my ($this, $profile) = @_;
-  $this->{profiles}->appendProfile($profile);
+  my ($this, @profile) = @_;
+  $this->{profiles}->appendProfile(@profile);
 }
 
 # Resolve a resource

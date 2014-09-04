@@ -61,7 +61,6 @@ sub new {
     [$SMake::Model::Const::PUBLISH_TASK, SMake::Executor::Builder::Empty->new()],
     [$SMake::Model::Const::EXTERNAL_TASK, SMake::Executor::Builder::Compile->new()],
     [$SMake::Model::Const::BUILD_TREE_TASK, SMake::Executor::Builder::Compile->new()],
-    [$SMake::Model::Const::RES_TRANSLATION_TASK, SMake::Executor::Builder::Empty->new()],
     [$SMake::Platform::Generic::Const::CLEAN_TASK, SMake::Executor::Builder::Compile->new()],
     [$SMake::Platform::Generic::Const::SERVICE_DEP_TASK, SMake::Executor::Builder::Empty->new()],
     [$SMake::Platform::Generic::Const::SERVICE_TASK, SMake::Executor::Builder::Compile->new()],
@@ -148,6 +147,7 @@ sub registerConstructorObject {
 #
 # Usage: registerConstructor($type)
 #    type ........ type of the artifact
+# Returns: the constructor object
 sub registerConstructor {
   my ($this, $type) = @_;
 
@@ -155,6 +155,7 @@ sub registerConstructor {
   my $constructor = SMake::ToolChain::Constructor::Generic->new(
       $resolver, undef, [SMake::Platform::Generic::FinishArtifact->new()]);
   $this->registerConstructorObject($type, $constructor);
+  return $constructor;
 }
 
 sub computeKey {

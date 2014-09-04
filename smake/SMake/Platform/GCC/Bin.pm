@@ -22,27 +22,23 @@ use SMake::Executor::Translator::Compositor;
 use SMake::Executor::Translator::FileList;
 use SMake::Executor::Translator::OptionList;
 use SMake::Model::Const;
-use SMake::Platform::GCC::Compilers;
 use SMake::Platform::Generic::Bin;
 use SMake::Platform::Generic::CompileTranslator;
 use SMake::Platform::Generic::Const;
 
 sub register {
-  my ($class, $toolchain, $constructor) = @_;
+  my ($class, $toolchain, $constructor, $compstage, $compset, $linkstage) = @_;
 
   # -- generic parts
   $toolchain->registerFeature(
-      [SMake::Platform::Generic::Bin,
-       $SMake::Platform::Generic::Const::BIN_TASK,
-       $SMake::Platform::Generic::Const::OBJ_RESOURCE],
-      'Dir() . Name()',
-      '^' . quotemeta($SMake::Platform::Generic::Const::OBJ_RESOURCE) . '$',
-      '.*');
+      SMake::Platform::Generic::Bin,
+      $linkstage,
+      'Dir() . Name()');
 
   # -- register standard compilers
   $toolchain->registerFeature(
-      SMake::Platform::GCC::Compilers,
-      $SMake::Platform::Generic::Const::BIN_COMPILE_STAGE,
+      $compset,
+      $compstage,
       '.o',
       "no");
 }
@@ -75,8 +71,6 @@ sub staticRegister {
                   $SMake::Platform::Generic::Const::LIBDIR_GROUP, 1, "", "", "-L", "", " "),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Platform::Generic::Const::LIB_GROUP, 1, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
-#              SMake::Executor::Translator::FileList->new(
-#                  $SMake::Platform::Generic::Const::LIB_GROUP, 1, "", "", "-l:", "", " ", 1, 'Name() . "." . Suffix()'),
           ),
       )],
   );
