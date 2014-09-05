@@ -75,6 +75,18 @@ sub directive_SA {
   executeDirective(@_);
 }
 
+sub directive_SBB {
+  my ($name, $arg1, $arg2, $arg3) = splice(@_, 0, 4);
+  SMake::Utils::ArgChecker::checkScalar($name, $arg1, 1);
+  SMake::Utils::ArgChecker::checkScalarOrArray($name, $arg2, 2);
+  SMake::Utils::ArgChecker::checkScalarOrArray($name, $arg3, 3);
+  executeDirective(
+      $name,
+      $arg1,
+      SMake::Utils::Utils::getArrayRef($arg2),
+      SMake::Utils::Utils::getArrayRef($arg3));
+}
+
 ##########################################################################
 #                                Parser
 ##########################################################################
@@ -99,6 +111,7 @@ sub new {
       EndGroup => \&directive_,
       Resolver => \&directive_,
       Scanner => \&directive_,
+      Feature => \&directive_SBB,
     },
   }, $class);
 }

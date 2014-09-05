@@ -284,6 +284,48 @@ sub getDependencyRecords {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Create new feature
+#
+# Usage: createFeature($name)
+#    name ..... name of the feature
+# Results: the feature object
+sub createFeature {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get a feature
+#
+# Usage: getFeature($name)
+#    name ..... name of the feature
+# Returns: the feature object or undef
+sub getFeature {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of keys of the features
+#
+# Usage: getFeatureKeys()
+# Returns: \@list of the keys
+sub getFeatureKeys {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Delete list of features
+#
+# Usage: deleteFeatures(\@list)
+#    list ..... list of key tuples
+sub deleteFeatures {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of feature objects
+#
+# Usage: getFeatures()
+# Returns: \@list of feature objects
+sub getFeatures {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Print content of the object
 #
 # Usage: prettyPrint($indent)
@@ -334,6 +376,18 @@ sub prettyPrint {
   foreach my $dep (@$deps) {
     SMake::Utils::Print::printIndent($indent + 2);
     $dep->prettyPrint($indent + 2);
+    print ::HANDLE "\n";
+  }
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "}\n";
+
+  # -- features
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "features: {\n";
+  my $features = $this->getFeatures();
+  foreach my $feature (@$features) {
+    SMake::Utils::Print::printIndent($indent + 2);
+    $feature->prettyPrint($indent + 2);
     print ::HANDLE "\n";
   }
   SMake::Utils::Print::printIndent($indent + 1);

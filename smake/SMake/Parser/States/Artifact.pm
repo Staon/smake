@@ -132,6 +132,35 @@ sub scanner {
   $context->pushScanner($scanner);
 }
 
+# Register smake feature
+#
+# Usage: Feature($name, \@onlist, \@offlist)
+#    name ...... name of the feature
+#    onlist .... list of the on-dependencies
+#    offlist ... list of the off-dependencies
+sub feature {
+  my ($this, $parser, $context, $name, $onlist, $offlist) = @_;
+
+  $this->initializeArtifact($parser, $context);
+  
+  # -- get the feature object
+  my $artifact = $context->getArtifact();
+  my $feature = $artifact->getFeature($context, $name);
+  if(!defined($feature)) {
+    $feature = $artifact->createFeature($context, $name);
+  }
+  
+  # -- on-dependencies
+  foreach my $ondep (@$onlist) {
+    $feature->appendOnDependency($context, $ondep);
+  }
+
+  # -- off-dependencies
+  foreach my $offdep (@$offlist) {
+    $feature->appendOffDependency($context, $offdep);
+  }
+}
+
 sub endArtifact {
   my ($this, $parser, $context) = @_;
   $context->getReporter()->report(

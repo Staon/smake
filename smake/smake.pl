@@ -34,7 +34,7 @@ use SMake::Storage::File::Storage;
 use SMake::Utils::Dirutils;
 use SMake::Utils::Searcher;
 
-#local $SIG{__DIE__} = sub { Carp::confess(@_); };
+local $SIG{__DIE__} = sub { Carp::confess(@_); };
 local $SIG{__WARN__} = sub { die @_ };
 $| = 1;      # -- autoflush of the console
 

@@ -21,9 +21,11 @@ package SMake::Update::Artifact;
 use SMake::Data::Path;
 use SMake::Model::Const;
 use SMake::Model::Dependency;
+use SMake::Model::Feature;
 use SMake::Model::Resource;
 use SMake::Model::Stage;
 use SMake::Update::Dependency;
+use SMake::Update::Feature;
 use SMake::Update::Resource;
 use SMake::Update::Stage;
 use SMake::Update::Table;
@@ -54,6 +56,9 @@ sub new {
     $this->{dependencies} = SMake::Update::Table->new(
         \&SMake::Model::Dependency::createKey,
         $artifact->getDependencyKeys());
+    $this->{features} = SMake::Update::Table->new(
+        \&SMake::Model::Feature::createKey,
+        $artifact->getFeatureKeys());
   }
   else {
     $artifact = $project->getObject()->createArtifact($path, $name, $type, $args);
@@ -64,6 +69,8 @@ sub new {
         \&SMake::Model::Stage::createKey, []);
     $this->{dependencies} = SMake::Update::Table->new(
         \&SMake::Model::Dependency::createKey, []);
+    $this->{features} = SMake::Update::Table->new(
+        \&SMake::Model::Feature::createKey, []);
   }
   $this->{main_resources} = {};
   $this->{main} = undef;
@@ -95,10 +102,15 @@ sub update {
   my ($dep_delete, undef) = $this->{dependencies}->update($context);
   $this->{artifact}->deleteDependencies($dep_delete);
   
+  # -- update features
+  my ($feature_delete, undef) = $this->{features}->update($context);
+  $this->{artifact}->deleteFeatures($feature_delete);
+  
   $this->{stages} = undef;
   $this->{resources} = undef;
   $this->{main_resources} = undef;
   $this->{dependencies} = undef;
+  $this->{features} = undef;
   $this->{project} = undef;
   $this->{artifact} = undef;
 }
@@ -562,6 +574,31 @@ sub appendDependencySpecs {
   }
   
   return $added;
+}
+
+# Create new feature object
+#
+# Usage: createFeature($context, $name)
+#    context ........ parser context
+#    name ........... name of the feature
+# Returns: the feature object
+sub createFeature {
+  my ($this, $context, $name) = @_;
+  
+  my $feature = SMake::Update::Feature->new($context, $this, $name);
+  $this->{features}->addItem($feature);
+  return $feature;
+}
+
+# Get a feature object
+#
+# Usage: getFeature($context, $name)
+#    context ........ parser context
+#    name ........... name of the feature
+# Returns: the feature object or undef
+sub getFeature {
+  my ($this, $context, $name) = @_;
+  return $this->{features}->getItemByKey(SMake::Model::Feature::createKey($name));  
 }
 
 return 1;
