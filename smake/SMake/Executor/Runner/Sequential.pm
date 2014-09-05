@@ -29,24 +29,22 @@ sub new {
   return bless(SMake::Executor::Runner::SequentialBase->new(), $class);
 }
 
-# Blocking execution of a command
-#
-# Usage: runBlocking($context, $command)
-#    context ...... executor context
-#    command ...... the command (string)
-# Returns: ($code, $output)
-#    code ......... command return code
-#    output ....... command's output
 sub runBlocking {
-  my ($this, $context, $command) = @_;
+  my ($this, $context, $command, $capture) = @_;
   
   delete local $SIG{__WARN__};
-  my $output = `$command 2>&1`;
-  if(!defined($output)) {
-    return -1, "";
+  if($capture) {
+    my $output = `$command 2>&1`;
+    if(!defined($output)) {
+      return -1, "";
+    }
+    else {
+      return $?, $output;
+    }
   }
   else {
-    return $?, $output;
+    system($command);
+    return $?, "";
   }
 }
 

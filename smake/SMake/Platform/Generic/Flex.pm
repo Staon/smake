@@ -111,6 +111,7 @@ sub staticRegister {
   $toolchain->getTranslator()->appendRecords(
       [$SMake::Platform::Generic::Const::FLEX_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
+              1,
               "flex",
               "--nounistd",
               SMake::Executor::Translator::OptionValue->new(

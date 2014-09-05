@@ -27,7 +27,7 @@ sub register {
 
   # -- create the multi resolver
   my $multi = $toolchain->createObject(
-      $restype . "::" . $resmask . "::" . $tasktype . "::resolver",
+      $restype . "::" . $resmask . "::resolver",
       SMake::ToolChain::Resolver::Multi,
       sub { $constructor->appendResolver($_[0]); });
   my $resolver = SMake::ToolChain::Resolver::Compile->new(

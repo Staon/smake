@@ -125,6 +125,7 @@ sub staticRegister {
       )],
       [$SMake::Platform::Generic::Const::BIN_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
+              1,
               "wlink",
               "op q",
               SMake::Executor::Translator::FileList->new(

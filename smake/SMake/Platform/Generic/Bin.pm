@@ -20,11 +20,15 @@ package SMake::Platform::Generic::Bin;
 
 use SMake::Executor::Builder::Compile;
 use SMake::Executor::Builder::Dependencies;
+use SMake::Executor::Builder::Empty;
 use SMake::Executor::Builder::Resources;
+use SMake::Platform::Generic::Compile;
 use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::DepInstall;
 use SMake::Platform::Generic::Link;
 use SMake::Profile::InstallPaths;
+
+$DEFAULT_AFTER_BIN_TASK = "bin_empty_task";
 
 sub register {
   my ($class, $toolchain, $constructor, $stage, $resname) = @_;
@@ -59,6 +63,15 @@ sub register {
       $SMake::Platform::Generic::Const::LIB_MODULE,
       1,
   );
+
+  # -- default empty task for resolving of the binary resource
+  $toolchain->registerFeature(
+      SMake::Platform::Generic::Compile,
+      $DEFAULT_AFTER_BIN_TASK,
+      $stage,
+      $SMake::Platform::Generic::Const::BIN_RESOURCE,
+      '.*',
+  );
 }
 
 sub staticRegister {
@@ -77,6 +90,7 @@ sub staticRegister {
             $SMake::Platform::Generic::Const::LIB_GROUP,
             $SMake::Platform::Generic::Const::LINK_DEPENDENCY),
     )],
+    [$DEFAULT_AFTER_BIN_TASK, SMake::Executor::Builder::Empty->new()],
   );
 }
 

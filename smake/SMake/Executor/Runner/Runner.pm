@@ -30,10 +30,11 @@ sub new {
 
 # Prepare a shell command
 #
-# Usage: prepareCommand($context, $command, $wd)
+# Usage: prepareCommand($context, $command, $wd, $capture)
 #    context ...... executor context
 #    command ...... shell command
 #    wd ........... absolute system path of the working directory (a Path object)
+#    capture ...... if it's true, the output of the command is captured
 # Returns: an identifier of the job
 sub prepareCommand {
   SMake::Utils::Abstract::dieAbstract();

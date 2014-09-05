@@ -59,6 +59,7 @@ sub staticRegister {
   $toolchain->getTranslator()->appendRecords(
       [$SMake::Platform::Generic::Const::BIN_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
+              1,
               "g++",
               SMake::Executor::Translator::FileList->new(
                   $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "", "", "-o ", "", "", 0),

@@ -43,6 +43,7 @@ sub staticRegister {
   $toolchain->getTranslator()->appendRecords(
       [$SMake::Platform::Generic::Const::CXX_TASK, SMake::Platform::Generic::CompileTranslator->new(
         SMake::Executor::Translator::Compositor->new(
+            1,
             "cc",
             SMake::Executor::Translator::Select->new(
                 $SMake::Platform::Generic::Const::DEBUG_GROUP . "/" . $SMake::Platform::Generic::Const::DEBUG_TYPE,

@@ -28,10 +28,13 @@ use SMake::Executor::Instruction::Shell;
 
 # Create new compositor
 #
-# Usage: new($translator*)
+# Usage: new($capture, $translator*)
 sub new {
   my $class = shift;
+  my $capture = shift;
+  
   my $this = bless(SMake::Executor::Translator::Translator->new(), $class);
+  $this->{capture} = $capture;
   $this->{records} = [];
   $this->appendRecords(@_);
   return $this; 
@@ -63,7 +66,8 @@ sub translate {
       }
   	}
   }
-  return [SMake::Executor::Instruction::Shell->new("@retvals")];
+  return [SMake::Executor::Instruction::Shell->newCapture(
+      $this->{capture}, "@retvals")];
 }
 
 return 1;

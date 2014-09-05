@@ -30,24 +30,22 @@ sub new {
   return bless(SMake::Executor::Runner::SequentialBase->new(), $class);
 }
 
-# Blocking execution of a command
-#
-# Usage: runBlocking($context, $command)
-#    context ...... executor context
-#    command ...... the command (string)
-# Returns: ($code, $output)
-#    code ......... command return code
-#    output ....... command's output
 sub runBlocking {
-  my ($this, $context, $command) = @_;
+  my ($this, $context, $command, $capture) = @_;
 
-  my $output = QNX4::backticks_keepalive(
-      "$command 2>&1", 15000, " ========= SMAKE HEARTBEAT ========= \n");
-  if(!defined($output)) {
-    return -1, "";
+  if($capture) {
+    my $output = QNX4::backticks_keepalive(
+        "$command 2>&1", 15000, " ========= SMAKE HEARTBEAT ========= \n");
+    if(!defined($output)) {
+      return -1, "";
+    }
+    else {
+      return $?, $output;
+    }
   }
   else {
-    return $?, $output;
+    system($command);
+    return $?, "";
   }
 }
 

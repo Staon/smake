@@ -50,6 +50,7 @@ sub staticRegister {
   $toolchain->getTranslator()->appendRecords(
       [$SMake::Platform::Generic::Const::DLL_TASK, SMake::Platform::Generic::CompileTranslator->new(
           SMake::Executor::Translator::Compositor->new(
+              1,
               "gcc",
               "-shared",
               SMake::Executor::Translator::FileList->new(

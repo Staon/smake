@@ -39,7 +39,7 @@ sub register {
       $tgname,
       $stage,
       $tasktype,
-      0,
+      1,
       {});
   
   # -- register the linker resolver

@@ -39,10 +39,10 @@ sub new {
 }
 
 sub prepareCommand {
-  my ($this, $context, $command, $wd) = @_;
+  my ($this, $context, $command, $wd, $capture) = @_;
   
   my $jobid = $this->{jobid}++;
-  my $record = [$jobid, $command, $wd, undef, undef];
+  my $record = [$jobid, $command, $wd, $capture, undef, undef];
   push @{$this->{queue}}, $record;
   $this->{status}->{$jobid} = $record;
   
@@ -63,10 +63,10 @@ sub getStatus {
   }
 
   # -- process job's status
-  if(defined($record->[3])) {
+  if(defined($record->[4])) {
     # -- the job already finished
     delete $this->{status}->{$jobid};
-    return [$record->[3], $record->[4]];
+    return [$record->[4], $record->[5]];
   }
   else {
     return undef;
@@ -91,9 +91,9 @@ sub wait {
     # -- run the command
     my $command = $record->[1];
     print "$command\n";
-    my ($code, $output) = $this->runBlocking($context, $command);
-    $record->[4] = $output;
-    $record->[3] = (!$code)?1:0;
+    my ($code, $output) = $this->runBlocking($context, $command, $record->[3]);
+    $record->[5] = $output;
+    $record->[4] = (!$code)?1:0;
     
     # -- change current working directory back
     if(defined($record->[2])) {
@@ -106,9 +106,10 @@ sub wait {
 
 # Blocking execution of a command
 #
-# Usage: runBlocking($context, $command)
+# Usage: runBlocking($context, $command, $capture)
 #    context ...... executor context
 #    command ...... the command (string)
+#    capture ...... if it's true, the output is captured
 # Returns: ($code, $output)
 #    code ......... command return code
 #    output ....... command's output

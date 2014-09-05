@@ -47,10 +47,10 @@ sub new {
 }
 
 sub prepareCommand {
-  my ($this, $context, $command, $wd) = @_;
+  my ($this, $context, $command, $wd, $capture) = @_;
   
   my $jobid = $this->{jobid}++;
-  my $record = [$jobid, $command, $wd, undef, undef];
+  my $record = [$jobid, $command, $wd, $capture, undef, undef];
   push @{$this->{queue}}, $record;
   $this->{status}->{$jobid} = $record;
   
@@ -71,10 +71,10 @@ sub getStatus {
   }
 
   # -- process job's status
-  if(defined($record->[3])) {
+  if(defined($record->[4])) {
     # -- the job already finished
     delete $this->{status}->{$jobid};
-    return [$record->[3], $record->[4]];
+    return [$record->[4], $record->[5]];
   }
   else {
     return undef;
@@ -99,7 +99,7 @@ sub finishProcess {
   else {
     $code = 0;
   }
-  $record->[2]->[3] = $code;
+  $record->[2]->[4] = $code;
   $this->{read_handles}->remove($record->[0]);
   $record->[0]->close();
   $this->{handles} = [grep {$_ != $record} @{$this->{handles}}];
@@ -124,12 +124,14 @@ sub wait {
       push @{$this->{handles}}, [$pipe, $pid, $record];
       $this->{read_handles}->add($pipe);
       $pipe->blocking(0);
-      $record->[4] = "";
+      $record->[5] = "";
     }
     elsif(defined($pid)) {
       # -- child
       $pipe->writer();
-      STDOUT->fdopen($pipe, "w");
+      if($record->[3]) {
+        STDOUT->fdopen($pipe, "w");
+      }
       
       # -- prepare current working directory
       my $wd = $record->[2];
@@ -146,8 +148,8 @@ sub wait {
     }
     else {
       # -- error
-      $record->[3] = 0;
-      $record->[4] = "failed fork function!";
+      $record->[4] = 0;
+      $record->[5] = "failed fork function!";
       $pipe->close();
     }
   }
@@ -160,7 +162,7 @@ sub wait {
       my $buffer = "";
       my $len = read($handle, $buffer, 1024);
       if(defined($len) && $len > 0) {
-        $record->[2]->[4] .= $buffer;
+        $record->[2]->[5] .= $buffer;
       }
       else {
         $this->finishProcess($record);
