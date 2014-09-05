@@ -161,14 +161,14 @@ sub getMark {
 sub computeCurrentMark {
   my ($this, $context, $subsystem) = @_;
 
-  # -- get set of resources to compute the mark
+  # -- get the resource
   my $declist = SMake::ToolChain::Decider::DeciderList->new();
-  my $closure = SMake::Utils::Searching::dependencyTransitiveClosure(
-      $context, $subsystem, $this);
-  foreach my $c (@$closure) {
-    $declist->appendPaths($c->getPhysicalPath());
+  if($this->getDependencyKind() eq $SMake::Model::Dependency::RESOURCE_KIND) {
+    my ($project, $artifact, $stage, $resource) = $this->getObjects(
+        $context, $subsystem);
+    $declist->appendPaths($resource->getPhysicalPath());
   }
-    
+  
   # -- get file timestamp
   return $context->getDecider()->getMark($context->getRepository(), $declist);
 }

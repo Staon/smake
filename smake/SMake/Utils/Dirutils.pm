@@ -20,9 +20,10 @@ package SMake::Utils::Dirutils;
 
 my $Is_QNX = $^O eq 'qnx';
 
-use File::Spec;
-use File::Path;
 use File::Basename;
+use File::Copy;
+use File::Path;
+use File::Spec;
 
 if($Is_QNX) {
   require QNX4;
@@ -224,6 +225,19 @@ sub linkFile {
 
   unlink($tgpath);
   return symlink($srcpath, $tgpath);  
+}
+
+# Copy a file
+#
+# Usage: copyFile($tgpath, $srcpath)
+#    tgpath ..... string path of the target file
+#    srcpath .... string path of the source file
+# Returns: false when the function fails
+sub copyFile {
+  my ($tgpath, $srcpath) = @_;
+  
+  unlink($tgpath);
+  return copy($srcpath, $tgpath);
 }
 
 return 1;

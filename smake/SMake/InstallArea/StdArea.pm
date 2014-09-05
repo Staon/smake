@@ -28,12 +28,20 @@ use SMake::Utils::Utils;
 
 # Create new installation area
 #
-# Usage: new($location)
+# Usage: new($location, \@cpmodules)
 #    location ..... location resource type of the installation area
+#    cpmodules .... list of modules which the files are copied to instead of linking
 sub new {
-  my ($class, $location) = @_;
+  my ($class, $location, $cpmodules) = @_;
+  
   my $this = bless(SMake::InstallArea::InstallArea->new(), $class);
   $this->{location} = $location;
+  if(defined($cpmodules)) {
+    $this->{cpmodules} = { map { $_ => 1 } @$cpmodules };
+  }
+  else {
+    $this->{cpmodules} = {};
+  }
   return $this;
 }
 
@@ -84,13 +92,27 @@ sub installResolvedResource {
   my $tgname = $project->getRepository()->getPhysicalLocationString(
       $this->{location}, $dirpath->joinPaths($name->getBasepath()));
   if(!-f $tgname) {
-    if(!SMake::Utils::Dirutils::linkFile($tgname, $srcname)) {
+    if(!defined($this->{cpmodules}->{$module})) {
+      # -- symbolic link
+      if(!SMake::Utils::Dirutils::linkFile($tgname, $srcname)) {
         SMake::Utils::Utils::dieReport(
             $context->getReporter(),
             $subsystem,
             "cannot link file '%s' to '%s'!",
             $srcname,
             $tgname);
+      }
+    }
+    else {
+      # -- copy the file
+      if(!SMake::Utils::Dirutils::copyFile($tgname, $srcname)) {
+        SMake::Utils::Utils::dieReport(
+            $context->getReporter(),
+            $subsystem,
+            "cannot copy file '%s' to '%s'!",
+            $srcname,
+            $tgname);
+      }
     }
     print "Installed resource '$srcname' as '$tgname'.\n";
   }
