@@ -24,8 +24,10 @@ use SMake::Model::Stage;
 
 use SMake::Executor::Executor;
 use SMake::Model::Const;
+use SMake::Model::Dependency;
 use SMake::Model::Task;
 use SMake::Storage::File::Task;
+use SMake::Utils::Construct;
 use SMake::Utils::Searching;
 use SMake::Utils::Utils;
 
@@ -129,9 +131,8 @@ sub computeDependencies {
   my ($this, $context, $subsystem) = @_;
   my $self = $this->getAddress();
   
-  my %addresses = ();
-  
   # -- dependencies defined by tasks
+  my %addresses = ();
   foreach my $task (values %{$this->{tasks}}) {
   	# -- source resources
     my $sources = $task->getSources();
@@ -142,15 +143,16 @@ sub computeDependencies {
       }
     }
     
-    # -- external dependencies
+    # -- compute dependent stages
+    my $depclosure = {};
     my $dependencies = $task->getDependencies();
     foreach my $dep (@$dependencies) {
-      my ($project, $artifact, $stage, $resource) = $dep->getObjects(
-          $context, $subsystem);
-      if(!$context->getVisibility()->isExternal($project->getName())) {
-        my $address = $stage->getAddress();
-        $addresses{$address->getKey()} = $address;
-      }
+      $dep->updateTransitiveClosure(
+          $context, $subsystem, $depclosure, $this->getArtifact(), '.*');
+    }
+    foreach my $d (values %$depclosure) {
+      my $address = $d->[0]->getAddress();
+      $addresses{$address->getKey()} = $address;
     }
   }
   

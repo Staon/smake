@@ -15,45 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Updateable feature object
-package SMake::Update::DepSpec;
-
-use SMake::Model::DepSpec;
+# Updateable active feature object
+package SMake::Update::ActiveFeature;
 
 # Create new feature object
 #
-# Usage: new($context, $feature, $type, $spec, $onflag)
+# Usage: new($context, $artifact, $name)
 #    context ...... parser context
-#    feature ...... feature object of mine
-#    type ......... dependency type
-#    spec ......... dependency specification
-#    onflag ....... if it's true, this is an on-dependency
+#    artifact ..... parent artifact object
+#    name ......... name of the feature
 sub new {
-  my ($class, $context, $feature, $type, $spec, $onflag) = @_;
+  my ($class, $context, $artifact, $name) = @_;
   my $this = bless({}, $class);
-
-  # -- get the object
-  my $depspec;
-  if($onflag) {
-    $depspec = $feature->getObject()->getOnDependency($type, $spec);
+  
+  my $feature = $artifact->getObject()->getActiveFeature($name);
+  if(defined($feature)) {
+    $feature->update();
   }
   else {
-    $depspec = $feature->getObject()->getOffDependency($type, $spec);
+    $feature = $artifact->getObject()->createActiveFeature($name);
   }
-  if(!defined($depspec)) {
-    if($onflag) {
-      $depspec = $feature->getObject()->createOnDependency($type, $spec);
-    }
-    else {
-      $depspec = $feature->getObject()->createOffDependency($type, $spec);
-    }
-  }
-  else {
-    $depspec->update();
-  }
-
+  $this->{artifact} = $artifact;
   $this->{feature} = $feature;
-  $this->{depspec} = $depspec;
   
   return $this;
 }
@@ -64,36 +47,32 @@ sub new {
 sub update {
   my ($this, $context) = @_;
   
+  $this->{artifact} = undef;
   $this->{feature} = undef;
-  $this->{depspec} = undef;
 }
 
 # Get the model object
 sub getObject {
   my ($this) = @_;
-  return $this->{depspec};
+  return $this->{feature};
 }
 
 # Get the key tuple
 sub getKeyTuple {
   my ($this) = @_;
-  return $this->{depspec}->getKeyTuple();
+  return $this->{feature}->getKeyTuple();
 }
 
 # Get a string which can be used as a hash key
 sub getKey {
   my ($this) = @_;
-  return $this->{depspec}->getKey();
+  return $this->{feature}->getKey();
 }
 
-# Get dependency specification
-#
-# Usage: getSpec($context)
-#    context ..... parser context
-# Returns: the spec
-sub getSpec {
-  my ($this, $context) = @_;
-  return $this->{depspec}->getSpec();
+# Get name of the active feature
+sub getName {
+  my ($this) = @_;
+  return $this->{feature}->getName();
 }
 
 return 1;

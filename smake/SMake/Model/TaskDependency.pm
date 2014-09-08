@@ -78,6 +78,11 @@ sub getKey {
   return $this->getDependency()->getKey();
 }
 
+sub getArtifact {
+  my ($this) = @_;
+  return $this->getTask()->getArtifact();
+}
+
 # Get the parent task
 sub getTask {
   SMake::Utils::Abstract::dieAbstract();
@@ -152,27 +157,6 @@ sub getMark {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Compute current stamp of the resource
-#
-# Usage: computeCurrentStamp($context, $subsystem)
-#    context ..... parser or executor context
-#    subsystem ... logging subsystem
-# Returns: computed resource stamp
-sub computeCurrentMark {
-  my ($this, $context, $subsystem) = @_;
-
-  # -- get the resource
-  my $declist = SMake::ToolChain::Decider::DeciderList->new();
-  if($this->getDependencyKind() eq $SMake::Model::Dependency::RESOURCE_KIND) {
-    my ($project, $artifact, $stage, $resource) = $this->getObjects(
-        $context, $subsystem);
-    $declist->appendPaths($resource->getPhysicalPath());
-  }
-  
-  # -- get file timestamp
-  return $context->getDecider()->getMark($context->getRepository(), $declist);
-}
-
 # Get model objects addressed by this dependency object
 #
 # Usage: getObjects($context, $subsystem)
@@ -245,6 +229,51 @@ sub getObjects {
   }
 
   return ($project, $artifact, $stage, $resource);
+}
+
+# Update transitive closure of dependencies by dependent stages and resources
+#
+# Usage: updateTransitiveClosure($context, $subsystem, \%closure, $artifact, $typemask)
+#    context ...... parser/executor context
+#    subsystem .... logging subsystem
+#    closure ...... a hash table which contains currently known closure.
+#        The table contains tuples [$stage, $resource], where the stage is
+#        a stage object and the resource is its resource. The resource can
+#        be undef for stage dependencies. Keys of the table are keys of the
+#        stage concatenated with the resource name, if the resource is defined.
+#    artifact ..... base artifact object. Its features defines sets of transitive
+#        dependencies.
+#    typemask ..... a regular expression which matches needed dependency types
+sub updateTransitiveClosure {
+  my ($this, $context, $subsystem, $closure, $artifact, $typemask) = @_;
+  $this->getDependency()->updateTransitiveClosure(
+      $context, $subsystem, $closure, $artifact, $typemask);
+}
+
+# Compute current stamp of the resource
+#
+# Usage: computeCurrentStamp($context, $subsystem)
+#    context ..... parser or executor context
+#    subsystem ... logging subsystem
+# Returns: computed resource stamp
+sub computeCurrentMark {
+  my ($this, $context, $subsystem) = @_;
+
+  # -- get transitive closure
+  my $closure = {};
+  foreach my $dep (@$deps) {
+    $this->updateTransitiveClosure(
+        $context, $subsystem, $closure, $this->getArtifact(), '.*');
+  }
+  
+  # -- get the timestamp
+  my $declist = SMake::ToolChain::Decider::DeciderList->new();
+  foreach my $d (values %$closure) {
+    if(defined($d->[1])) {
+      $declist->appendPaths($d->[1]->getPhysicalPath());
+    }
+  }
+  return $context->getDecider()->getMark($context->getRepository(), $declist);
 }
 
 # Print content of the object

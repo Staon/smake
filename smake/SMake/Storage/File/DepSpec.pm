@@ -24,18 +24,20 @@ use SMake::Model::DepSpec;
 
 # Create new dependency specification
 #
-# Usage: new($repository, $storage, $feature, $spec)
+# Usage: new($repository, $storage, $feature, $type, $spec)
 #    repository .... a repository which the artifact belongs to
 #    storage ....... owning file storage
 #    feature ....... the feature object which the spec belongs to
+#    type .......... dependency type
 #    spec .......... the specification
 sub new {
-  my ($class, $repository, $storage, $feature, $spec) = @_;
+  my ($class, $repository, $storage, $feature, $type, $spec) = @_;
   
   my $this = bless(SMake::Model::DepSpec->new(), $class);
   $this->{repository} = $repository;
   $this->{storage} = $storage;
   $this->{feature} = $feature;
+  $this->{type} = $type;
   $this->{spec} = $spec;
   
   return $this;
@@ -57,6 +59,11 @@ sub update {
 sub getRepository {
   my ($this) = @_;
   return $this->{repository};
+}
+
+sub getType {
+  my ($this) = @_;
+  return $this->{type};
 }
 
 sub getSpec {

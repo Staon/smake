@@ -49,7 +49,7 @@ sub execute {
         $resource);
   }
   
-  # -- install dependencies
+  # -- install resource dependencies
   my $deps = $task->getDependencies();
   foreach my $dep (@$deps) {
     $project->installDependency(

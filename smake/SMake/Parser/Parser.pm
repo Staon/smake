@@ -75,16 +75,18 @@ sub directive_SA {
   executeDirective(@_);
 }
 
-sub directive_SBB {
-  my ($name, $arg1, $arg2, $arg3) = splice(@_, 0, 4);
+sub directive_SSBB {
+  my ($name, $arg1, $arg2, $arg3, $arg4) = splice(@_, 0, 5);
   SMake::Utils::ArgChecker::checkScalar($name, $arg1, 1);
-  SMake::Utils::ArgChecker::checkScalarOrArray($name, $arg2, 2);
+  SMake::Utils::ArgChecker::checkScalar($name, $arg2, 2);
   SMake::Utils::ArgChecker::checkScalarOrArray($name, $arg3, 3);
+  SMake::Utils::ArgChecker::checkScalarOrArray($name, $arg4, 4);
   executeDirective(
       $name,
       $arg1,
-      SMake::Utils::Utils::getArrayRef($arg2),
-      SMake::Utils::Utils::getArrayRef($arg3));
+      $arg2,
+      SMake::Utils::Utils::getArrayRef($arg3),
+      SMake::Utils::Utils::getArrayRef($arg4));
 }
 
 ##########################################################################
@@ -111,7 +113,7 @@ sub new {
       EndGroup => \&directive_,
       Resolver => \&directive_,
       Scanner => \&directive_,
-      Feature => \&directive_SBB,
+      Feature => \&directive_SSBB,
     },
   }, $class);
 }

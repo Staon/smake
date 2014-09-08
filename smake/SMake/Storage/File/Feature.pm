@@ -83,17 +83,17 @@ sub getArtifact {
 }
 
 sub createOnDependency {
-  my ($this, $spec) = @_;
+  my ($this, $type, $spec) = @_;
   
   my $specobj = SMake::Storage::File::DepSpec->new(
-      $this->{repository}, $this->{storage}, $this, $spec);
+      $this->{repository}, $this->{storage}, $this, $type, $spec);
   $this->{onlist}->{$specobj->getKey()} = $specobj;
   return $specobj;
 }
 
 sub getOnDependency {
-  my ($this, $spec) = @_;
-  return $this->{onlist}->{SMake::Model::DepSpec::createKey($spec)};
+  my ($this, $type, $spec) = @_;
+  return $this->{onlist}->{SMake::Model::DepSpec::createKey($type, $spec)};
 }
 
 sub getOnDependencyKeys {
@@ -117,17 +117,17 @@ sub getOnDependencies {
 }
 
 sub createOffDependency {
-  my ($this, $spec) = @_;
+  my ($this, $type, $spec) = @_;
   
   my $specobj = SMake::Storage::File::DepSpec->new(
-      $this->{repository}, $this->{storage}, $this, $spec);
+      $this->{repository}, $this->{storage}, $this, $type, $spec);
   $this->{offlist}->{$specobj->getKey()} = $specobj;
   return $specobj;
 }
 
 sub getOffDependency {
-  my ($this, $spec) = @_;
-  return $this->{offlist}->{SMake::Model::DepSpec::createKey($spec)};
+  my ($this, $type, $spec) = @_;
+  return $this->{offlist}->{SMake::Model::DepSpec::createKey($type, $spec)};
 }
 
 sub getOffDependencyKeys {

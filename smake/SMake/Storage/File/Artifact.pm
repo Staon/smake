@@ -22,10 +22,12 @@ use SMake::Model::Artifact;
 
 @ISA = qw(SMake::Model::Artifact);
 
+use SMake::Model::ActiveFeature;
 use SMake::Model::Dependency;
 use SMake::Model::Feature;
 use SMake::Model::Resource;
 use SMake::Model::Stage;
+use SMake::Storage::File::ActiveFeature;
 use SMake::Storage::File::Dependency;
 use SMake::Storage::File::Feature;
 use SMake::Storage::File::Resource;
@@ -59,6 +61,7 @@ sub new {
   $this->{main} = undef;
   $this->{dependencies} = {};
   $this->{features} = {};
+  $this->{active_features} = {};
   return $this;
 }
 
@@ -87,6 +90,10 @@ sub destroy {
     $feature->destroy();
   }
   $this->{features} = undef;
+  foreach my $actfeature (values %{$this->{active_features}}) {
+    $actfeature->destroy();
+  }
+  $this->{active_features} = undef;
 }
 
 # Usage: update($path, $type, \%args)
@@ -296,6 +303,41 @@ sub deleteFeatures {
 sub getFeatures {
   my ($this) = @_;
   return [values %{$this->{features}}];
+}
+
+sub createActiveFeature {
+  my ($this, $name) = @_;
+  
+  my $feature = SMake::Storage::File::ActiveFeature->new(
+      $this->{repository}, $this->{storage}, $this, $name);
+  print $feature->getKey() . "\n";
+  $this->{active_features}->{$feature->getKey()} = $feature;
+  return $feature;
+}
+
+sub getActiveFeature {
+  my ($this, $name) = @_;
+  return $this->{active_features}->{SMake::Model::ActiveFeature::createKey($name)};
+}
+
+sub getActiveFeatureKeys {
+  my ($this) = @_;
+  return [map {$_->getKeyTuple()} values %{$this->{active_features}}];
+}
+
+sub deleteActiveFeatures {
+  my ($this, $list) = @_;
+  
+  foreach my $feature (@$list) {
+    my $key = SMake::Model::ActiveFeature::createKey(@$feature);
+    $this->{active_features}->{$key}->destroy();
+    delete $this->{active_features}->{$key};
+  }
+}
+
+sub getActiveFeatures {
+  my ($this) = @_;
+  return [values %{$this->{active_features}}];
 }
 
 sub searchResource {

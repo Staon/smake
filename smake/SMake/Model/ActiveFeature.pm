@@ -15,14 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic dependency specification (specification of a feature)
-package SMake::Model::DepSpec;
+# Record of an active feature
+package SMake::Model::ActiveFeature;
 
 use SMake::Model::Object;
 
 @ISA = qw(SMake::Model::Object);
 
 use SMake::Utils::Abstract;
+use SMake::Utils::Print;
 
 # Create new feature object
 #
@@ -41,35 +42,41 @@ sub update {
 
 # Create key tuple (static)
 #
-# Usage: createKeyTuple($type, $spec)
+# Usage: createKeyTuple($name)
 sub createKeyTuple {
-  return [@_];
+  return [$_[0]];
 }
 
 # Create a string key of the artifact (static)
 #
-# Usage: createKey($spec)
+# Usage: createKey($name)
 sub createKey {
-  return $_[0] . "::" . $_[1];
+  return $_[0];
 }
 
 sub getKeyTuple {
   my ($this) = @_;
-  return createKeyTuple($this->getType(), $this->getSpec());
+  return createKeyTuple($this->getName());
 }
 
 sub getKey {
   my ($this) = @_;
-  return createKey($this->getType(), $this->getSpec());
+  return createKey($this->getName());
 }
 
-# Get dependency type
-sub getType {
+# Get name of the feature
+sub getName {
   SMake::Utils::Abstract::dieAbstract();
 }
 
-# Get dependency specification
-sub getSpec {
+# Get the project
+sub getProject {
+  my ($this) = @_;
+  return $this->getArtifact()->getProject();
+}
+
+# Get the artifact
+sub getArtifact {
   SMake::Utils::Abstract::dieAbstract();
 }
 
@@ -79,7 +86,7 @@ sub getSpec {
 sub prettyPrint {
   my ($this, $indent) = @_;
   
-  print ::HANDLE "DepSpec(" . $this->getType() . ", " . $this->getSpec() . ")";
+  print ::HANDLE "ActiveFeature(" . $this->getName() . ")";
 }
 
 return 1;

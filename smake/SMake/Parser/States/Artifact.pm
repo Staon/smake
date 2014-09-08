@@ -134,12 +134,12 @@ sub scanner {
 
 # Register smake feature
 #
-# Usage: Feature($name, \@onlist, \@offlist)
+# Usage: Feature($name, $type, \@onlist, \@offlist)
 #    name ...... name of the feature
 #    onlist .... list of the on-dependencies
 #    offlist ... list of the off-dependencies
 sub feature {
-  my ($this, $parser, $context, $name, $onlist, $offlist) = @_;
+  my ($this, $parser, $context, $name, $type, $onlist, $offlist) = @_;
 
   $this->initializeArtifact($parser, $context);
   
@@ -152,12 +152,12 @@ sub feature {
   
   # -- on-dependencies
   foreach my $ondep (@$onlist) {
-    $feature->appendOnDependency($context, $ondep);
+    $feature->appendOnDependency($context, $type, $ondep);
   }
 
   # -- off-dependencies
   foreach my $offdep (@$offlist) {
-    $feature->appendOffDependency($context, $offdep);
+    $feature->appendOffDependency($context, $type, $offdep);
   }
 }
 

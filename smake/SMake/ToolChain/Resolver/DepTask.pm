@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Resolver of dependencies which appends the dependencies into a main resource
+# Resolver of dependencies which appends the dependencies into specified tasks
 package SMake::ToolChain::Resolver::DepTask;
 
 use SMake::ToolChain::Resolver::Dependency;

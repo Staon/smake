@@ -22,6 +22,9 @@ use SMake::Model::Dependency;
 
 @ISA = qw(SMake::Model::Dependency);
 
+use SMake::Model::Dependency;
+use SMake::Utils::Searching;
+
 # Create new dependency object
 #
 # Usage: new($repository, $storage, $artifact, $depkind, $deptype, $depprj, $departifact)
@@ -84,6 +87,84 @@ sub getDependencyMainResource {
 sub getDependencyStage {
   my ($this) = @_;
   return $this->{depmain};
+}
+
+sub constructClosureKey {
+  my ($stage, $resource) = @_;
+  
+  my $key = $stage->getAddress()->getKey();
+  if(defined($resource)) {
+    $key .= "/" . $resource->getName()->asString();
+  }
+  return $key;
+}
+
+# Update transitive closure of dependencies by dependent stages and resources
+#
+# Usage: updateTransitiveClosure($context, $subsystem, \%closure, $artifact, $typemask)
+#    context ...... parser/executor context
+#    subsystem .... logging subsystem
+#    closure ...... a hash table which contains currently known closure.
+#        The table contains tuples [$stage, $resource], where the stage is
+#        a stage object and the resource is its resource. The resource can
+#        be undef for stage dependencies. Keys of the table are keys of the
+#        stage concatenated with the resource name, if the resource is defined.
+#    artifact ..... base artifact object. Its features defines sets of transitive
+#        dependencies.
+#    typemask ..... a regular expression which matches needed dependency types
+sub updateTransitiveClosure {
+  my ($this, $context, $subsystem, $closure, $artifact, $typemask) = @_;
+  
+  # -- append me into the queue
+  my @queue = ();
+  if($this->getDependencyType() =~ /$typemask/) {
+    my ($depprj, $depart, $depstage, $depres) = $this->getObjects(
+        $context, $subsystem);
+    push @queue, [$this->getDependencyType(), $depstage, $depres];
+  }
+  
+  # -- resolve transitive dependencies
+  while(@queue) {
+    my ($deptype, $stage, $resource) = @{shift @queue};
+    my $key = constructClosureKey($stage, $resource);
+    if(!defined($closure->{$key})) {
+      # -- append new part of the closure
+      $closure->{$key} = [$stage, $resource];
+      
+      # -- resolve its transitive dependencies
+      my $features = $stage->getArtifact()->getFeatures();
+      foreach my $feature (@$features) {
+        # -- select dependency list
+        my $speclist;
+        if(defined($artifact->getActiveFeature($feature->getName()))) {
+          $speclist = $feature->getOnDependencies();
+        }
+        else {
+          $speclist = $feature->getOffDependencies();
+        }
+        
+        # -- filter dependency types
+        $speclist = [grep { $_->getType() eq $deptype } @$speclist];
+        
+        # -- append into the queue
+        foreach my $spec (@$speclist) {
+          my $depspecs = SMake::Utils::Construct::parseDependencySpecs(
+              $stage->getProject()->getName(), [$spec->getSpec()]);
+          foreach my $depspec (@$depspecs) {
+            my ($prj2, $art2, $stage2, $res2) = SMake::Utils::Searching::resolveDependency(
+                $context,
+                $subsystem,
+                @{SMake::Model::Dependency::createKeyTuple(
+                    $SMake::Model::Dependency::RESOURCE_KIND,
+                    $deptype,
+                    @$depspec
+                )});
+            push @queue, [$deptype, $stage2, $res2];  
+          }
+        }
+      }
+    }
+  }
 }
 
 return 1;

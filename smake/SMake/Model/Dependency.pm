@@ -156,6 +156,23 @@ sub getDependencyStage {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Update transitive closure of dependencies by dependent stages and resources
+#
+# Usage: updateTransitiveClosure($context, $subsystem, \%closure, $artifact, $typemask)
+#    context ...... parser/executor context
+#    subsystem .... logging subsystem
+#    closure ...... a hash table which contains currently known closure.
+#        The table contains tuples [$stage, $resource], where the stage is
+#        a stage object and the resource is its resource. The resource can
+#        be undef for stage dependencies. Keys of the table are keys of the
+#        stage concatenated with the resource name, if the resource is defined.
+#    artifact ..... base artifact object. Its features defines sets of transitive
+#        dependencies.
+#    typemask ..... a regular expression which matches needed dependency types
+sub updateTransitiveClosure {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Get model objects addressed by this dependency object
 #
 # Usage: getObjects($context, $subsystem)

@@ -95,28 +95,30 @@ sub getKey {
 
 # Append an on-dependency
 #
-# Usage: appendOnDependency($context, $spec)
+# Usage: appendOnDependency($context, $type, $spec)
 #    context ...... parser context
+#    type ......... dependency type
 #    spec ......... dependency specification
 sub appendOnDependency {
-  my ($this, $context, $spec) = @_;
+  my ($this, $context, $type, $spec) = @_;
   
   my $depspec = SMake::Update::DepSpec->new(
-      $context, $this, $spec, 1);
+      $context, $this, $type, $spec, 1);
   $this->{onlist}->addItem($depspec);
   return $depspec;
 }
 
 # Append an off-dependency
 #
-# Usage: appendOffDependency($context, $spec)
+# Usage: appendOffDependency($context, $type, $spec)
 #    context ...... parser context
+#    type ......... dependency type
 #    spec ......... dependency specification
 sub appendOffDependency {
-  my ($this, $context, $spec) = @_;
+  my ($this, $context, $type, $spec) = @_;
   
   my $depspec = SMake::Update::DepSpec->new(
-      $context, $this, $spec, 0);
+      $context, $this, $type, $spec, 0);
   $this->{offlist}->addItem($depspec);
   return $depspec;
 }

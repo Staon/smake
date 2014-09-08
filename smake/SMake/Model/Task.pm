@@ -22,6 +22,7 @@ use SMake::Model::Object;
 
 @ISA = qw(SMake::Model::Object);
 
+use SMake::ToolChain::Decider::DeciderList;
 use SMake::Utils::Abstract;
 use SMake::Utils::Print;
 

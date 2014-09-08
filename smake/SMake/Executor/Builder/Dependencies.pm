@@ -24,6 +24,8 @@ use SMake::Executor::Builder::Record;
 
 use SMake::Executor::Command::Set;
 use SMake::Executor::Executor;
+use SMake::Model::Dependency;
+use SMake::Utils::Searching;
 
 # Create new record
 #
@@ -50,11 +52,16 @@ sub compose {
   
   # -- append dependencies
   my $list = $task->getDependencies();
+  my $closure = {};
   foreach my $dep (@$list) {
     if($dep->getDependencyType() =~ /$this->{deptype}/) {
-      my ($depprj, $depart, $stage, $depres) = $dep->getObjects(
-          $context, $SMake::Executor::Executor::SUBSYSTEM);
-      $group->putChild($this->createResourceNode($context, $depres));
+      $dep->updateTransitiveClosure(
+          $context, $SMake::Executor::Executor::SUBSYSTEM, $closure, $task->getArtifact(), '.*');
+    }
+  }
+  foreach my $d (values %$closure) {
+    if(defined($d->[1])) {
+      $group->putChild($this->createResourceNode($context, $d->[1]));
     }
   }
 }

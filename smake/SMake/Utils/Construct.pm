@@ -68,4 +68,83 @@ sub installExternalResource {
   $task->appendSource($context, $extres);
 }
 
+# Parse a dependency specification
+#
+# Usage: parseDependencySpec($baseprj, \@specs)
+#    baseprj ...... name of the base project (which is used for artifacts without project specification)
+#    specs ........ list of dependency specifications
+# Returns: [[$project, $artifact, $mainres]*]
+#    list of tuples. The mainres can be undef for default main resource
+sub parseDependencySpecs {
+  my ($baseprj, $specs) = @_;
+
+  my $added = [];
+  foreach my $dep (@$specs) {
+    if(ref($dep) eq "ARRAY") {
+      # -- array record
+      my $project = $dep->[0];
+      my $artspec;
+      if(ref($dep->[1]) eq "ARRAY") {
+        $artspec = $dep->[1];
+      }
+      else {
+        $artspec = [@$dep];
+        shift @$artspec;
+        if($#$artspec > 0) {
+          $artspec = [$artspec];
+        }
+      }
+      
+      foreach my $spec (@$artspec) {
+        my ($artifact, $mainres);
+        if(ref($spec) eq "ARRAY") {
+          ($artifact, $mainres) = @$spec;
+        }
+        else {
+          # -- string record
+          if($spec =~ /^([^\/\@]+)(\@[^\/]+)?$/) {
+            ($artifact, $mainres) = ($1, $2);
+            if(defined($mainres)) {
+              $mainres =~ s/^\@//;
+            }
+          }
+          else {
+            SMake::Utils::Utils::dieReport(
+                $context->getReporter(),
+                $subsystem,
+                "string '%s' is not a valid dependency specification (artifact[\@mainres])",
+                $dep->[1]);
+          }
+        }
+        push @$added, [$project, $artifact, $mainres];
+      }
+    }
+    else {
+      # -- string record, parse it
+      if($dep =~ /^([^\/]+\/)?([^\/\@]+)(\@[^\/]+)?$/) {
+        my ($project, $artifact, $mainres) = ($1, $2, $3);
+        if(defined($project)) {
+          $project =~ s/[\/]$//;
+        }
+        else {
+          $project = $baseprj;
+        }
+        if(defined($mainres)) {
+          $mainres =~ s/^\@//;
+        }
+        push @$added, [$project, $artifact, $mainres];
+      }
+      else {
+        SMake::Utils::Utils::dieReport(
+            $context->getReporter(),
+            $subsystem,
+            "string '%s' is not a valid dependency specification ([project/]artifact[\@mainres])",
+            $dep);
+      }
+    }
+  }
+  
+  return $added;
+}
+
 return 1;

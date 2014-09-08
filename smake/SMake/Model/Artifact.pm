@@ -326,6 +326,48 @@ sub getFeatures {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Create new feature
+#
+# Usage: createFeature($name)
+#    name ..... name of the feature
+# Results: the feature object
+sub createActiveFeature {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get a feature
+#
+# Usage: getFeature($name)
+#    name ..... name of the feature
+# Returns: the feature object or undef
+sub getActiveFeature {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of keys of the features
+#
+# Usage: getFeatureKeys()
+# Returns: \@list of the keys
+sub getActiveFeatureKeys {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Delete list of features
+#
+# Usage: deleteFeatures(\@list)
+#    list ..... list of key tuples
+sub deleteActiveFeatures {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get list of feature objects
+#
+# Usage: getFeatures()
+# Returns: \@list of feature objects
+sub getActiveFeatures {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Print content of the object
 #
 # Usage: prettyPrint($indent)
@@ -388,6 +430,18 @@ sub prettyPrint {
   foreach my $feature (@$features) {
     SMake::Utils::Print::printIndent($indent + 2);
     $feature->prettyPrint($indent + 2);
+    print ::HANDLE "\n";
+  }
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "}\n";
+
+  # -- active features
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "active_features: {\n";
+  my $actfeatures = $this->getActiveFeatures();
+  foreach my $actfeature (@$actfeatures) {
+    SMake::Utils::Print::printIndent($indent + 2);
+    $actfeature->prettyPrint($indent + 2);
     print ::HANDLE "\n";
   }
   SMake::Utils::Print::printIndent($indent + 1);

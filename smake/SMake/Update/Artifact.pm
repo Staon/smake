@@ -19,16 +19,19 @@
 package SMake::Update::Artifact;
 
 use SMake::Data::Path;
+use SMake::Model::ActiveFeature;
 use SMake::Model::Const;
 use SMake::Model::Dependency;
 use SMake::Model::Feature;
 use SMake::Model::Resource;
 use SMake::Model::Stage;
+use SMake::Update::ActiveFeature;
 use SMake::Update::Dependency;
 use SMake::Update::Feature;
 use SMake::Update::Resource;
 use SMake::Update::Stage;
 use SMake::Update::Table;
+use SMake::Utils::Construct;
 
 # Create new object
 #
@@ -59,6 +62,9 @@ sub new {
     $this->{features} = SMake::Update::Table->new(
         \&SMake::Model::Feature::createKey,
         $artifact->getFeatureKeys());
+    $this->{active_features} = SMake::Update::Table->new(
+        \&SMake::Model::ActiveFeature::createKey,
+        $artifact->getActiveFeatureKeys());
   }
   else {
     $artifact = $project->getObject()->createArtifact($path, $name, $type, $args);
@@ -71,6 +77,8 @@ sub new {
         \&SMake::Model::Dependency::createKey, []);
     $this->{features} = SMake::Update::Table->new(
         \&SMake::Model::Feature::createKey, []);
+    $this->{active_features} = SMake::Update::Table->new(
+        \&SMake::Model::ActiveFeature::createKey, []);
   }
   $this->{main_resources} = {};
   $this->{main} = undef;
@@ -105,12 +113,17 @@ sub update {
   # -- update features
   my ($feature_delete, undef) = $this->{features}->update($context);
   $this->{artifact}->deleteFeatures($feature_delete);
+
+  # -- update features
+  my ($actfeature_delete, undef) = $this->{active_features}->update($context);
+  $this->{artifact}->deleteActiveFeatures($actfeature_delete);
   
   $this->{stages} = undef;
   $this->{resources} = undef;
   $this->{main_resources} = undef;
   $this->{dependencies} = undef;
   $this->{features} = undef;
+  $this->{active_features} = undef;
   $this->{project} = undef;
   $this->{artifact} = undef;
 }
@@ -503,74 +516,19 @@ sub appendSourceResources {
 sub appendDependencySpecs {
   my ($this, $context, $subsystem, $deptype, $deplist) = @_;
 
+  # -- parse dependency specifications
+  my $specs = SMake::Utils::Construct::parseDependencySpecs(
+      $context->getProject()->getName(), $deplist);
+  
+  # -- append dependencies
   my $added = [];
-  foreach my $dep (@$deplist) {
-    if(ref($dep) eq "ARRAY") {
-      # -- array record
-      my $project = $dep->[0];
-      my $artspec;
-      if(ref($dep->[1]) eq "ARRAY") {
-        $artspec = $dep->[1];
-      }
-      else {
-        $artspec = [@$dep];
-        shift @$artspec;
-        if($#$artspec > 0) {
-          $artspec = [$artspec];
-        }
-      }
-      
-      foreach my $spec (@$artspec) {
-        my ($artifact, $mainres);
-        if(ref($spec) eq "ARRAY") {
-          ($artifact, $mainres) = @$spec;
-        }
-        else {
-          # -- string record
-          if($spec =~ /^([^\/\@]+)(\@[^\/]+)?$/) {
-            ($artifact, $mainres) = ($1, $2);
-            if(defined($mainres)) {
-              $mainres =~ s/^\@//;
-            }
-          }
-          else {
-            SMake::Utils::Utils::dieReport(
-                $context->getReporter(),
-                $subsystem,
-                "string '%s' is not a valid dependency specification (artifact[\@mainres])",
-                $dep->[1]);
-          }
-        }
-        my $depobject = $this->createResourceDependency(
-            $context, $deptype, $project, $artifact, $mainres, undef);
-        push @$added, $depobject;
-      }
-    }
-    else {
-      # -- string record, parse it
-      if($dep =~ /^([^\/]+\/)?([^\/\@]+)(\@[^\/]+)?$/) {
-        my ($project, $artifact, $mainres) = ($1, $2, $3);
-        if(defined($project)) {
-          $project =~ s/[\/]$//;
-        }
-        else {
-          $project = $context->getProject()->getName();
-        }
-        if(defined($mainres)) {
-          $mainres =~ s/^\@//;
-        }
-        my $depobject = $this->createResourceDependency(
-            $context, $deptype, $project, $artifact, $mainres);
-        push @$added, $depobject;
-      }
-      else {
-        SMake::Utils::Utils::dieReport(
-            $context->getReporter(),
-            $subsystem,
-            "string '%s' is not a valid dependency specification ([project/]artifact[\@mainres])",
-            $dep);
-      }
-    }
+  foreach my $spec (@$specs) {
+    my ($project, $artifact, $mainres) = @$spec;
+    
+    # -- main dependency
+    my $depobject = $this->createResourceDependency(
+        $context, $deptype, $project, $artifact, $mainres);
+    push @$added, $depobject;
   }
   
   return $added;
@@ -599,6 +557,40 @@ sub createFeature {
 sub getFeature {
   my ($this, $context, $name) = @_;
   return $this->{features}->getItemByKey(SMake::Model::Feature::createKey($name));  
+}
+
+# Get list of features
+#
+# Usage: getFeatures($context)
+#    context ........ parser context
+# Returns: \@list
+sub getFeatures {
+  my ($this, $context) = @_;
+  return $this->{features}->getItems();
+}
+
+# Create new active feature
+#
+# Usage: createActiveFeature($context, $name)
+#    context ........ parser context
+#    name ........... name of the feature
+# Returns: the feature object
+sub createActiveFeature {
+  my ($this, $context, $name) = @_;
+  
+  my $feature = SMake::Update::ActiveFeature->new($context, $this, $name);
+  $this->{active_features}->addItem($feature);
+  return $feature;
+}
+
+# Get list of active features
+#
+# Usage: getActiveFeatures($context)
+#    context ........ parser context
+# Returns: \@list of active feature objects
+sub getActiveFeatures {
+  my ($this, $context) = @_;
+  return $this->{active_features}->getItems();
 }
 
 return 1;

@@ -140,15 +140,20 @@ sub installResource {
 sub installDependency {
   my ($this, $context, $subsystem, $project, $dependency) = @_;
   
-  my ($depproject, $artifact, $stage, $resource) = $dependency->getObjects(
-      $context, $subsystem);
-  $this->installResolvedResource(
-      $context,
-      $subsystem,
-      $project,
-      $dependency->getInstallModule(),
-      $resource->getName(),
-      $resource);
+  my $closure = {};
+  $dependency->updateTransitiveClosure(
+        $context, $SMake::Executor::Executor::SUBSYSTEM, $closure, $dependency->getArtifact(), '.*');
+  foreach my $d (values %$closure) {
+    if(defined($d->[1])) {
+      $this->installResolvedResource(
+          $context,
+          $subsystem,
+          $project,
+          $dependency->getInstallModule(),
+          $d->[1]->getName(),
+          $d->[1]);
+    }
+  }
 }
 
 sub getModulePath {

@@ -82,7 +82,8 @@ sub getArtifact {
 
 # Create on-dependency
 #
-# Usage: createOnDependency($spec)
+# Usage: createOnDependency($type, $spec)
+#    type .......... dependency type
 #    spec .......... dependency specification
 # Returns: the dependency object
 sub createOnDependency {
@@ -91,7 +92,8 @@ sub createOnDependency {
 
 # Get on-dependency object
 #
-# Usage: getOnDependency($spec)
+# Usage: getOnDependency($type, $spec)
+#    type .......... dependency type
 #    spec .......... dependency specification
 sub getOnDependency {
   SMake::Utils::Abstract::dieAbstract();
@@ -123,7 +125,8 @@ sub getOnDependencies {
 
 # Create off-dependency
 #
-# Usage: createOffDependency($spec)
+# Usage: createOffDependency($type, $spec)
+#    type .......... dependency type
 #    spec .......... dependency specification
 # Returns: the dependency object
 sub createOffDependency {
@@ -132,7 +135,8 @@ sub createOffDependency {
 
 # Get off-dependency object
 #
-# Usage: getOffDependency($spec)
+# Usage: getOffDependency($type, $spec)
+#    type .......... dependency type
 #    spec .......... dependency specification
 sub getOffDependency {
   SMake::Utils::Abstract::dieAbstract();
