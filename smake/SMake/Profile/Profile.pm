@@ -30,11 +30,14 @@ sub new {
 sub dumpContent {
   my ($this) = @_;
   
-  my $dumper = Data::Dumper->new([$this], [qw(profile)]);
-  $dumper->Indent(0);  # -- one line
-  $dumper->Purity(1);
-  $dumper->Sortkeys(1); # -- sorting of hash keys
-  return $dumper->Dump();
+  if(!defined($this->{cached_profile_data})) {
+    my $dumper = Data::Dumper->new([$this], [qw(profile)]);
+    $dumper->Indent(0);  # -- one line
+    $dumper->Purity(1);
+    $dumper->Sortkeys(1); # -- sorting of hash keys
+    $this->{cached_profile_data} = $dumper->Dump();
+  }
+  return $this->{cached_profile_data};
 }
 
 # (static) ressurect a profile object from a dump string

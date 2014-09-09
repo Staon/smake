@@ -52,7 +52,7 @@ my @stages = @ARGV;
 
 # -- reporter
 my $reporter = SMake::Reporter::Reporter->new();
-$reporter->addTarget(SMake::Reporter::TargetConsole->new(1, 5, ".*"));
+$reporter->addTarget(SMake::Reporter::TargetConsole->new(1, 2, ".*"));
 
 # -- create repositories and read configuration
 my ($repository, $decider, $runner, $profiles) 

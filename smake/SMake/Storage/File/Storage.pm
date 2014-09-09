@@ -169,27 +169,20 @@ sub loadProject {
   
   if(-f $filename) {
     # -- read the content
-    my $data;
-    {
-      local $/ = undef;
-      local *PRJFILE;
-      open(PRJFILE, "<$filename");
-      $data = <PRJFILE>;
-      close(PRJFILE);
+    local $storage = $this;
+    local $repository = $repository_;
+    local $project;
+    local $/ = undef;
+    local *PRJFILE;
+    open(PRJFILE, "<$filename");
+    my $info = eval <PRJFILE>;
+    close(PRJFILE);
+    if(!defined($info) && (defined($@) && $@ ne "")) {
+      die "it's not possible to read project data from file '$filename'!";
     }
-
-    { 
-      local $storage = $this;
-      local $repository = $repository_;
-      local $project;
-      my $info = eval $data;
-      if(!defined($info) && (defined($@) && $@ ne "")) {
-        die "it's not possible to read project data from file '$filename'!";
-      }
-      
-      $this->{projects}->insertProject($project);
-      return $project;
-    }
+    
+    $this->{projects}->insertProject($project);
+    return $project;
   }
   
   return undef;
