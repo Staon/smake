@@ -152,7 +152,9 @@ sub computeDependencies {
     }
     foreach my $d (values %$depclosure) {
       my $address = $d->[0]->getAddress();
-      $addresses{$address->getKey()} = $address;
+      if(!$context->getVisibility()->isExternal($address->getProject())) {
+        $addresses{$address->getKey()} = $address;
+      }
     }
   }
   

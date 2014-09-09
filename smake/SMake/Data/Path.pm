@@ -261,6 +261,21 @@ sub isParentOf {
   return 1;
 }
 
+# Check if two paths are equal
+#
+# Usage: isEqual($path)
+#    path ....... second operand
+# Returns: true if the paths are equal
+sub isEqual {
+  my ($this, $path) = @_;
+  
+  return 0 if($#$this != $#$path);
+  foreach my $i (0 .. $#$this) {
+    return 0 if($this->[$i] ne $path->[$i]);
+  }
+  return 1;
+}
+
 sub printableString {
   my ($this) = @_;
   return $this->asString();

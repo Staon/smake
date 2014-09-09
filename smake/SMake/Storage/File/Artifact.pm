@@ -56,6 +56,7 @@ sub new {
   $this->{type} = $type;
   $this->{args} = $args;
   $this->{resources} = {};
+  $this->{resource_index} = {};
   $this->{stages} = {};
   $this->{main_resources} = {};
   $this->{main} = undef;
@@ -78,6 +79,7 @@ sub destroy {
     $resource->destroy();
   }
   $this->{resources} = undef;
+  $this->{resource_index} = undef;
   foreach my $stage (values %{$this->{stages}}) {
     $stage->destroy();
   }
@@ -141,6 +143,7 @@ sub getProject {
 sub createResource {
   my ($this, $location, $type, $name, $task) = @_;
 
+  # -- create the resource
   my $resource = SMake::Storage::File::Resource->new(
       $this->{repository},
       $this->{storage},
@@ -151,6 +154,15 @@ sub createResource {
       $name,
       $task);
   $this->{resources}->{$resource->getKey()} = $resource;
+  
+  # -- update search index
+  my $list = $this->{resource_index}->{$name->asString()};
+  if(!defined($list)) {
+    $list = [];
+    $this->{resource_index}->{$name->asString()} = $list;
+  }
+  push @$list, $resource;
+  
   return $resource;
 }
 
@@ -169,7 +181,23 @@ sub deleteResources {
   
   foreach my $tuple (@$list) {
     my $key = SMake::Model::Resource::createKey(@$tuple);
-    $this->{resources}->{$key}->destroy();
+    
+    my $resource = $this->{resources}->{$key};
+    die "invalid resource key '$key'" if(!defined($resource));
+    
+    # -- update the resource index
+    my $name = $resource->getName()->asString();
+    my $list = $this->{resource_index}->{$name};
+    $list = [grep { $_->getKey() ne $key } @$list];
+    if($#$list >= 0) {
+      $this->{resource_index}->{$name} = $list;
+    }
+    else {
+      delete $this->{resource_index}->{$name};
+    }
+
+    # -- delete the resource    
+    $resource->destroy();
     delete $this->{resources}->{$key};
   }
 }
@@ -343,11 +371,13 @@ sub getActiveFeatures {
 sub searchResource {
   my ($this, $restype, $path, $location) = @_;
 
-  foreach my $resource (values %{$this->{resources}}) {
-    if($resource->getType() =~ /$restype/
-       && $resource->getName()->asString() eq $path->asString()
-       && $resource->getLocation() =~ /$location/) {
-      return $resource;
+  my $list = $this->{resource_index}->{$path->asString()};
+  if(defined($list)) {
+    foreach my $resource (@$list) {
+      if($resource->getType() =~ /$restype/
+         && $resource->getLocation() =~ /$location/) {
+        return $resource;
+      }
     }
   }
   return undef;
