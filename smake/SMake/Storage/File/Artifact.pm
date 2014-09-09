@@ -338,7 +338,6 @@ sub createActiveFeature {
   
   my $feature = SMake::Storage::File::ActiveFeature->new(
       $this->{repository}, $this->{storage}, $this, $name);
-  print $feature->getKey() . "\n";
   $this->{active_features}->{$feature->getKey()} = $feature;
   return $feature;
 }

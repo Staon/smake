@@ -59,6 +59,14 @@ sub addChild {
   $this->putChild($child);
 }
 
+# Remove a child node
+#
+# Usage: removeChild($name)
+sub removeChild {
+  my ($this, $name) = @_;
+  delete $this->{children}->{$name};
+}
+
 # Clear all children
 sub clearSet {
   my ($this) = @_;

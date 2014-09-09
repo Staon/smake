@@ -40,15 +40,22 @@ sub new {
   return $this;
 }
 
+# Destroy the object
+sub destroy {
+  my ($this) = @_;
+
+  $this->{repository} = undef;
+  $this->{storage} = undef;
+  $this->{artifact} = undef;
+}
+
 # Update attributes of the object
 #
 # Usage: update()
 sub update {
   my ($this) = @_;
   
-  $this->{repository} = undef;
-  $this->{storage} = undef;
-  $this->{artifact} = undef;
+  # -- nothing to do
 }
 
 sub getName {
