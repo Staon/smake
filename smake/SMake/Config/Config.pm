@@ -124,8 +124,8 @@ sub readConfiguration {
 
   # -- construct list of possible configuration files
   my $rcpaths = [];
-#  push @$rcpaths, File::Spec->catfile("etc", "smakerc");
-#  push @$rcpaths, File::Spec->catfile($ENV{HOME}, ".smakerc");
+  push @$rcpaths, File::Spec->catfile("etc", "smakerc");
+  push @$rcpaths, File::Spec->catfile($ENV{HOME}, ".smakerc");
   foreach my $prj (reverse @$cfgprjs) {
     push @$rcpaths, File::Spec->catfile(getProjectPath($prj), "smakerc");
   }
