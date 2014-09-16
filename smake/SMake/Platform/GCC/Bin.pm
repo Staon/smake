@@ -61,6 +61,8 @@ sub staticRegister {
           SMake::Executor::Translator::Compositor->new(
               1,
               "g++",
+              SMake::Executor::Translator::OptionList->new(
+                  $SMake::Platform::Generic::Const::LDFLAGS_GROUP, 1, "", "", "", "", " "),
               SMake::Executor::Translator::FileList->new(
                   $SMake::Platform::Generic::Const::PRODUCT_GROUP, 0, "", "", "-o ", "", "", 0),
               SMake::Executor::Translator::FileList->new(

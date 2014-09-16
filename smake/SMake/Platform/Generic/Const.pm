@@ -111,7 +111,8 @@ $DLL_GROUP = "dll_opts";            # -- compilation options dependent on type o
 $RPATH_GROUP = "rpaths";            # -- rpath argument of an executable (searching of dynamic libraries)
 $CFG_HEADER = "cfgheader";          # -- compiler configuration headers
 $CFLAGS_GROUP = "cflags";           # -- generic C flags
-$CXXFLAGS_GROUP = "cflags";         # -- generic C++ flags
+$CXXFLAGS_GROUP = "cxxflags";       # -- generic C++ flags
+$LDFLAGS_GROUP = "ldflags";         # -- generic linker flags
 $BISON_GROUP = "bison";             # -- flex/bison options
   $BISON_PREFIX = "prefix";         # -- flex/bison class prefix
 
