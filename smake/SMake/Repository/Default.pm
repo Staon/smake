@@ -21,6 +21,7 @@ package SMake::Repository::Default;
 use SMake::InstallArea::StdArea;
 use SMake::Model::Const;
 use SMake::Repository::Repository;
+use SMake::Storage::File::DataDumper;
 use SMake::Storage::File::Storage;
 
 # Create new default repository
@@ -32,7 +33,8 @@ use SMake::Storage::File::Storage;
 sub create {
   my ($parent, $dir) = @_;
   
-  my $storage = SMake::Storage::File::Storage->new($dir);
+  my $dumper = SMake::Storage::File::DataDumper->new();
+  my $storage = SMake::Storage::File::Storage->new($dir, $dumper);
   my $installarea = SMake::InstallArea::StdArea->new(
       $SMake::Model::Const::SOURCE_LOCATION);
   my $repository = SMake::Repository::Repository->new(

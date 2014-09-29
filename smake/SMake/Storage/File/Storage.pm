@@ -24,7 +24,6 @@ use SMake::Storage::Storage;
 
 @ISA = qw(SMake::Storage::Storage);
 
-use Data::Dumper;
 use File::Spec;
 use SMake::Data::Path;
 use SMake::Model::Const;
@@ -49,14 +48,16 @@ $PUBLIC_TABLE_FILE = "publics";
 # Usage: new($path, $srcbase, $tgbase)
 #    path ...... file system location (a directory) of the storage (filesystem path
 #                string)
+#    dumper .... an object dumper
 #    srcbase ... base source directory (all sources must be located under this path).
 #                If it's not defined, parent path of the storage location is used.
 #    tgbase .... base product directory (all products will be located under this path).
 #                If the value is undef, the $srcbase is used.
 sub new {
-  my ($class, $path, $srcbase, $tgbase) = @_;
+  my ($class, $path, $dumper, $srcbase, $tgbase) = @_;
   my $this = bless(SMake::Storage::Storage->new(), $class);
   $this->{path} = $path;
+  $this->{dumper} = $dumper;
   $this->{projects} = SMake::Storage::File::Cache->new(100);
   $this->{publics} = SMake::Storage::File::PublicTable->new();
 
@@ -93,27 +94,8 @@ sub loadStorage {
 
   # -- load table of public resources
   my $filename = File::Spec->catfile($this->{path}, $PUBLIC_TABLE_FILE);
-  if(-f $filename) {
-    # -- read the content
-    my $data;
-    {
-      local $/ = undef;
-      local *PRJFILE;
-      open(PRJFILE, "<$filename");
-      $data = <PRJFILE>;
-      close(PRJFILE);
-    }
-
-    { 
-      local $publics;
-      my $info = eval $data;
-      if(!defined($info) && (defined($@) && $@ ne "")) {
-        die "it's not possible to read table of public resources!";
-      }
-      
-      $this->{publics} = $publics;
-    }
-  }
+  my $publics = $this->{dumper}->loadObject($repository_, $this, $filename);
+  $this->{publics} = $publics if(defined($publics));
 }
 
 sub destroyStorage {
@@ -138,16 +120,7 @@ sub storeProject {
   $filename = File::Spec->catfile($directory, $filename);
 
   # -- dump the project
-  {
-    local *PRJFILE;
-    open(PRJFILE, ">$filename");
-    my $dumper = Data::Dumper->new([$project], [qw(project)]);
-    $dumper->Indent(1);
-    $dumper->Purity(1);
-    $dumper->Seen({'repository' => $repository, 'storage' => $this});
-    print PRJFILE $dumper->Dump();
-    close(PRJFILE);
-  }
+  $this->{dumper}->dumpObject($repository, $this, $filename, $project);
 }
 
 # Get a project from the cache or load it from file
@@ -166,26 +139,10 @@ sub loadProject {
   # -- generate file name
   my $filename = sha1_hex($key);
   $filename = File::Spec->catfile(($this->{path}, "projects"), $filename);
-  
-  if(-f $filename) {
-    # -- read the content
-    local $storage = $this;
-    local $repository = $repository_;
-    local $project;
-    local $/ = undef;
-    local *PRJFILE;
-    open(PRJFILE, "<$filename");
-    my $info = eval <PRJFILE>;
-    close(PRJFILE);
-    if(!defined($info) && (defined($@) && $@ ne "")) {
-      die "it's not possible to read project data from file '$filename'!";
-    }
-    
-    $this->{projects}->insertProject($project);
-    return $project;
-  }
-  
-  return undef;
+
+  # -- read the file
+  my $project = $this->{dumper}->loadObject($repository_, $this, $filename);
+  return $project;
 }
 
 # Delete stored data of a project
@@ -217,16 +174,8 @@ sub commitTransaction {
     $this->{transaction} = undef;
     
     # -- store table of public resources
-    {
-      my $filename = File::Spec->catfile($this->{path}, $PUBLIC_TABLE_FILE);
-      local *PUBFILE;
-      open(PUBFILE, ">$filename");
-      my $dumper = Data::Dumper->new([$this->{publics}], [qw(publics)]);
-      $dumper->Indent(1);
-      $dumper->Purity(1);
-      print PUBFILE $dumper->Dump();
-      close(PUBFILE);
-    }
+    my $filename = File::Spec->catfile($this->{path}, $PUBLIC_TABLE_FILE);
+    $this->{dumper}->dumpObject($repository, $this, $filename, $this->{publics});
   }
 }
 
