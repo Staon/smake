@@ -36,6 +36,7 @@ use SMake::Executor::Translator::Table;
 use SMake::Model::Const;
 use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::FinishArtifact;
+use SMake::Platform::Generic::FinishClean;
 use SMake::ToolChain::Constructor::Generic;
 use SMake::ToolChain::Constructor::Table;
 use SMake::ToolChain::Mangler::Mangler;
@@ -145,15 +146,19 @@ sub registerConstructorObject {
 
 # Begin specification of an artifact constructor
 #
-# Usage: registerConstructor($type)
+# Usage: registerConstructor($type, $clean)
 #    type ........ type of the artifact
 # Returns: the constructor object
 sub registerConstructor {
-  my ($this, $type) = @_;
+  my ($this, $type, $clean) = @_;
 
   my $resolver = SMake::ToolChain::Resolver::Chain->new();
+  my $finrecs = [SMake::Platform::Generic::FinishArtifact->new()];
+  if($clean) {
+    push @$finrecs, SMake::Platform::Generic::FinishClean->new();
+  }
   my $constructor = SMake::ToolChain::Constructor::Generic->new(
-      $resolver, undef, [SMake::Platform::Generic::FinishArtifact->new()]);
+      $resolver, undef, $finrecs);
   $this->registerConstructorObject($type, $constructor);
   return $constructor;
 }

@@ -34,16 +34,6 @@ sub new {
 sub finish {
   my ($this, $context, $artifact, $constructor) = @_;
 
-  # -- add cleaning stage and task
-  my $task = $artifact->createTaskInStage(
-      $context,
-      $SMake::Platform::Generic::Const::CLEAN_STAGE,
-      $SMake::Platform::Generic::Const::CLEAN_STAGE,
-      $SMake::Platform::Generic::Const::CLEAN_TASK,
-      undef,
-      undef,
-      undef);
-      
   # -- create the service artifact, stage and task
   my $project = $artifact->getProject();
   my $service = $project->getArtifact(

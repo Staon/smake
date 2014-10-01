@@ -22,6 +22,7 @@ use SMake::Model::Object;
 
 @ISA = qw(SMake::Model::Object);
 
+use Data::Dumper;
 use SMake::ToolChain::Decider::DeciderList;
 use SMake::Utils::Abstract;
 use SMake::Utils::Print;
@@ -400,6 +401,21 @@ sub prettyPrint {
   foreach my $prof (@$profs) {
     SMake::Utils::Print::printIndent($indent + 2);
     print ::HANDLE "$prof\n";
+  }
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "}\n";
+  
+  # -- arguments
+  SMake::Utils::Print::printIndent($indent + 1);
+  print ::HANDLE "args: {\n";
+  {
+    my $args = $this->getArguments();
+    my $dumper = Data::Dumper->new([$args], [qw(args)]);
+    $dumper->Indent(0);  # -- one line
+    $dumper->Purity(1);
+    $dumper->Sortkeys(1); # -- sorting of hash keys
+    SMake::Utils::Print::printIndent($indent + 2);
+    print ::HANDLE $dumper->Dump();
   }
   SMake::Utils::Print::printIndent($indent + 1);
   print ::HANDLE "}\n";

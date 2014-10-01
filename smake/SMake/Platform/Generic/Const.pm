@@ -72,6 +72,9 @@ $BIN_STAGE = "binlink";
 $BIN_TASK = "bin";
 $BIN_RESOURCE = "bin";
 
+# -- direct commands
+$DIRECT_TASK = "direct";
+
 # -- dependency types
 $LINK_DEPENDENCY = "link";     # -- library linking
 
