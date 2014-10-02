@@ -146,15 +146,16 @@ sub registerConstructorObject {
 
 # Begin specification of an artifact constructor
 #
-# Usage: registerConstructor($type, $clean)
-#    type ........ type of the artifact
+# Usage: registerConstructor($type, $disableclean)
+#    type .......... type of the artifact
+#    disableclean .. if it's true, the clean stage is not generated
 # Returns: the constructor object
 sub registerConstructor {
-  my ($this, $type, $clean) = @_;
+  my ($this, $type, $disableclean) = @_;
 
   my $resolver = SMake::ToolChain::Resolver::Chain->new();
   my $finrecs = [SMake::Platform::Generic::FinishArtifact->new()];
-  if($clean) {
+  if(!$disableclean) {
     push @$finrecs, SMake::Platform::Generic::FinishClean->new();
   }
   my $constructor = SMake::ToolChain::Constructor::Generic->new(
