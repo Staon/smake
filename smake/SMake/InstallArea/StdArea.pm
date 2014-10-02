@@ -104,7 +104,7 @@ sub installResolvedResource {
       }
     }
     else {
-      # -- copy the file
+      # -- copy the resource
       if(!SMake::Utils::Dirutils::copyFile($tgname, $srcname)) {
         SMake::Utils::Utils::dieReport(
             $context->getReporter(),

@@ -240,4 +240,72 @@ sub copyFile {
   return copy($srcpath, $tgpath);
 }
 
+sub copyDirContent {
+  my ($tgdir, $srcpath, $filter) = @_;
+  
+  # -- read content of directory
+  my @files;
+  {
+    local *DIRHANDLE;
+    return 0 if(!opendir(DIRHANDLE, $srcpath));
+    my @files = grep { ! /^[.]/ } readdir(DIRHANDLE);
+    if(defined($filter)) {
+      @files = grep { ! /$filter/ } @files;
+	}
+    closedir(DIRHANDLE);
+  }
+
+  # -- copy subtrees
+  foreach my $file (@files) {
+    my $srcfile = File::Spec->catfile($srcpath, $file);
+    return 0 if(!copyTreeInternal($tgdir, $srcfile, $filter));
+  }
+}
+
+sub copyTreeInternal {
+  my ($tgdir, $srcpath, $filter) = @_;
+  
+  if(-d $srcpath) {
+	# -- create target directory
+	my ($volume, $dirs, $dirname) = File::Spec->splitpath($srcpath);
+	my $tgpath = File::Spec->catdir($tgdir, $dirname);
+	return 0 if(!makeDirectory($tgpath));
+	
+	# -- copy the directory
+	return 0 if(!copyDirContent($tgpath, $srcfile, $filter));
+  }
+  else {
+    # -- copy a file
+    my ($volume, $dirs, $filename) = File::Spec->splitpath($srcpath);
+    return copyFile(File::Spec->catfile($tgdir, $filename), $srcpath);
+  }
+	
+  return 1;
+}
+
+# Copy a filesystem tree into specified destination
+#
+# This method list all files in a source directory and copies
+# them into specified destination directory.
+#
+# Usage: copyTreeInternal($tgdir, $srcdir [, $filter])
+#    tgpath ..... destination path (string in filesystem format)
+#    srcpath .... source path (a string in filesystem format)
+#    filter ..... a regex of files which should not be copied
+# Return: false when the function fails.
+sub copyTree {
+  my ($tgpath, $srcpath, $filter) = @_;
+  
+  if(-d $tgpath) {
+    return copyTreeInternal($tgpath, $srcpath, $filter);
+  }
+  else {
+    if(-d $srcpath) {
+      return 0 if(!makeDirectory($tgpath));
+      return copyDirContent($tgpath, $srcpath, $filter);
+    }
+    return copyFile($tgpath, $srcpath);
+  }
+}
+
 return 1;
