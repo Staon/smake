@@ -46,9 +46,7 @@ sub staticRegister {
   # -- command translator
   $toolchain->getTranslator()->appendRecords([
       $SMake::Platform::Generic::Const::DIRECT_TASK,
-      SMake::Platform::Generic::CompileTranslator->new(
-          SMake::Executor::Translator::Direct->new(),
-      ),
+      SMake::Executor::Translator::Direct->new(),
   ]);
 }
 
