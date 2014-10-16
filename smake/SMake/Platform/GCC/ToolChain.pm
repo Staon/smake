@@ -25,7 +25,6 @@ use SMake::Platform::GCC::HeaderFilter;
 use SMake::Platform::GCC::Lib;
 use SMake::Platform::Generic::Const;
 use SMake::Platform::Generic::Debug;
-use SMake::Platform::Generic::Direct;
 use SMake::Platform::Generic::Preproc;
 use SMake::Platform::Generic::ToolChain;
 use SMake::Profile::ValueProfile;
@@ -43,7 +42,6 @@ sub register {
   $toolchain->registerConstructor($SMake::Platform::Generic::Const::LIB_ARTIFACT);
   $toolchain->registerFeature(SMake::Platform::GCC::Dll, $compset);
   $toolchain->registerFeature(SMake::Platform::GCC::Lib, $compset);
-  $toolchain->registerFeature(SMake::Platform::Generic::Direct);
 
   # -- binary artifact
   $toolchain->registerConstructor($SMake::Platform::Generic::Const::BIN_ARTIFACT);
@@ -52,7 +50,6 @@ sub register {
       $SMake::Platform::Generic::Const::BIN_COMPILE_STAGE,
       $compset,
       $SMake::Platform::Generic::Const::BIN_STAGE);
-  $toolchain->registerFeature(SMake::Platform::Generic::Direct);
 
   # -- generic preprocessor profile
   $toolchain->registerFeature(SMake::Platform::Generic::Preproc);

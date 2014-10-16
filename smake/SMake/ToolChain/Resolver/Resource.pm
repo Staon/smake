@@ -37,6 +37,18 @@ sub new {
   return $this;
 }
 
+# Get type mask of this resolver
+sub getTypeMask {
+  my ($this) = @_;
+  return $this->{typemask};
+}
+
+# Get resource mask of this resolver
+sub getResourceMask {
+  my ($this) = @_;
+  return $this->{resmask};
+}
+
 sub doResolveResource {
   my ($this, $context, $queue, $resource) = @_;
 

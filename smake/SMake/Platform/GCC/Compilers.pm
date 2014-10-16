@@ -21,6 +21,7 @@ package SMake::Platform::GCC::Compilers;
 use SMake::Platform::GCC::CCompiler;
 use SMake::Platform::GCC::CXXCompiler;
 use SMake::Platform::Generic::Bison;
+use SMake::Platform::Generic::Direct;
 use SMake::Platform::Generic::ExtraFiles;
 use SMake::Platform::Generic::Flex;
 
@@ -37,6 +38,8 @@ sub register {
       SMake::Platform::Generic::Bison);
   $toolchain->registerFeature(
       SMake::Platform::Generic::ExtraFiles);
+  $toolchain->registerFeature(
+      SMake::Platform::Generic::Direct);
 }
 
 sub staticRegister {

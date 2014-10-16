@@ -70,15 +70,15 @@ sub doJob {
           $artifact->getPath(),
           undef);
       $task->appendSource($context, $resource);
+      
+      # -- execute source scanner
+      $context->scanSource($queue, $artifact, $resource, $task);
     }
     
     # -- create the resource
     my $tgres = $artifact->createProductResource(
         $context, $tgtype, $tgpath, $task);
     $queue->pushResource($tgres);
-  
-    # -- execute source scanner
-    $context->scanSource($queue, $artifact, $resource, $task);
 
     # -- notify the profiles
     $context->getProfiles()->modifyResource(

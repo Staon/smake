@@ -18,10 +18,11 @@
 # Header scanner of C/C++ sources
 package SMake::ToolChain::Scanner::HdrScanner;
 
-use SMake::ToolChain::Scanner::Scanner;
+use SMake::ToolChain::Scanner::OrdinaryScanner;
 
-@ISA = qw(SMake::ToolChain::Scanner::Scanner);
+@ISA = qw(SMake::ToolChain::Scanner::OrdinaryScanner);
 
+use SMake::Data::Path;
 use SMake::ToolChain::Constructor::Constructor;
 use SMake::Utils::Construct;
 use SMake::Utils::Utils;
@@ -35,51 +36,42 @@ use SMake::Utils::Utils;
 #    instmodule .. installation module name
 sub new {
   my ($class, $tasktype, $restype, $resname, $instmodule) = @_;
-  my $this = bless(SMake::ToolChain::Scanner::Scanner->new(), $class);
-  $this->{tasktype} = $tasktype;
-  $this->{restype} = $restype;
-  $this->{resname} = $resname;
+  my $this = bless(
+      SMake::ToolChain::Scanner::OrdinaryScanner->new(
+          $tasktype, $restype, $resname),
+      $class);
   $this->{instmodule} = $instmodule;
   return $this;
 }
 
-sub scanSource {
+sub doJob {
   my ($this, $context, $queue, $artifact, $resource, $task) = @_;
     
-  # -- check task and resource masks
-  if(($resource->getType() =~ /$this->{restype}/)
-      && ($resource->getName()->asString() =~ /$this->{resname}/)
-      && ($task->getType() =~ /$this->{tasktype}/)) {
-
-    # -- scan the file
-    my $filename = $resource->getPhysicalPathString();
-    local *SRCFILE;
-    if(!open(SRCFILE, "<" . $filename)) {
-      SMake::Utils::Utils::dieReport(
-          $context->getReporter(),
-          $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
-          "source %s cannot be opened", $filename);
+  # -- scan the file
+  my $filename = $resource->getPhysicalPathString();
+  local *SRCFILE;
+  if(!open(SRCFILE, "<" . $filename)) {
+    SMake::Utils::Utils::dieReport(
+        $context->getReporter(),
+        $SMake::ToolChain::Constructor::Constructor::SUBSYSTEM,
+        "source %s cannot be opened", $filename);
+  }
+  while(my $line = <SRCFILE>) {
+    if($line =~ /^\s*#\s*include\s*[<"]([^">]+)[">]/) {
+      my $path = $1;
+      $path =~ s/\\/\//;  # -- windows paths
+      SMake::Utils::Construct::installExternalResource(
+          $context,
+          $artifact,
+          $resource,
+          $task,
+          $this->{instmodule},
+          SMake::Data::Path->new($path));
     }
-    while(my $line = <SRCFILE>) {
-      if($line =~ /^\s*#\s*include\s*[<"]([^">]+)[">]/) {
-        my $path = $1;
-        $path =~ s/\\/\//;  # -- windows paths
-        SMake::Utils::Construct::installExternalResource(
-            $context,
-            $artifact,
-            $resource,
-            $task,
-            $this->{instmodule},
-            SMake::Data::Path->new($path));
-      }
-    }
-    close SRCFILE;
+  }
+  close SRCFILE;
     
-    return 1;
-  }
-  else {
-    return 0;
-  }
+  return 1;
 }
 
 return 1;
