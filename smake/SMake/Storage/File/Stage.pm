@@ -131,15 +131,34 @@ sub computeDependencies {
   my ($this, $context, $subsystem) = @_;
   my $self = $this->getAddress();
   
-  # -- dependencies defined by tasks
+  # -- dependencies defined by source resources
   my %addresses = ();
   foreach my $task (values %{$this->{tasks}}) {
   	# -- source resources
     my $sources = $task->getSources();
     foreach my $source (@$sources) {
+      # -- local stages
       my $address = $source->getStage()->getAddress();
       if(!$address->isEqual($self)) {
         $addresses{$address->getKey()} = $address;
+      }
+    }
+    
+    # -- installation of external resources
+    if($task->getType() eq $SMake::Model::Const::EXTERNAL_TASK) {
+      my $targets = $task->getTargets();
+      foreach my $target (@$targets) {
+        my ($found, $extres, $local) 
+            = SMake::Utils::Searching::resolveExternal(
+                  $context, $subsystem, $target);
+        if($found && defined($extres)) {
+          my $address = SMake::Utils::Searching::getRealResource($extres)
+              ->getStage()->getAddress();
+          if(!$address->isEqual($self) 
+             && !$context->getVisibility()->isExternal($address->getProject())) {
+            $addresses{$address->getKey()} = $address;
+          }
+        }
       }
     }
     
@@ -152,7 +171,8 @@ sub computeDependencies {
     }
     foreach my $d (values %$depclosure) {
       my $address = $d->[0]->getAddress();
-      if(!$context->getVisibility()->isExternal($address->getProject())) {
+      if(!$address->isEqual($self)
+         && !$context->getVisibility()->isExternal($address->getProject())) {
         $addresses{$address->getKey()} = $address;
       }
     }

@@ -38,11 +38,9 @@ sub resolveLocal {
 
   my $project = $resource->getProject();
   my $resolved = $project->searchResource(
-      '^(?!' . quotemeta($SMake::Model::Const::SOURCE_RESOURCE) . ')(.*)$',
+      SMake::Utils::Masks::createMask($SMake::Model::Const::PUBLISH_RESOURCE),
       $resource->getName(),
-      SMake::Utils::Masks::createMask(
-          $SMake::Model::Const::SOURCE_LOCATION,
-          $SMake::Model::Const::PRODUCT_LOCATION)
+      SMake::Utils::Masks::createMask($SMake::Model::Const::PUBLIC_LOCATION)
   );
   if(defined($resolved)) {
     return 1, $resolved;
@@ -103,9 +101,6 @@ sub resolveExternal {
           . " was found in the project " . $project->getName() 
           . " but now it cannot be searched in!";
     }
-    
-    # -- get origin resource of the public resource
-    $resolved = $resolved->getTask()->getSources()->[0];
     
     return (1, $resolved, 0);
   }
@@ -175,7 +170,7 @@ sub externalTransitiveClosure {
 # Compute transitive closure of an external resource, but resolve only local
 # resources (and ignore resources from another projects)
 #
-# Usage: externalTransitiveClosure($context, $subsystem, $resource)
+# Usage: localTransitiveClosure($context, $subsystem, $resource)
 #    context ...... executor context
 #    subsystem .... logging subsystem
 #    resource ..... the external resources
@@ -346,6 +341,30 @@ sub resolveDependency {
   }
 
   return ($project, $artifact, $stage, $resource);
+}
+
+# Get the real resource paired with a public resource
+#
+# Usage: getRealResource($public)
+#    public ....... the public resource
+sub getRealResource {
+  my ($public) = @_;
+
+  # -- get non-external resources
+  my $sources = $public->getTask()->getSources();
+  my @list = ();
+  foreach my $source (@$sources) {
+    if($source->getLocation() ne $SMake::Model::Const::EXTERNAL_LOCATION) {
+      push @list, $source;
+    }
+  }
+
+  # -- there must be only one non-external resource paired with the public resource!
+  if($#list != 0) {
+    die "invalid pairing of a public and a real resource!";
+  }
+  
+  return $list[0];
 }
 
 return 1;

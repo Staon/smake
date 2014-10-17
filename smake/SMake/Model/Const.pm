@@ -33,6 +33,8 @@ $SOURCE_TASK = "src";
 $EXTERNAL_TASK = "install";
 
 # -- public resources
+$PUBLISH_STAGE = "publish";
+$PUBLISH_RESOURCE = "publish";
 $PUBLISH_TASK = "publish";
 
 # -- resource translation

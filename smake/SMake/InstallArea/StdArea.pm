@@ -132,7 +132,7 @@ sub installResource {
           $project,
           $res->[0]->getType(),
           $res->[0]->getName(),
-          $res->[1]);
+          SMake::Utils::Searching::getRealResource($res->[1]));
     }
   }
 }

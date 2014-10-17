@@ -46,15 +46,18 @@ sub doJob {
   my ($this, $context, $queue, $resource) = @_;
 
   my $artifact = $context->getArtifact();
+  
+  # -- published resource for other projects
   my $profvar = $context->getProfiles()->getVariable($context, $this->{path});
-  if(defined($profvar)) {
-    # -- construct name of the public resource
+  my $publicname;
+  if($profvar) {
     my $path = SMake::Data::Path->new($profvar, $resource->getName()->getBasepath());
+    $publicname = $path;
   
     # -- create the public resource and its task
     my $task = $artifact->createTaskInStage(
         $context,
-        $resource->getStage()->getName(),
+        $SMake::Model::Const::PUBLISH_STAGE,
         "publish:" . $path->asString(),
         $SMake::Model::Const::PUBLISH_TASK,
         undef,
@@ -64,10 +67,38 @@ sub doJob {
         $context, $SMake::Model::Const::PUBLIC_LOCATION, $this->{instmodule}, $path, $task);
     $instres->publishResource();
     $task->appendSource($context, $resource);
+    
+    # -- execute source scanner
+    $context->scanSource($queue, $artifact, $resource, $task);
   }
 
-  # -- execute source scanner
-  $context->scanSource($queue, $artifact, $resource, $resource->getTask());
+  # -- published resource for internal usage in the project
+  if(!defined($publicname) || !$publicname->isEqual($resource->getName())) {
+    # -- construct name of the public resource
+    my $path = $resource->getName();
+    
+    # -- create the public resource and its task
+    my $task = $artifact->createTaskInStage(
+        $context,
+        $SMake::Model::Const::PUBLISH_STAGE,
+        "publish:" . $path->asString(),
+        $SMake::Model::Const::PUBLISH_TASK,
+        undef,
+        undef,
+        undef);
+    my $instres = $artifact->createResource(
+        $context,
+        $SMake::Model::Const::PUBLIC_LOCATION,
+        $SMake::Model::Const::PUBLISH_RESOURCE,
+        $path,
+        $task);
+    # -- note: don't publish the resource into the global table of public resources.
+    #          The resource is private inside the project!
+    $task->appendSource($context, $resource);
+
+    # -- execute source scanner
+    $context->scanSource($queue, $artifact, $resource, $task);
+  }
   
   return 1;
 }

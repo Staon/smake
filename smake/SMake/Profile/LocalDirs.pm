@@ -66,7 +66,8 @@ sub modifyNode {
       my $resolved = SMake::Utils::Searching::localTransitiveClosure(
           $context, $SMake::Executor::Executor::SUBSYSTEM, $src);
       foreach my $resres (@$resolved) {
-        my $path = $resres->getPhysicalPath()->getDirpath();
+        my $path = SMake::Utils::Searching::getRealResource($resres)
+            ->getPhysicalPath()->getDirpath();
         $pathset->{$path->hashKey()} = $path;
       }
     }
