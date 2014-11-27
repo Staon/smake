@@ -40,12 +40,13 @@ sub new {
 
 # Create new shell instruction
 #
-# Usage: newCapture($capture, $command)
-sub newCapture {
-  my ($class, $capture, $command) = @_;
+# Usage: newInstruction($group, $command, $capture)
+sub newInstruction {
+  my ($class, $group, $command, $capture) = @_;
   my $this = bless(SMake::Executor::Instruction::Instruction->new(), $class);
-  $this->{capture} = $capture;
+  $this->{group} = $group;
   $this->{command} = $command;
+  $this->{capture} = $capture;
   return $this;
 }
 
@@ -93,7 +94,7 @@ sub execute {
 
   # -- execute the command
   $this->{jobid} = $context->getRunner()->prepareCommand(
-      $context, $this->{command}, $wdir, $this->{capture});
+      $context, $this->{group}, $this->{command}, $wdir, $this->{capture});
   return $SMake::Executor::Instruction::Instruction::WAIT;
 }
 

@@ -39,7 +39,7 @@ sub new {
 }
 
 sub prepareCommand {
-  my ($this, $context, $command, $wd, $capture) = @_;
+  my ($this, $context, $group, $command, $wd, $capture) = @_;
   
   my $jobid = $this->{jobid}++;
   my $record = [$jobid, $command, $wd, $capture, undef, undef];

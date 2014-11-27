@@ -32,6 +32,8 @@ sub new {
 #
 # Usage: prepareCommand($context, $command, $wd, $capture)
 #    context ...... executor context
+#    group ........ job group (jobs in one group cannot be run parallel), if it
+#                   is undef, the job is not grouped
 #    command ...... shell command
 #    wd ........... absolute system path of the working directory (a Path object)
 #    capture ...... if it's true, the output of the command is captured

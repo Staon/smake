@@ -23,7 +23,6 @@ use SMake::Executor::Translator::Value;
 @ISA = qw(SMake::Executor::Translator::Value);
 
 use SMake::Executor::Executor;
-use SMake::Executor::Instruction::Shell;
 use SMake::Utils::Utils;
 
 # Create new select translator

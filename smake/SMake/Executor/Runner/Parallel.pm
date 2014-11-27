@@ -27,6 +27,7 @@ use IO::Handle;
 use IO::Pipe;
 use IO::Select;
 use SMake::Executor::Executor;
+use SMake::Executor::Runner::GroupQueue;
 use SMake::Utils::Chdir;
 use SMake::Utils::Utils;
 
@@ -39,7 +40,7 @@ sub new {
   my $this = bless(SMake::Executor::Runner::Runner->new(), $class);
   $this->{jobid} = 1;    # -- jobid counter
   $this->{max} = $max;
-  $this->{queue} = [];
+  $this->{queue} = SMake::Executor::Runner::GroupQueue->new();
   $this->{status} = {};
   $this->{handles} = [];
   $this->{read_handles} = IO::Select->new();
@@ -47,11 +48,11 @@ sub new {
 }
 
 sub prepareCommand {
-  my ($this, $context, $command, $wd, $capture) = @_;
+  my ($this, $context, $group, $command, $wd, $capture) = @_;
   
   my $jobid = $this->{jobid}++;
-  my $record = [$jobid, $command, $wd, $capture, undef, undef];
-  push @{$this->{queue}}, $record;
+  my $record = [$jobid, $command, $wd, $capture, undef, undef, $group];
+  $this->{queue}->pushRecord($group, $record);
   $this->{status}->{$jobid} = $record;
   
   return $jobid;
@@ -92,6 +93,7 @@ sub searchRecord {
 sub finishProcess {
   my ($this, $record) = @_;
   
+  # -- get return code of the process
   my $code = waitpid($record->[1], 0);
   if($code >= 0) {
     $code = (!$?)?1:0;
@@ -100,9 +102,14 @@ sub finishProcess {
     $code = 0;
   }
   $record->[2]->[4] = $code;
+  
+  # -- close pipe handles
   $this->{read_handles}->remove($record->[0]);
   $record->[0]->close();
   $this->{handles} = [grep {$_ != $record} @{$this->{handles}}];
+  
+  # -- clean job's group
+  $this->{queue}->unblockGroup($record->[2]->[6]);
 }
 
 sub wait {
@@ -110,8 +117,7 @@ sub wait {
   
   # -- run new commands if some are scheduled and there is
   #    left capacity
-  while($#{$this->{queue}} >= 0 && $#{$this->{handles}} < $this->{max}) {
-    my $record = shift @{$this->{queue}};
+  while($#{$this->{handles}} < $this->{max} && defined(my $record = $this->{queue}->activateJob())) {
     print $record->[1] . "\n";
     
     # -- fork current process

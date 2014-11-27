@@ -40,6 +40,20 @@ sub new {
   return $this; 
 }
 
+# Create new compositor
+#
+# Usage: newGrouped($group, $capture, $translator*)
+sub newGrouped {
+  my ($class, $group, $capture, @translators) = @_;
+  
+  my $this = bless(SMake::Executor::Translator::Translator->new(), $class);
+  $this->{group} = $group;
+  $this->{capture} = $capture;
+  $this->{records} = [];
+  $this->appendRecords(@translators);
+  return $this; 
+}
+
 # Append translator records
 #
 # Usage: appendRecords($translator*)
@@ -66,8 +80,8 @@ sub translate {
       }
   	}
   }
-  return [SMake::Executor::Instruction::Shell->newCapture(
-      $this->{capture}, "@retvals")];
+  return [SMake::Executor::Instruction::Shell->newInstruction(
+      $this->{group}, "@retvals", $this->{capture})];
 }
 
 return 1;
