@@ -112,6 +112,26 @@ sub finishProcess {
   $this->{queue}->unblockGroup($record->[2]->[6]);
 }
 
+sub onePollCycle {
+  my ($this, $context) = @_;
+  
+  # -- select pipe handles
+  if($this->{read_handles}->count() > 0) {
+    my @ready = $this->{read_handles}->can_read();
+    foreach my $handle (@ready) {
+      my $record = searchRecord($handle, $this->{handles});
+      my $buffer = "";
+      my $len = read($handle, $buffer, 1024);
+      if(defined($len) && $len > 0) {
+        $record->[2]->[5] .= $buffer;
+      }
+      else {
+        $this->finishProcess($record);
+      }
+    }
+  }
+}
+
 sub wait {
   my ($this, $context) = @_;
   
@@ -161,30 +181,15 @@ sub wait {
   }
   
   # -- select pipe handles
-  if($this->{read_handles}->count() > 0) {
-    my @ready = $this->{read_handles}->can_read();
-    foreach my $handle (@ready) {
-      my $record = searchRecord($handle, $this->{handles});
-      my $buffer = "";
-      my $len = read($handle, $buffer, 1024);
-      if(defined($len) && $len > 0) {
-        $record->[2]->[5] .= $buffer;
-      }
-      else {
-        $this->finishProcess($record);
-      }
-    }
-  }
+  $this->onePollCycle($context);
 }
 
 sub cleanOnError {
   my ($this, $context) = @_;
   
   # -- wait for finish of all running processes
-  my $handles = $this->{handles};
-  $this->{handles} = undef;
-  foreach my $handle (@$handles) {
-    $this->finishProcess($handle);
+  while($this->{read_handles}->count() > 0) {
+    $this->onePollCycle($context);
   }
 }
 
