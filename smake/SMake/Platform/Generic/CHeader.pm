@@ -24,6 +24,7 @@ use SMake::Platform::Generic::HeaderScanner;
 use SMake::Profile::VarProfile;
 use SMake::ToolChain::Resolver::Publish;
 use SMake::ToolChain::Resolver::ResourceTrans;
+use SMake::Utils::Masks;
 
 sub register {
   my ($class, $toolchain, $constructor) = @_;
@@ -49,9 +50,8 @@ sub register {
         # -- header scanner
         $toolchain->registerFeature(
             [SMake::Platform::Generic::HeaderScanner,
-             '^' . $SMake::Platform::Generic::Const::H_RESOURCE . '$'
-            ]
-        );
+             SMake::Utils::Masks::createMask($SMake::Model::Const::PUBLISH_TASK),
+             SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::H_RESOURCE)]);
       },
       '^' . quotemeta($SMake::Platform::Generic::Const::H_RESOURCE) . '$',
       '.*',

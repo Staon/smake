@@ -134,7 +134,7 @@ sub executeRoots {
         $SUBSYSTEM,
         "stopped, it's not possible to continue in work");
   }
-  
+
   return $this->{broken};
 }
 

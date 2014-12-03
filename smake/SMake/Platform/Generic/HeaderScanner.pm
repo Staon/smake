@@ -22,16 +22,16 @@ use SMake::Platform::Generic::Const;
 use SMake::ToolChain::Scanner::HdrScanner;
 
 sub register {
-  my ($class, $toolchain, $constructor, $resmask) = @_;
+  my ($class, $toolchain, $constructor, $taskmask, $resmask) = @_;
 
 }
 
 sub staticRegister {
-  my ($class, $toolchain, $resmask) = @_;
+  my ($class, $toolchain, $taskmask, $resmask) = @_;
 
   $toolchain->getScanner()->appendScanners(
       SMake::ToolChain::Scanner::HdrScanner->new(
-          '.*',
+          $taskmask,
           $resmask,
           '.*',
           $SMake::Platform::Generic::Const::HEADER_MODULE));

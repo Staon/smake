@@ -41,7 +41,7 @@ sub new {
 
 sub scanSource {
   my ($this, $context, $queue, $artifact, $resource, $task) = @_;
-    
+
   # -- check task and resource masks
   if(($resource->getType() =~ /$this->{restype}/)
       && ($resource->getName()->asString() =~ /$this->{resname}/)

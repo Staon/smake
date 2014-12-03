@@ -32,6 +32,7 @@ use SMake::Profile::ValueProfile;
 use SMake::ToolChain::Resolver::Compile;
 use SMake::ToolChain::Resolver::Multi;
 use SMake::ToolChain::Resolver::ResourceTrans;
+use SMake::Utils::Masks;
 
 # Usage: register($toolchain, $construct, $stage, $mangler, $libtype)
 #    toolchain ...... the platform toolchain
@@ -69,6 +70,7 @@ sub register {
   # -- C++ header scanner
   $toolchain->registerFeature(
       [SMake::Platform::Generic::HeaderScanner,
+       SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::CXX_TASK),
        SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::CXX_RESOURCE)]);
   
   # -- C/C++ headers

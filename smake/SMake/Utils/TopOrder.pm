@@ -53,13 +53,14 @@ sub compute {
     my @stack = ();
     foreach my $root (@$roots) {
       my $node = SMake::Utils::TopOrderNode->new($root);
-      push @stack, $node;
+      push @stack, [undef, $node];
       $this->{nodes}->{&{$this->{keyfce}}($root)} = $node;
     }
   
     # -- run DFS
     while(@stack) {
-      my $node = $stack[$#stack];
+      my $stackrec = $stack[$#stack];
+      my $node = $stackrec->[1];
       
       if($node->getColor() eq "opened") {
         # -- close the node
@@ -80,23 +81,31 @@ sub compute {
           if(!defined($this->{nodes}->{$key})) {
           	my $childnode = SMake::Utils::TopOrderNode->new($child);
           	$node->appendChild($childnode);
-            push @stack, $childnode;
+            push @stack, [$stackrec, $childnode];
             $this->{nodes}->{$key} = $childnode;
           }
           else {
           	my $childnode = $this->{nodes}->{$key};
             $node->appendChild($childnode);
           	
-          	# -- detect dependency cycle
           	if($childnode->getColor() eq "opened") {
-              my $retval = [$childnode->getObject()];
-              foreach my $n (@stack) {
-                push @$retval, $n->getObject();
+           	  # -- dependency cycle detected
+              my $retval = [$node->getObject(), $childnode->getObject()];
+              while(defined($stackrec->[0])) {
+                $stackrec = $stackrec->[0];
+                unshift @$retval, $stackrec->[1]->getObject();
               }
               return (0, $retval);
           	}
+          	else {
+          	  push @stack, [$stackrec, $childnode];
+          	}
           }
         }
+      }
+      elsif($node->getColor() eq "closed") {
+        # -- already finished, remove it from the working stack
+        pop @stack;
       }
       else {
         die "invalid node state";
@@ -152,7 +161,7 @@ sub finishObject {
   my ($this, $object) = @_;
 
   my $key = &{$this->{keyfce}}($object);
-  my $node = $this->{nodes}->{$key};
+  my $node = delete($this->{nodes}->{$key});
   $node->finish($this->{keyfce}, $this->{queue});
 }
 

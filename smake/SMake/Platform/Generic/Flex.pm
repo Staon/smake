@@ -87,6 +87,7 @@ sub register {
   # -- headers included from the flex source file
   $toolchain->registerFeature(
       [SMake::Platform::Generic::HeaderScanner,
+       SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::CXX_TASK),
        SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::FLEX_RESOURCE)]);
   # -- bison/flex prefix profile
   $toolchain->registerFeature(SMake::Platform::Generic::BisonPrefix);

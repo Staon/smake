@@ -33,16 +33,17 @@ use SMake::Utils::Utils;
 #    tasktype .... a regular expression which describes type of the task
 #    restype ..... a regular expression which describes type of the resource
 #    resname ..... a regular expression which describes name of the resource
-#    copyext ..... if it's true, external resources are copied from resource's sources into the task
+#    extscan ..... if it's true resource scanner is run for this task and all
+#                  source resources of the scanned resource
 #    instmodule .. name of the installation module
 #    mangler ..... mangler description of the scanned resource
 sub new {
-  my ($class, $tasktype, $restype, $resname, $copyext, $records) = @_;
+  my ($class, $tasktype, $restype, $resname, $extscan, $records) = @_;
   my $this = bless(
       SMake::ToolChain::Scanner::OrdinaryScanner->new(
           $tasktype, $restype, $resname),
       $class);
-  $this->{copyext} = $copyext;
+  $this->{extscan} = $extscan;
   $this->{records} = $records;
   return $this;
 }
@@ -67,21 +68,13 @@ sub doJob {
   }
     
   # -- copy external resources from the source task
-  if($this->{copyext}) {
+  if($this->{extscan}) {
     my $sources = $resource->getTask()->getSources();
     foreach my $source (@$sources) {
-      if($source->getLocation() eq $SMake::Model::Const::EXTERNAL_LOCATION) {
-        SMake::Utils::Construct::installExternalResource(
-            $context,
-            $artifact,
-            $resource,
-            $task,
-            $source->getType(),
-            $source->getName());
-      }
+      $context->scanSource($queue, $artifact, $source, $task);
     }
   }
-    
+
   return 1;
 }
 

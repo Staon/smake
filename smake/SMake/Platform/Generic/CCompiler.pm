@@ -66,9 +66,10 @@ sub register {
       $libtype);
   $resolver->appendProfile($profile);
 
-  # -- C++ header scanner
+  # -- C header scanner
   $toolchain->registerFeature(
       [SMake::Platform::Generic::HeaderScanner,
+       SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::C_TASK),
        SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::C_RESOURCE)]);
   
   # -- C/C++ headers

@@ -148,11 +148,10 @@ sub computeDependencies {
     if($task->getType() eq $SMake::Model::Const::EXTERNAL_TASK) {
       my $targets = $task->getTargets();
       foreach my $target (@$targets) {
-        my ($found, $extres, $local) 
-            = SMake::Utils::Searching::resolveExternal(
-                  $context, $subsystem, $target);
-        if($found && defined($extres)) {
-          my $address = SMake::Utils::Searching::getRealResource($extres)
+        my $extlist = SMake::Utils::Searching::externalTransitiveClosure(
+            $context, $subsystem, $target);
+        foreach my $extpub (@$extlist) {
+          my $address = SMake::Utils::Searching::getRealResource($extpub->[1])
               ->getStage()->getAddress();
           if(!$address->isEqual($self) 
              && !$context->getVisibility()->isExternal($address->getProject())) {

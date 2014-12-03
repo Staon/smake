@@ -122,7 +122,7 @@ sub register {
               $SMake::Platform::Generic::Const::H_RESOURCE,
               '"stack.hh"',
               SMake::ToolChain::Scanner::Fixed,
-              1,
+              0,
               [],
           ),
           SMake::ToolChain::Resolver::Scanner->new(
@@ -132,7 +132,7 @@ sub register {
               $SMake::Platform::Generic::Const::H_RESOURCE,
               '"position.hh"',
               SMake::ToolChain::Scanner::Fixed,
-              1,
+              0,
               [],
           ),
           SMake::ToolChain::Resolver::Scanner->new(
@@ -142,7 +142,7 @@ sub register {
               $SMake::Platform::Generic::Const::H_RESOURCE,
               '"location.hh"',
               SMake::ToolChain::Scanner::Fixed,
-              1,
+              0,
               [],
           ),
       ),
@@ -151,6 +151,9 @@ sub register {
   # -- headers included from the flex source file
   $toolchain->registerFeature(
       [SMake::Platform::Generic::HeaderScanner,
+       SMake::Utils::Masks::createMask(
+           $SMake::Platform::Generic::Const::CXX_TASK,
+           $SMake::Model::Const::PUBLISH_TASK),
        SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::BISON_RESOURCE)]);
 
   # -- bison/flex prefix profile
