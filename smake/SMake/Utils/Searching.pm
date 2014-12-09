@@ -144,8 +144,9 @@ sub externalTransitiveClosure {
         SMake::Utils::Utils::dieReport(
             $context->getReporter(),
             $subsystem,
-            "external resource '%s' cannot be resolved!",
-            $current->[0]->getName()->asString());
+            "external resource '%s' ('%s') cannot be resolved!",
+            $current->[0]->getName()->asString(),
+            $current->[0]->getStage()->getAddress()->printableString());
       }
       if(defined($resolved)) {
         # -- append to the return list
