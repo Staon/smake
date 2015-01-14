@@ -261,10 +261,8 @@ sub computeCurrentMark {
 
   # -- get transitive closure
   my $closure = {};
-  foreach my $dep (@$deps) {
-    $this->updateTransitiveClosure(
-        $context, $subsystem, $closure, $this->getArtifact(), '.*');
-  }
+  $this->updateTransitiveClosure(
+      $context, $subsystem, $closure, $this->getArtifact(), '.*');
   
   # -- get the timestamp
   my $declist = SMake::ToolChain::Decider::DeciderList->new();
