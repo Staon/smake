@@ -290,6 +290,29 @@ sub getResources {
   return $this->{resources}->getItems();
 }
 
+# Search for a resource in the artifact
+#
+# Usage: searchResource($restype, $path, $location)
+#    restype ..... regular expression of searched resource types
+#    path ........ relative path (name) of the searched resource
+#    location .... regular expression of resource location type
+# Returns: searched resource or undef
+sub searchResource {
+  my ($this, $restype, $path, $location) = @_;
+
+  my $list = $this->{resources}->getItems();
+  if(defined($list)) {
+    foreach my $resource (@$list) {
+      if($resource->getType() =~ /$restype/
+         && $resource->getLocation() =~ /$location/
+         && $path->isEqual($resource->getName())) {
+        return $resource;
+      }
+    }
+  }
+  return undef;
+}
+
 # Append main resource
 #
 # Usage: appendMainResource($context, $type, $resource)

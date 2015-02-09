@@ -75,6 +75,11 @@ $BIN_RESOURCE = "bin";
 # -- direct commands
 $DIRECT_TASK = "direct";
 
+# -- ant task
+$ANT_TASK = "ant";
+$ANT_GOALS = "goals";    # -- name of the goal argument of the ant task
+$ANT_RESOURCE = "ant";   # -- ant build specification
+
 # -- dependency types
 $LINK_DEPENDENCY = "link";     # -- library linking
 
@@ -118,5 +123,7 @@ $CXXFLAGS_GROUP = "cxxflags";       # -- generic C++ flags
 $LDFLAGS_GROUP = "ldflags";         # -- generic linker flags
 $BISON_GROUP = "bison";             # -- flex/bison options
   $BISON_PREFIX = "prefix";         # -- flex/bison class prefix
+$ANT_VAR_GROUP = "antvars";         # -- group of ant variable options
+$ANT_CMD_GROUP = "antcmds";         # -- group of ant commands (compilation targets)
 
 return 1;

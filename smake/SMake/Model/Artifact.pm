@@ -139,6 +139,17 @@ sub getResources {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Search for a resource in the artifact
+#
+# Usage: searchResource($restype, $path, $location)
+#    restype ..... regular expression of searched resource types
+#    path ........ relative path (name) of the searched resource
+#    location .... regular expression of resource location type
+# Returns: searched resource or undef
+sub searchResource {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
 # Set map of main resources
 #
 # Usage: setMainResources($default, \%map)

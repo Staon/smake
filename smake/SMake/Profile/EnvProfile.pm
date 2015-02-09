@@ -24,21 +24,33 @@ use SMake::Profile::NodeProfile;
 @ISA = qw(SMake::Profile::NodeProfile);
 
 use SMake::Executor::Command::Option;
+use SMake::Executor::Command::Value;
 use SMake::Executor::Executor;
 
 # Create new profile
 #
-# Usage: new($cmdmask, $address, $envvar, $prepend)
+# Usage: new($cmdmask, $address, $option, $envvar, $prepend, \%transname)
 #    cmdmask ..... a regular expression of command type
 #    address ..... address of the command node (an SMake::Data::Path object or
 #                  appropriately formatted string)
+#    option ...... If it's true, the value is inserted as an option. If it's false,
+#                  it's inserted as a value (tuple (name, value)).
 #    envvar ...... name of the environment variable
 #    prepend ..... if it's true, the values are prepended
+#    transname ... translation table of variable names (env variable => value name
+#                  of the logical command)
 sub new {
-  my ($class, $cmdmask, $address, $envvar, $prepend) = @_;
+  my ($class, $cmdmask, $address, $option, $envvar, $prepend, $transname) = @_;
   my $this = bless(SMake::Profile::NodeProfile->new($cmdmask, $address), $class);
+  $this->{option} = $option;
   $this->{envvar} = $envvar;
   $this->{prepend} = $prepend;
+  if(defined($transname)) {
+    $this->{transname} = $transname;
+  }
+  else {
+    $this->{transname} = {};
+  }
   return $this;
 }
 
@@ -53,7 +65,17 @@ sub modifyNode {
   if(defined($value)) {
     my @values = split(/[:;]/, $value);
     foreach my $v (@values) {
-      my $option = SMake::Executor::Command::Option->new($v);
+      my $option;
+      if($this->{option}) {
+        $option = SMake::Executor::Command::Option->new($v);
+      }
+      else {
+        my $transname = $this->{transname}->{$this->{envvar}};
+        if(!defined($transname)) {
+          $transname = $this->{envvar};
+        }
+        $option = SMake::Executor::Command::Value->new($transname, $v);
+      }
       $node->addChild($option, $this->{prepend});
     }
   }

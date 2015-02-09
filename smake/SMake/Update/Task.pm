@@ -63,6 +63,7 @@ sub new {
   $this->{stage} = $stage;
   $this->{task} = $task;
   $this->{profiles} = [];
+  $this->{force_run} = $task->isForceRun();
   
   return $this;
 }
@@ -101,7 +102,7 @@ sub update {
   }
   $this->{task}->setProfiles($this->{profiles});
 
-  $this->{task}->setForceRun($this->{task}->isForceRun() || $ts_changed || $tg_changed || $prof_changed);
+  $this->{task}->setForceRun($this->{force_run} || $ts_changed || $tg_changed || $prof_changed);
   
   $this->{sources} = undef;
   $this->{targets} = undef;
@@ -224,6 +225,14 @@ sub appendDependency {
 sub appendProfile {
   my ($this, $context, $dump) = @_;
   push @{$this->{profiles}}, $dump;
+}
+
+# Make the task forcibly run
+#
+# Usage: setForceRun($context)
+sub setForceRun {
+  my ($this, $context) = @_;
+  $this->{force_run} = 1;
 }
 
 return 1;

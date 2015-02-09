@@ -207,6 +207,21 @@ sub getResources {
   return [values %{$this->{resources}}];
 }
 
+sub searchResource {
+  my ($this, $restype, $path, $location) = @_;
+
+  my $list = $this->{resource_index}->{$path->asString()};
+  if(defined($list)) {
+    foreach my $resource (@$list) {
+      if($resource->getType() =~ /$restype/
+         && $resource->getLocation() =~ /$location/) {
+        return $resource;
+      }
+    }
+  }
+  return undef;
+}
+
 sub setMainResources {
   my ($this, $default, $map) = @_;
   
@@ -365,21 +380,6 @@ sub deleteActiveFeatures {
 sub getActiveFeatures {
   my ($this) = @_;
   return [values %{$this->{active_features}}];
-}
-
-sub searchResource {
-  my ($this, $restype, $path, $location) = @_;
-
-  my $list = $this->{resource_index}->{$path->asString()};
-  if(defined($list)) {
-    foreach my $resource (@$list) {
-      if($resource->getType() =~ /$restype/
-         && $resource->getLocation() =~ /$location/) {
-        return $resource;
-      }
-    }
-  }
-  return undef;
 }
 
 return 1;

@@ -56,7 +56,7 @@ sub getValueArgument {
   my $str = $this->{name};
   if(defined($this->{value})) {
     $str .= $separator;
-    $str .= '"' . quotemeta($this->{value}) . '"';
+    $str .= quotemeta($this->{value});
   }
   return $str;
 }
