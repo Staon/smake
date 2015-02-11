@@ -80,6 +80,10 @@ $ANT_TASK = "ant";
 $ANT_GOALS = "goals";    # -- name of the goal argument of the ant task
 $ANT_RESOURCE = "ant";   # -- ant build specification
 
+# -- remove task
+$REMOVE_TASK = "remove";
+$REMOVE_EXTRA = "extra_remove";
+
 # -- dependency types
 $LINK_DEPENDENCY = "link";     # -- library linking
 

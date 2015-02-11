@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
-# Generic ant task
-package SMake::Platform::Generic::Ant;
+# Generic removing task - remove a file or directory
+package SMake::Platform::Generic::Remove;
 
 use SMake::Executor::Builder::Compile;
 use SMake::Executor::Builder::Resources;
@@ -39,27 +39,21 @@ sub staticRegister {
 
   # -- command builder
   $toolchain->getBuilder()->appendBuilders(
-    [$SMake::Platform::Generic::Const::ANT_TASK, SMake::Executor::Builder::Compile->new(
+    [$SMake::Platform::Generic::Const::REMOVE_TASK, SMake::Executor::Builder::Compile->new(
         SMake::Executor::Builder::Resources::sourceResources(
-            $SMake::Platform::Generic::Const::SOURCE_GROUP, $SMake::Platform::Generic::Const::ANT_RESOURCE),
-        SMake::Executor::Builder::TaskArgument->new(
-            $SMake::Platform::Generic::Const::ANT_CMD_GROUP, 0, 1, $SMake::Platform::Generic::Const::ANT_GOALS, 0),
+            $SMake::Platform::Generic::Const::SOURCE_GROUP),
+          SMake::Executor::Builder::TaskArgument->new(
+              $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, 1, $SMake::Platform::Generic::Const::REMOVE_EXTRA, 0),
     )],
   );
 
   # -- register command translator
   $toolchain->getTranslator()->appendRecords(
-      [$SMake::Platform::Generic::Const::ANT_TASK, SMake::Platform::Generic::CompileTranslator->new(
-          SMake::Executor::Translator::Compositor->new(
-              1,
-              "ant",
-              SMake::Executor::Translator::ValueList->new(
-                  $SMake::Platform::Generic::Const::ANT_VAR_GROUP, 1, "", "", "-D", "", "=", " ", 0),
-              SMake::Executor::Translator::FileList->new(
-                  $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "-f ", "", " ", 0),
-              SMake::Executor::Translator::OptionList->new(
-                  $SMake::Platform::Generic::Const::ANT_CMD_GROUP, 0, "", "", "", "", " ", 0),
-          ),
+      [$SMake::Platform::Generic::Const::REMOVE_TASK, SMake::Executor::Translator::Compositor->new(
+          1,
+          "rm -Rf",
+          SMake::Executor::Translator::FileList->new(
+              $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "", "", "", 0),
       )],
   );
 }
