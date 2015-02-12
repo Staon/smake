@@ -57,4 +57,14 @@ sub createResourceNode {
       $this->getResourcePath($context, $resource));
 }
 
+# A helper method - create resource node of the directory of a resource
+#
+# Usage: createResourceDirNode($context, $resource)
+# Returns: the node
+sub createResourceDirNode {
+  my ($this, $context, $resource) = @_;
+  return SMake::Executor::Command::Resource->new(
+      $this->getResourcePath($context, $resource)->getDirpath());
+}
+
 return 1;

@@ -34,15 +34,36 @@ sub new {
 sub finish {
   my ($this, $context, $artifact, $constructor) = @_;
 
+  # -- make extra-clean stage (non-smake cleaning)
+  my $extra = $artifact->createStage(
+      $context, $SMake::Platform::Generic::Const::EXTRA_CLEAN_STAGE);
+  
   # -- add cleaning stage and task
-  my $task = $artifact->createTaskInStage(
+  my $clean = $artifact->createStage(
+      $context, $SMake::Platform::Generic::Const::CLEAN_STAGE);
+  my $task = $clean->createTask(
       $context,
-      $SMake::Platform::Generic::Const::CLEAN_STAGE,
       $SMake::Platform::Generic::Const::CLEAN_STAGE,
       $SMake::Platform::Generic::Const::CLEAN_TASK,
       undef,
       undef,
       undef);
+  
+  # -- append dependency between the stages
+  my $servicedep = $artifact->createStageDependency(
+      $context,
+      $SMake::Platform::Generic::Const::SERVICE_DEPENDENCY,
+      $context->getProject()->getName(),
+      $artifact->getName(),
+      $SMake::Platform::Generic::Const::EXTRA_CLEAN_STAGE);
+  my $taskdep = $clean->createTask(
+      $context,
+      $SMake::Platform::Generic::Const::SERVICE_DEP_TASK,
+      $SMake::Platform::Generic::Const::SERVICE_DEP_TASK,
+      undef,
+      undef,
+      undef);
+  $taskdep->appendDependency($context, $servicedep, undef);
 }
 
 return 1;

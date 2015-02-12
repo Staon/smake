@@ -100,6 +100,7 @@ $VAR_HEADER_DIRECTORY = "HEADER_DIR";
 
 # -- cleaning task
 $CLEAN_STAGE = "clean";
+$EXTRA_CLEAN_STAGE = "extra-clean";
 $CLEAN_TASK = "clean";
 
 # -- service stage and task

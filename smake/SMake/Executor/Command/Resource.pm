@@ -35,26 +35,22 @@ sub new {
   return $this;
 }
 
-sub getName {
-  my ($this) = @_;
-  return $this->{path}->asString();
-}
-
 # Get the resource path (absolute filesystem path)
 sub getPath {
   my ($this) = @_;
   return $this->{path};
 }
 
-# Get value of the node as a system argument
-#
-# Usage: getSystemArgument($context, $wd, $mangler)
-#    context ...... executor context
-#    wd ........... task's working directory (absolute filesystem path). It can be
-#                   null => full resource path is used.
-#    mangler ...... resource name mangler description. It can be null => name is
-#                   not mangled.
-# Returns: the argument string
+sub getName {
+  my ($this) = @_;
+  return $this->{path}->asString();
+}
+
+sub getValue {
+  my ($this) = @_;
+  return $this->getName();
+}
+
 sub getSystemArgument {
   my ($this, $context, $wd, $mangler) = @_;
 

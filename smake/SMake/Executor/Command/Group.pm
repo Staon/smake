@@ -39,6 +39,20 @@ sub getName {
   return $this->{name};
 }
 
+sub getValue {
+  my ($this) = @_;
+  
+  my @values = map { $_->getValue() } @{$this->{children}};
+  return "@values";
+}
+
+sub getSystemArgument {
+  my ($this, $context, $wd, $mangler) = @_;
+
+  my @values = map { $_->getSystemArgument($context, $wd, $mangler) } @{$this->{children}};
+  return "@values";
+}
+
 # Append a child node at the end of the group
 #
 # Usage: appendChild($child)

@@ -37,19 +37,11 @@ sub getName {
   return $this->{value} . "";
 }
 
-# Get option value
 sub getValue {
   my ($this) = @_;
   return $this->{value};
 }
 
-# Get value of the node as a system argument
-#
-# Usage: getSystemArgument($context, $wd, $mangler)
-#    context ...... executor context
-#    wd ........... not used
-#    mangler ...... not used
-# Returns: the argument string
 sub getSystemArgument {
   my ($this, $context, $wd, $mangler) = @_;
   return $this->{value};

@@ -53,7 +53,7 @@ sub translateValue {
   # -- create system argument strings
   my $arguments = [];
   foreach my $res (@$reslist) {
-    push @$arguments, $res->getSystemArgument($context, $wd, $this->{mangler});
+    push @$arguments, $res->getShellArgument($context, $wd, $this->{mangler});
   }
   
   # -- sort the arguments

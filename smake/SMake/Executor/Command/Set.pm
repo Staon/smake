@@ -38,6 +38,20 @@ sub getName {
   return $this->{name};
 }
 
+sub getValue {
+  my ($this) = @_;
+  
+  my @values = map { $_->getValue() } values(%{$this->{children}});
+  return "@values";
+}
+
+sub getSystemArgument {
+  my ($this, $context, $wd, $mangler) = @_;
+
+  my @values = map { $_->getSystemArgument($context, $wd, $mangler) } values(%{$this->{children}});
+  return "@values";
+}
+
 # Add or rewrite a child node
 #
 # Usage: putChild($child)

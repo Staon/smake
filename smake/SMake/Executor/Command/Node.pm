@@ -34,6 +34,40 @@ sub getName {
   SMake::Utils::Abstract::dieAbstract();
 }
 
+# Get node value
+#
+# Usage: getValue();
+sub getValue {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get value of the node as a system argument
+#
+# Usage: getSystemArgument($context, $wd, $mangler)
+#    context ...... executor context
+#    wd ........... task's working directory (absolute filesystem path). It can be
+#                   null => full resource path is used.
+#    mangler ...... resource name mangler description. It can be null => name is
+#                   not mangled.
+# Returns: the argument string
+sub getSystemArgument {
+  SMake::Utils::Abstract::dieAbstract();
+}
+
+# Get value of the node as a system argument escaped for usage as a shell argument
+#
+# Usage: getSystemArgument($context, $wd, $mangler)
+#    context ...... executor context
+#    wd ........... task's working directory (absolute filesystem path). It can be
+#                   null => full resource path is used.
+#    mangler ...... resource name mangler description. It can be null => name is
+#                   not mangled.
+# Returns: the argument string
+sub getShellArgument {
+  my ($this, $context, $wd, $mangler) = @_;
+  return quotemeta($this->getSystemArgument($context, $wd, $mangler));
+}
+
 # Get node at specified address
 #
 # Usage: getNode($context, $subsystem, $address)

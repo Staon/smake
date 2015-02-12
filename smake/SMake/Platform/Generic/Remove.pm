@@ -53,7 +53,7 @@ sub staticRegister {
           1,
           "rm -Rf",
           SMake::Executor::Translator::FileList->new(
-              $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "", "", "", 0),
+              $SMake::Platform::Generic::Const::SOURCE_GROUP, 0, "", "", "", "", " ", 0),
       )],
   );
 }

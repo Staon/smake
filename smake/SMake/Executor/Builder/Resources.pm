@@ -24,6 +24,7 @@ use SMake::Executor::Builder::Record;
 
 use SMake::Executor::Command::Set;
 use SMake::Model::Const;
+use SMake::Utils::Masks;
 
 # Create new record
 #
@@ -33,13 +34,15 @@ use SMake::Model::Const;
 #    group ...... name of the command group
 #    restype .... a regular expression which defines types of added resources
 #    resmask .... a regular expression which defines resource names
+#    dir ........ use directory paths of the resources
 sub new {
-  my ($class, $target, $group, $restype, $resmask) = @_;
+  my ($class, $target, $group, $restype, $resmask, $dir) = @_;
   my $this = bless(SMake::Executor::Builder::Record->new(), $class);
   $this->{target} = $target;
   $this->{group} = $group;
   $this->{restype} = $restype;
   $this->{resmask} = $resmask;
+  $this->{dirflag} = $dir;
   return $this;  
 }
 
@@ -67,7 +70,14 @@ sub compose {
     my $restype = $resource->getType();
     my $resname = $resource->getName()->asString();
     if($restype =~ /$this->{restype}/ && $resname =~ /$this->{resmask}/) {
-      $group->putChild($this->createResourceNode($context, $resource));
+      my $resnode;
+      if($this->{dirflag}) {
+        $resnode = $this->createResourceDirNode($context, $resource);
+      }
+      else {
+        $resnode = $this->createResourceNode($context, $resource);
+      }
+      $group->putChild($resnode);
     }
   }
 }
@@ -76,47 +86,55 @@ sub compose {
 #
 # Create resource record for source resources
 #
-# Usage: sourceResources($group, $restype)
+# Usage: sourceResources($group, $restype, $dir)
 #    group ..... name of the group
 #    restype ... name of type of source resources
+#    dir ....... use directory paths of the resources
 # Returns: the record
 sub createResourceRecord {
-  my ($target, $group, $restype) = @_;
+  my ($target, $group, $restype, $dir) = @_;
   
   my $mask;
   if(defined($restype)) {
-    $mask = '^' . quotemeta($restype) . '$';
+    if(ref($restype) eq "ARRAY") {
+      $maks = SMake::Utils::Masks::createMask(@$restype);
+    }
+    else {
+      $mask = SMake::Utils::Masks::createMask($restype);
+    }
   }
   else {
     $mask = '.*';
   }
-  return SMake::Executor::Builder::Resources->new($target, $group, $mask, '.*');
+  return SMake::Executor::Builder::Resources->new($target, $group, $mask, '.*', $dir);
 }
 
 # Helper method (static)
 #
 # Create resource record for source resources
 #
-# Usage: sourceResources($group, $restype)
+# Usage: sourceResources($group, $restype, $dir)
 #    group ..... name of the group
 #    restype ... name of type of source resources
+#    dir ....... use directory paths of the resources
 # Returns: the record
 sub sourceResources {
-  my ($group, $restype) = @_;
-  return createResourceRecord(0, $group, $restype);
+  my ($group, $restype, $dir) = @_;
+  return createResourceRecord(0, $group, $restype, $dir);
 }
 
 # Helper method (static)
 #
 # Create resource record for target resources
 #
-# Usage: targetResources($group, $restype)
+# Usage: targetResources($group, $restype, $dir)
 #    group ..... name of the group
 #    restype ... name of type of source resources
+#    dir ....... use directory paths of the resources
 # Returns: the record
 sub targetResources {
-  my ($group, $restype) = @_;
-  return createResourceRecord(1, $group, $restype);
+  my ($group, $restype, $dir) = @_;
+  return createResourceRecord(1, $group, $restype, $dir);
 }
 
 return 1;

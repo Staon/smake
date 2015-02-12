@@ -38,9 +38,13 @@ sub getName {
   return $this->{name};
 }
 
-# Get the value
 sub getValue {
   my ($this) = @_;
+  return $this->{value};
+}
+
+sub getSystemArgument {
+  my ($this, $context, $wd, $mangler) = @_;
   return $this->{value};
 }
 
