@@ -31,7 +31,9 @@ use SMake::Model::Const;
 #    file ........ mask of path of the resources
 #    instmodule .. installation module
 #    path ........ profile variable which contains installation path 
-#                  (relative path based on the installation area)
+#                  (relative path based on the installation area). If
+#                  the argument is not defined, the resource is installed
+#                  directly into the root of the installation area.
 sub new {
   my ($class, $type, $file, $instmodule, $path) = @_;
   
@@ -48,10 +50,18 @@ sub doJob {
   my $artifact = $context->getArtifact();
   
   # -- published resource for other projects
-  my $profvar = $context->getProfiles()->getVariable($context, $this->{path});
+  my $path;
+  if(defined($this->{path})) {
+    my $profvar = $context->getProfiles()->getVariable($context, $this->{path});
+    if($profvar) {
+      $path = SMake::Data::Path->new($profvar, $resource->getName()->getBasepath());
+    }
+  }
+  else {
+    $path = SMake::Data::Path->new($resource->getName()->getBasepath());
+  }
   my $publicname;
-  if($profvar) {
-    my $path = SMake::Data::Path->new($profvar, $resource->getName()->getBasepath());
+  if(defined($path)) {
     $publicname = $path;
   
     # -- create the public resource and its task
@@ -73,15 +83,14 @@ sub doJob {
   }
 
   # -- published resource for internal usage in the project
-  if(!defined($publicname) || !$publicname->isEqual($resource->getName())) {
+  my $localpath = $resource->getName()->getBasepath();
+  if(!defined($publicname) || !$publicname->isEqual($localpath)) {
     # -- construct name of the public resource
-    my $path = $resource->getName();
-    
     # -- create the public resource and its task
     my $task = $artifact->createTaskInStage(
         $context,
         $SMake::Model::Const::PUBLISH_STAGE,
-        "publish:" . $path->asString(),
+        "publish:" . $localpath->asString(),
         $SMake::Model::Const::PUBLISH_TASK,
         undef,
         undef,
@@ -90,7 +99,7 @@ sub doJob {
         $context,
         $SMake::Model::Const::PUBLIC_LOCATION,
         $SMake::Model::Const::PUBLISH_RESOURCE,
-        $path,
+        $localpath,
         $task);
     # -- note: don't publish the resource into the global table of public resources.
     #          The resource is private inside the project!

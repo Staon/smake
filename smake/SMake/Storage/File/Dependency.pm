@@ -149,7 +149,7 @@ sub updateTransitiveClosure {
         # -- append into the queue
         foreach my $spec (@$speclist) {
           my $depspecs = SMake::Utils::Construct::parseDependencySpecs(
-              $stage->getProject()->getName(), [$spec->getSpec()]);
+              $context, $subsystem, $stage->getProject()->getName(), [$spec->getSpec()]);
           foreach my $depspec (@$depspecs) {
             my ($prj2, $art2, $stage2, $res2) = SMake::Utils::Searching::resolveDependency(
                 $context,

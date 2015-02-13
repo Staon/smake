@@ -266,6 +266,38 @@ sub createProductResource {
   return $resource;
 }
 
+# Create a source resource - a resource which is a source file (it's not generated)
+# The method creates the resource and its source task.
+#
+# Usage: createSourceResource($context, $restype, $path)
+#    context .... Parser context
+#    restype .... resource type
+#    path ....... resource name
+# Returns: the resource
+sub createSourceResource {
+  my ($this, $context, $restype, $path) = @_;
+  
+  # -- create task
+  my $task = $this->createTaskInStage(
+      $context,
+      $SMake::Model::Const::SOURCE_STAGE,
+      $path->asString(),
+      $SMake::Model::Const::SOURCE_TASK,
+      undef,
+      undef,
+      undef);
+    
+  # -- create resource
+  my $resource = $this->createResource(
+      $context,
+      $SMake::Model::Const::SOURCE_LOCATION,
+      $restype,
+      $path,
+      $task);
+  
+  return $resource;
+}
+
 # Get resource object
 #
 # Usage: getResource($location, $type, $name)
@@ -493,10 +525,6 @@ sub appendSourceResources {
   my ($this, $context, $prefix, $srclist, $reslist) = @_;
   return undef if($#$srclist < 0);  # -- optimization
 
-  # -- get the source stage (create new or use an already existing)
-  my $stage = $this->createStage(
-      $context, $SMake::Model::Const::SOURCE_STAGE);
-  
   # -- process the source list
   foreach my $src (@$srclist) {
     my $name = SMake::Data::Path->new($src);
@@ -505,23 +533,10 @@ sub appendSourceResources {
     }
 
     # -- create task
-    my $respath = $prefix->joinPaths($name);
-    my $task = $this->createTaskInStage(
+    my $resource = $this->createSourceResource(
         $context,
-        $SMake::Model::Const::SOURCE_STAGE,
-        $respath->asString(),
-        $SMake::Model::Const::SOURCE_TASK,
-        undef,
-        undef,
-        undef);
-    
-    # -- create resource
-    my $resource = $this->createResource(
-        $context,
-        $SMake::Model::Const::SOURCE_LOCATION,
         $SMake::Model::Const::SOURCE_RESOURCE,
-        $prefix->joinPaths($name),
-        $task);
+        $prefix->joinPaths($name));
     push @$reslist, $resource;
   }
   
@@ -541,7 +556,7 @@ sub appendDependencySpecs {
 
   # -- parse dependency specifications
   my $specs = SMake::Utils::Construct::parseDependencySpecs(
-      $context->getProject()->getName(), $deplist);
+      $context, $subsystem, $context->getProject()->getName(), $deplist);
   
   # -- append dependencies
   my $added = [];

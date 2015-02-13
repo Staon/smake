@@ -70,13 +70,15 @@ sub installExternalResource {
 
 # Parse a dependency specification
 #
-# Usage: parseDependencySpec($baseprj, \@specs)
+# Usage: parseDependencySpec($context, $subsystem, $baseprj, \@specs)
+#    context ...... parser/executor context
+#    subsystem .... logging subsystem
 #    baseprj ...... name of the base project (which is used for artifacts without project specification)
 #    specs ........ list of dependency specifications
 # Returns: [[$project, $artifact, $mainres]*]
 #    list of tuples. The mainres can be undef for default main resource
 sub parseDependencySpecs {
-  my ($baseprj, $specs) = @_;
+  my ($context, $subsystem, $baseprj, $specs) = @_;
 
   my $added = [];
   foreach my $dep (@$specs) {

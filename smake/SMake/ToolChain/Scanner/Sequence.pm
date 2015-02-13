@@ -20,7 +20,7 @@ package SMake::ToolChain::Scanner::Sequence;
 
 use SMake::ToolChain::Scanner::Container;
 
-@ISA = qw(SMake::Scanner::Container);
+@ISA = qw(SMake::ToolChain::Scanner::Container);
 
 # Create new sequence scanner
 #
