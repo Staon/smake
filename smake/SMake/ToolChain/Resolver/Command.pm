@@ -47,7 +47,7 @@ use SMake::Utils::Masks;
 #                          type => task type,
 #                          targets => [ list of target resources ],
 #                          sources => [ list of sources resources ],
-#                          deps => [type, [ list of dependency specification ]],
+#                          deps => [type, instmodule (can be null), [ list of dependency specification ]],
 #                          args => { command arguments }
 #                        },...
 #                      },...
@@ -148,73 +148,28 @@ sub doJob {
           $taskobj->appendSource($context, getDirectResource($artifact, $resname));
         }
       }
+
+      # -- dependency specification
+      my $deps = $taskspec->{deps};
+      if(defined($deps)) {
+        foreach my $dep (@$deps) {
+          my ($deptype, $instmodule, $depspec) = @$dep;
+          my $deplist = $artifact->appendDependencySpecs(
+              $context, $SMake::Parser::Parser::SUBSYSTEM, $deptype, [$depspec]);
+          foreach my $addeddep (@$deplist) {
+            $taskobj->appendDependency($context, $addeddep, $instmodule);
+          }
+        }
+      }
     }
   }
-    
-#    # -- create the task
-#    my $task = $artifact->createTaskInStage(
-#        $context,
-#        $stagename,
-#        createTaskName($stagename),
-#        $this->{tasktype},
-#        $SMake::Model::Const::SOURCE_LOCATION,
-#        $artifact->getPath(),
-#        { translator => 
-#              SMake::Executor::Translator::Compositor->new(1, @{$stage->{command}}) });
-#
-#    # -- create the resources
-#    my $targets = $stage->{targets};
-#    if(defined($targets)) {
-#      foreach my $resname (@$targets) {
-#        my $respath = $resname;
-#        $respath =~ s/^[!]//;
-#        
-#        # -- create the resource
-#        my $tgres = $artifact->createProductResource(
-#            $context,
-#            $SMake::Model::Const::SOURCE_RESOURCE,
-#            SMake::Data::Path->new($respath),
-#            $task);
-#        
-#        # -- resolve the resource
-#        if($resname !~ /^[!]/) {
-#          $queue->pushResource($tgres);
-#        }
-#      }
-#    }
-#  }
-#  
-#  # -- stage and task dependencies
-#  foreach my $stagename (keys %{$this->{spec}->{stages}}) {
-#    my $stage = $this->{spec}->{stages}->{$stagename};
-#    my $task = $artifact->getStage($stagename)->getTask(createTaskName($stagename));
-#
-#    # -- resource dependencies
-#    my $sources = $stage->{sources};
-#    if(defined($sources)) {
-#      foreach my $resname (@$sources) {
-#        $task->appendSource($context, getDirectResource($artifact, $resname));
-#      }
-#    }
-#    
-#    # -- dependency specification
-#    my $deps = $stage->{deps};
-#    if(defined($deps)) {
-#      foreach my $dep (@$deps) {
-#        my ($deptype, $instmodule, $depspec) = @$dep;
-#        my $deplist = $artifact->appendDependencySpecs(
-#            $context, $SMake::Parser::Parser::SUBSYSTEM, $deptype, [$depspec]);
-#        $task->appendDependency($context, $deplist->[0], $instmodule);
-#      }
-#    }
-#  }  
-#  
-#  # -- register main resources
-#  foreach my $mainname (keys %{$this->{spec}->{main}}) {
-#    my $resname = $this->{spec}->{main}->{$mainname};
-#    $artifact->appendMainResource(
-#        $context, $mainname, getDirectResource($artifact, $resname));
-#  }
+  
+  # -- register main resources
+  foreach my $mainname (keys %{$this->{spec}->{main}}) {
+    my $resname = $this->{spec}->{main}->{$mainname};
+    $artifact->appendMainResource(
+        $context, $mainname, getDirectResource($artifact, $resname));
+  }
 }
 
 return 1;
