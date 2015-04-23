@@ -22,29 +22,29 @@ use SMake::Executor::Builder::Compile;
 use SMake::Executor::Builder::Resources;
 use SMake::Model::Const;
 use SMake::Platform::Generic::Const;
-use SMake::ToolChain::Constructor::MainResource;
-use SMake::ToolChain::Resolver::Link;
+use SMake::Platform::Generic::Link;
 
 sub register {
-  my ($class, $toolchain, $constructor, $mangler, $objecttype, $objectmask) = @_;
+  my ($class, $toolchain, $constructor, $speclist) = @_;
   
-  # -- register main resource
-  my $mres = SMake::ToolChain::Constructor::MainResource->new(
-      $SMake::Platform::Generic::Const::DLL_RESOURCE,
-      $SMake::Platform::Generic::Const::DLL_MAIN_TYPE,
-      $mangler,
+  my $linkspec = [];
+  foreach my $spec (@$speclist) {
+    my ($maintype, $mangler, $objecttype, $objectmask) = @$spec;
+    push @$linkspec, [
+          $SMake::Platform::Generic::Const::DLL_TASK,
+          $objecttype,
+          $objectmask,
+          $maintype,
+          $SMake::Platform::Generic::Const::DLL_RESOURCE,
+          $mangler,
+          0,
+        ];
+  }
+
+  $toolchain->registerFeature(
+      SMake::Platform::Generic::Link,
       $SMake::Platform::Generic::Const::DLL_STAGE,
-      $SMake::Platform::Generic::Const::DLL_TASK,
-      0,
-      {});
-  $constructor->appendMainResource($mres);
-  
-  # -- register the library resolver
-  my $resolver = SMake::ToolChain::Resolver::Link->new(
-      $objecttype,
-      $objectmask,
-      $SMake::Platform::Generic::Const::DLL_MAIN_TYPE);
-  $constructor->appendResolver($resolver);
+      $linkspec);
 }
 
 sub staticRegister {

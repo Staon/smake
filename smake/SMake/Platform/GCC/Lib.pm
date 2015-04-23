@@ -24,16 +24,31 @@ use SMake::Model::Const;
 use SMake::Platform::Generic::Lib;
 use SMake::Platform::Generic::CompileTranslator;
 use SMake::Platform::Generic::Const;
+use SMake::Utils::Masks;
 
 sub register {
-  my ($class, $toolchain, $constructor, $compset) = @_;
+  my ($class, $toolchain, $constructor, $compset, $extrares) = @_;
 
   # -- generic parts
-  $toolchain->registerFeature(
-      SMake::Platform::Generic::Lib,
-      'Dir() . Name() . ".a"',
-      '^' . quotemeta($SMake::Platform::Generic::Const::OBJ_RESOURCE) . '$',
-      '[.]a[.]o$');
+  my $linkspec = [];
+  if(defined($extrares)) {
+    foreach my $extra (@$extrares) {
+      my ($maintype, $ressuffix, $objmask) = @$extra;
+      push @$linkspec, [
+        $maintype,
+        'Dir() . Name() . "' . $ressuffix . '.a"',
+        SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::OBJ_RESOURCE),
+        $objmask . '[.]a[.]o$',
+      ];
+    }
+  }
+  push @$linkspec, [
+    $SMake::Platform::Generic::Const::LIB_MAIN_TYPE,
+    'Dir() . Name() . ".a"',
+    SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::OBJ_RESOURCE),
+    '[.]a[.]o$',
+  ];
+  $toolchain->registerFeature(SMake::Platform::Generic::Lib, $linkspec);
 
   # -- register standard compilers
   $toolchain->registerFeature(

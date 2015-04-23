@@ -19,42 +19,52 @@
 package SMake::Platform::Generic::Link;
 
 use SMake::ToolChain::Constructor::MainResource;
+use SMake::ToolChain::Resolver::Chain;
 use SMake::ToolChain::Resolver::Link;
 use SMake::ToolChain::Resolver::Multi;
 
 sub register {
-  my ($class, $toolchain, $constructor, $tasktype, $stage, $restype, $resmask, $mainres, $tgtype, $tgname) = @_;
+  my ($class, $toolchain, $constructor, $stage, $speclist) = @_;
 
-  if(!defined($tgtype)) {
-    die "$tasktype $stage $restype $resmask $mainres\n"
-  }
-  
-  # -- register main resource
-  $toolchain->createObject(
-      $mainres . "::main_record",
-      SMake::ToolChain::Constructor::MainResource,
-      sub { $constructor->appendMainResource($_[0]); },
-      $tgtype,
-      $mainres,
-      $tgname,
-      $stage,
-      $tasktype,
-      1,
-      {});
-  
-  # -- register the linker resolver
+  # -- create the linker resolver for this stage
   my $multi = $toolchain->createObject(
-      $restype . "::" . $resmask . "::resolver",
+      $stage . "::main_resolver",
       SMake::ToolChain::Resolver::Multi,
       sub { $constructor->appendResolver($_[0]); },
   );
-  my $resolver = SMake::ToolChain::Resolver::Link->new(
-      $restype,
-      $resmask,
-      $mainres);
-  $multi->appendResolver($resolver);
+  
+  # -- create the chain resolver
+  my $chain = SMake::ToolChain::Resolver::Chain->new();
+  $multi->appendResolver($chain);
 
-  return $resolver;
+  # -- create main resources (reverse order to be sure the most generic resource is default)
+  foreach my $spec (reverse @$speclist) {
+    my ($tasktype, $restype, $resmask, $mainres, $tgtype, $tgname, $resolve) = @$spec;
+
+    $toolchain->createObject(
+        $mainres . "::main_record",
+        SMake::ToolChain::Constructor::MainResource,
+        sub { $constructor->appendMainResource($_[0]); },
+        $tgtype,
+        $mainres,
+        $tgname,
+        $stage,
+        $tasktype,
+        $resolve,
+        {});
+  }
+  
+  # -- register the linker resolvers
+  foreach my $spec (@$speclist) {
+    my ($tasktype, $restype, $resmask, $mainres, $tgtype, $tgname, $resolve) = @$spec;
+
+    # -- register the linker resolver
+    my $resolver = SMake::ToolChain::Resolver::Link->new(
+        $restype,
+        $resmask,
+        $mainres);
+    $chain->appendResolver($resolver);
+  }
 }
 
 sub staticRegister {

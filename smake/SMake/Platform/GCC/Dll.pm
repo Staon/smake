@@ -24,16 +24,32 @@ use SMake::Model::Const;
 use SMake::Platform::Generic::Dll;
 use SMake::Platform::Generic::CompileTranslator;
 use SMake::Platform::Generic::Const;
+use SMake::Utils::Masks;
 
 sub register {
-  my ($class, $toolchain, $constructor, $compset) = @_;
+  my ($class, $toolchain, $constructor, $compset, $extrares) = @_;
 
+  my $linkspec = [];
+  if(defined($extrares)) {
+    foreach my $extra (@$extrares) {
+      my ($maintype, $ressuffix, $objmask) = @$extra;
+      push @$linkspec, [
+        $maintype,
+        'Dir() . Name() . "' . $ressuffix . '.so"',
+        SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::OBJ_RESOURCE),
+        $objmask . '[.]so[.]o$',
+      ];
+    }
+  }
+  push @$linkspec, [
+    $SMake::Platform::Generic::Const::DLL_MAIN_TYPE,
+    'Dir() . Name() . ".so"',
+    SMake::Utils::Masks::createMask($SMake::Platform::Generic::Const::OBJ_RESOURCE),
+    '[.]so[.]o$',
+  ];
+  
   # -- generic parts
-  $toolchain->registerFeature(
-      SMake::Platform::Generic::Dll,
-      'Dir() . Name() . ".so"',
-      '^' . quotemeta($SMake::Platform::Generic::Const::OBJ_RESOURCE) . '$',
-      '[.]so[.]o$');
+  $toolchain->registerFeature(SMake::Platform::Generic::Dll, $linkspec);
 
   # -- register standard compilers
   $toolchain->registerFeature(

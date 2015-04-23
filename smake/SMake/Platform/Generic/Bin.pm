@@ -36,13 +36,18 @@ sub register {
   # -- register main resource
   my $resolver = $toolchain->registerFeature(
       SMake::Platform::Generic::Link,
-      $SMake::Platform::Generic::Const::BIN_TASK,
       $stage,
-      $SMake::Platform::Generic::Const::OBJ_RESOURCE,
-      '.*',
-      $SMake::Platform::Generic::Const::BIN_MAIN_TYPE,
-      $SMake::Platform::Generic::Const::BIN_RESOURCE,
-      $resname);
+      [
+        [
+          $SMake::Platform::Generic::Const::BIN_TASK,
+          $SMake::Platform::Generic::Const::OBJ_RESOURCE,
+          '.*',
+          $SMake::Platform::Generic::Const::BIN_MAIN_TYPE,
+          $SMake::Platform::Generic::Const::BIN_RESOURCE,
+          $resname,
+          1,
+        ],
+      ]);
   
   # -- linking dependencies
   $toolchain->registerFeature(
