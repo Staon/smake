@@ -42,6 +42,7 @@ sub new {
   $this->{artifacts} = {};
   $this->{publics} = {};
   $this->{locked} = 0;
+  $this->{resource_index} = {};
   
   return $this;
 }
@@ -58,6 +59,7 @@ sub destroy {
     }
     $this->{repository} = undef;
     $this->{storage} = undef;
+    $this->{resource_index} = undef;
   }
 }
 
@@ -130,11 +132,22 @@ sub getArtifacts {
 sub searchResource {
   my ($this, $restype, $path, $location) = @_;
 
-  foreach my $artifact (values %{$this->{artifacts}}) {
-    my $resource = $artifact->searchResource($restype, $path, $location);
-    return $resource if(defined($resource));
+  my $list = $this->{resource_index}->{$path->asString()};
+  if(defined($list)) {
+    foreach my $resource (@$list) {
+      if($resource->getType() =~ /$restype/
+         && $resource->getLocation() =~ /$location/) {
+        return $resource;
+      }
+    }
   }
   return undef;
+
+#  foreach my $artifact (values %{$this->{artifacts}}) {
+#    my $resource = $artifact->searchResource($restype, $path, $location);
+#    return $resource if(defined($resource));
+#  }
+#  return undef;
 }
 
 sub cleanPublicResources {
@@ -156,6 +169,34 @@ sub registerPublicResource {
   my $reskey = $resource->getKeyTuple();
   $this->{publics}->{$resource->getKey()} = $resource->getKeyTuple();
   $this->{storage}->registerPublicResource($reskey, $this->getKeyTuple());
+}
+
+sub insertResourceIntoIndex {
+  my ($this, $resource) = @_;
+
+  # -- update search index
+  my $name = $resource->getName()->asString();
+  my $list = $this->{resource_index}->{$name};
+  if(!defined($list)) {
+    $list = [];
+    $this->{resource_index}->{$name} = $list;
+  }
+  push @$list, $resource;
+}
+
+sub removeResourceFromIndex {
+  my ($this, $resource) = @_;
+
+  # -- update the resource index
+  my $name = $resource->getName()->asString();
+  my $list = $this->{resource_index}->{$name};
+  $list = [grep { $_->getKey() ne $key } @$list];
+  if($#$list >= 0) {
+    $this->{resource_index}->{$name} = $list;
+  }
+  else {
+    delete $this->{resource_index}->{$name};
+  }
 }
 
 return 1;
