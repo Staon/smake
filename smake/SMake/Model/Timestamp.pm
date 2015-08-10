@@ -129,12 +129,22 @@ sub computeCurrentMark {
     }
   }
   elsif($resource->getLocation() eq $SMake::Model::Const::EXTERNAL_LOCATION) {
+    # -- try the mark cache
+    my $mark = $context->getMarkCache()->getMark($resource->getName());
+    return $mark if(defined($mark));
+    
     # -- do transitive closure and compute combined stamp
     my $closure = SMake::Utils::Searching::externalTransitiveClosure(
         $context, $subsystem, $resource);
     foreach my $c (@$closure) {
       $declist->appendPaths(SMake::Utils::Searching::getRealResource($c->[1])->getPhysicalPath());
     }
+    $mark = $context->getDecider()->getMark($context->getRepository(), $declist);
+
+    # -- store the mark into the cache
+    $context->getMarkCache()->insertMark($resource->getName(), $mark);
+    
+    return $mark;
   }
   else {
     SMake::Utils::Utils::dieReport(
