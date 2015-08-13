@@ -21,6 +21,8 @@ use SMake::Config::Config;
 use SMake::Data::Address;
 use SMake::Data::Path;
 use SMake::Executor::Context;
+use SMake::Executor::MarkCache::EmptyCache;
+use SMake::Executor::MarkCache::OrdinaryCache;
 use SMake::Executor::Runner::Sequential;
 use SMake::InstallArea::StdArea;
 use SMake::Parser::Context;
@@ -42,10 +44,12 @@ $| = 1;      # -- autoflush of the console
 my $search = '';
 my $force = '';
 my @compile_profiles = ();
+my $nomarkcache = '';
 if(!GetOptions(
     'search' => \$search,
     'force' => \$force,
-    'profile=s' => \@compile_profiles)) {
+    'profile=s' => \@compile_profiles,
+    'nomarkcache' => \$nomarkcache)) {
   die "invalid command line option.";
 }
 my @stages = @ARGV;
@@ -90,8 +94,15 @@ foreach my $path (@$paths) {
 # -- execute the project
 $repository->openTransaction();
 my $executor = SMake::Executor::Executor->new();
+my $markcache;
+if($nomarkcache) {
+  $markcache = SMake::Executor::MarkCache::EmptyCache->new();
+}
+else {
+  $markcache = SMake::Executor::MarkCache::OrdinaryCache->new();
+}
 my $execcontext = SMake::Executor::Context->new(
-    $reporter, $decider, $runner, $repository, $visibility, $force);
+    $reporter, $decider, $runner, $repository, $visibility, $markcache, $force);
 my $rootlist = [];
 my $errflag = 0;
 while(@stages) {

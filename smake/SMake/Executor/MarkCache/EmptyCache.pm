@@ -16,33 +16,29 @@
 # along with SMake.  If not, see <http://www.gnu.org/licenses/>.
 
 # Cache of computed timestamp marks
-package SMake::Executor::MarkCache;
+package SMake::Executor::MarkCache::EmptyCache;
+
+use SMake::Executor::MarkCache::MarkCache;
+
+@ISA=qw(SMake::Executor::MarkCache::MarkCache);
 
 # Create new cache object
 #
 # Usage: new()
 sub new {
   my ($class) = @_;
-  return bless({
-    cache => {},
-  }, $class);
+  my $this = SMake::Executor::MarkCache::MarkCache->new();
+  $this->{cache} = {};
+  return bless($this, $class);
 }
 
-# Insert new file timestamp mark
-#
-# Usage: insertMark($path, $mark)
 sub insertMark {
   my ($this, $path, $mark) = @_;
-  $this->{cache}->{$path->hashKey()} = $mark;
 }
 
-# Get a filestamp mark
-#
-# Usage: getMark($path)
-# Returns: the mark or undef
 sub getMark {
   my ($this, $path) = @_;
-  return $this->{cache}->{$path->hashKey()};
+  return undef;
 }
 
 return 1;

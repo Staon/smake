@@ -142,7 +142,9 @@ sub computeCurrentMark {
     $mark = $context->getDecider()->getMark($context->getRepository(), $declist);
 
     # -- store the mark into the cache
-    $context->getMarkCache()->insertMark($resource->getName(), $mark);
+    if(defined($mark)) {
+      $context->getMarkCache()->insertMark($resource->getName(), $mark);
+    }
     
     return $mark;
   }

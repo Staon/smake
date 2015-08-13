@@ -18,13 +18,11 @@
 # Executor context
 package SMake::Executor::Context;
 
-use SMake::Executor::MarkCache;
-
 # Create new context
 #
-# Usage: new($reporter, $decider, $runner, $repository, $visibility, $force)
+# Usage: new($reporter, $decider, $runner, $repository, $visibility, $mark_cache, $force)
 sub new {
-  my ($class, $reporter, $decider, $runner, $repository, $visibility, $force) = @_;
+  my ($class, $reporter, $decider, $runner, $repository, $visibility, $mark_cache, $force) = @_;
   return bless({
     reporter => $reporter,
     decider => $decider,
@@ -32,7 +30,7 @@ sub new {
     repository => $repository,
     visibility => $visibility,
     force => $force,
-    mark_cache => SMake::Executor::MarkCache->new(),
+    mark_cache => $mark_cache,
   }, $class);
 }
 
@@ -91,3 +89,4 @@ sub getMarkCache {
 }
 
 return 1;
+
