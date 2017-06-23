@@ -132,7 +132,7 @@ sub getArtifacts {
 sub searchResource {
   my ($this, $restype, $path, $location) = @_;
 
-  my $list = $this->{resource_index}->{$path->asString()};
+  my $list = $this->{resource_index}->{$path->hashKey()};
   if(defined($list)) {
     foreach my $resource (@$list) {
       if($resource->getType() =~ /$restype/
@@ -175,7 +175,7 @@ sub insertResourceIntoIndex {
   my ($this, $resource) = @_;
 
   # -- update search index
-  my $name = $resource->getName()->asString();
+  my $name = $resource->getName()->hashKey();
   my $list = $this->{resource_index}->{$name};
   if(!defined($list)) {
     $list = [];
@@ -188,8 +188,9 @@ sub removeResourceFromIndex {
   my ($this, $resource) = @_;
 
   # -- update the resource index
-  my $name = $resource->getName()->asString();
+  my $name = $resource->getName()->hashKey();
   my $list = $this->{resource_index}->{$name};
+  my $key = $resource->getKey();
   $list = [grep { $_->getKey() ne $key } @$list];
   if($#$list >= 0) {
     $this->{resource_index}->{$name} = $list;

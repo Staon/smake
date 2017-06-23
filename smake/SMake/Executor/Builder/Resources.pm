@@ -97,7 +97,7 @@ sub createResourceRecord {
   my $mask;
   if(defined($restype)) {
     if(ref($restype) eq "ARRAY") {
-      $maks = SMake::Utils::Masks::createMask(@$restype);
+      $mask = SMake::Utils::Masks::createMask(@$restype);
     }
     else {
       $mask = SMake::Utils::Masks::createMask($restype);

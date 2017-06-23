@@ -104,8 +104,7 @@ sub appendTaskExecutor {
         "info",
         $SMake::Executor::Executor::SUBSYSTEM,
         "enter task %s",
-        $taskaddr->printableString(),
-        $task);
+        $taskaddr->printableString());
   }
   return $some_new;
 }
